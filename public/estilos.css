@@ -255,6 +255,76 @@ details.desplegable summary { cursor: pointer; min-height: var(--control); displ
   .grilla { grid-template-columns: 1fr; }
 }
 
+/* ---------- P1 · pacientes ---------- */
+.encabezado { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.encabezado-acciones { flex: 1; justify-content: flex-end; min-width: 280px; }
+.encabezado-acciones .buscador { max-width: 420px; height: var(--control); box-shadow: var(--sombra-chica); border-radius: var(--pastilla); }
+.columna-chica { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.angosto { width: 100%; max-width: 720px; margin: 0 auto; }
+.volver { display: inline-flex; align-items: center; gap: 6px; min-height: var(--control); font-weight: 600; text-decoration: none; align-self: flex-start; }
+.vacio { padding: 24px 0; text-align: center; }
+.derecha { text-align: right; justify-self: end; }
+.debe-texto { color: var(--debe); }
+.tachado { text-decoration: line-through; }
+.no-tachado { display: inline-block; text-decoration: none; }
+.fila-marcas { display: flex; flex-wrap: wrap; gap: 6px; }
+.fila-marcas:empty { display: none; }
+.campos-2 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.ventana-pie.entre { justify-content: space-between; }
+dialog.ventana.ancha { width: min(760px, calc(100vw - 32px)); }
+select.entrada { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--texto-2) 50%), linear-gradient(135deg, var(--texto-2) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 40px; }
+
+/* Tabla de pacientes: filas que son enlaces a la ficha */
+.tabla-pacientes { gap: 0; padding: 8px 12px; }
+.fila-tabla { display: grid; grid-template-columns: minmax(0, 2.4fr) 1.2fr 1fr 1.3fr 0.9fr; align-items: center; gap: 12px; padding: 10px 12px; }
+.cabeza-tabla { font-size: 13px; font-weight: 700; color: var(--texto-2); min-height: var(--control); }
+.cabeza-tabla .orden { color: var(--texto-2); text-decoration: none; min-height: var(--control); display: inline-flex; align-items: center; }
+.cabeza-tabla .orden[aria-current='true'] { color: var(--texto); }
+.fila-paciente { min-height: 64px; border-radius: var(--radio); color: var(--texto); text-decoration: none; border-top: 1px solid var(--borde-suave); }
+.fila-paciente:hover { background: var(--superficie-3); color: var(--texto); }
+.celda-paciente { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.avatar-chico { width: 40px; height: 40px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--brillo-suave); color: var(--enlace); font-weight: 800; font-size: 14px; }
+.solo-celular { display: none; }
+
+/* Ficha */
+.ficha-cabeza { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.ficha-identidad { flex-wrap: nowrap; gap: 16px; min-width: 0; }
+.avatar-grande { width: 64px; height: 64px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--brillo-suave); color: var(--enlace); font-weight: 800; font-size: 22px; }
+.titulo-ficha { font-size: 28px; }
+.ficha-acciones { gap: 10px; }
+.destacado-redondo { background: var(--destacado); color: var(--sobre-destacado); box-shadow: none; }
+.debe-boton { background: var(--debe-fondo); color: var(--debe); box-shadow: none; gap: 10px; white-space: nowrap; }
+.debe-boton:hover { background: var(--debe-fondo); color: var(--debe); filter: brightness(0.97); }
+.ficha-resumen { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+.datos { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0; }
+.datos dt { color: var(--texto-2); font-size: 14px; }
+.datos dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.dato-grande { font-size: 20px; font-weight: 700; }
+.lista li.apilado { flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; }
+.entre-todo { justify-content: space-between; width: 100%; }
+.aviso.franja { justify-content: space-between; align-items: center; flex-wrap: wrap; background: var(--gris-fondo); color: var(--texto); }
+
+@media (max-width: 720px) {
+  .fila-tabla.cabeza-tabla { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 4px 8px; }
+  .cabeza-tabla > span { display: none; }
+  .fila-paciente { grid-template-columns: 1fr auto; grid-template-areas: 'paciente saldo' 'celular celular' 'ultimo proximo'; gap: 4px 12px; padding: 12px 8px; font-size: 14px; }
+  .fila-paciente > :nth-child(1) { grid-area: paciente; }
+  .fila-paciente > :nth-child(2) { grid-area: celular; padding-left: 52px; }
+  .fila-paciente > :nth-child(3) { grid-area: ultimo; padding-left: 52px; }
+  .fila-paciente > :nth-child(4) { grid-area: proximo; justify-self: end; }
+  .fila-paciente > :nth-child(5) { grid-area: saldo; }
+  .solo-celular { display: inline; }
+  .encabezado { flex-direction: column; align-items: stretch; }
+  .encabezado-acciones { min-width: 0; width: 100%; flex-wrap: nowrap; }
+  .encabezado-acciones .buscador { max-width: none; flex: 1; min-width: 0; padding: 0 14px; }
+  .encabezado-acciones .boton { flex: none; padding: 0 16px; }
+  .ficha-acciones { width: 100%; flex-wrap: nowrap; }
+  .ficha-acciones .debe-boton { flex: 1; min-width: 0; padding: 0 14px; }
+  .ficha-acciones .debe-boton > span { display: none; }
+  .ficha-identidad { align-items: flex-start; }
+  .avatar-grande { width: 48px; height: 48px; font-size: 17px; }
+  .titulo-ficha { font-size: 24px; }
+}
 /* ---------- configuracion ---------- */
 .config-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items: start; }
 .config-layout h1 { font-size: 26px; margin: 0 0 10px 12px; }

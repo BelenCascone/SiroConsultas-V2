@@ -153,9 +153,9 @@ export function Aviso({ tipo, children }: Hijos & { tipo?: 'error' | 'ok' | 'amb
 
 // ---------- Ventanas ----------
 /** Ventana sobre la pantalla en la que estás (se abre con un Boton abre="id"). Al cerrar, todo queda como estaba. */
-export function Ventana({ id, titulo, sub, pie, children }: Hijos & { id: string; titulo: string; sub?: string; pie?: Child }) {
+export function Ventana({ id, titulo, sub, pie, ancha, children }: Hijos & { id: string; titulo: string; sub?: string; pie?: Child; ancha?: boolean }) {
   return (
-    <dialog id={id} class="ventana" aria-labelledby={`${id}-titulo`}>
+    <dialog id={id} class={ancha ? 'ventana ancha' : 'ventana'} aria-labelledby={`${id}-titulo`}>
       <div class="ventana-cuerpo">
         <div class="ventana-cabeza">
           <div>
