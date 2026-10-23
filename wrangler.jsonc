@@ -23,8 +23,8 @@
     {
       "binding": "DB",
       "database_name": "siroconsultas-v2-demo",
-      // Base de la demo en Cloudflare (creada el 23/10/2026).
-      "database_id": "79e1cb39-91fb-413c-8ce2-0461314c6661",
+      // Base de la demo en la cuenta de Cloudflare de BC Informática (creada el 23/10/2026).
+      "database_id": "797299bf-4398-4d68-9246-760293e939d1",
       "migrations_dir": "migrations"
     }
   ],
