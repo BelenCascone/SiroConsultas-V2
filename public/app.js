@@ -2,6 +2,14 @@
 // La CSP no permite scripts en línea: todo lo interactivo se engancha desde acá con atributos data-*.
 (() => {
   'use strict'
+  // Con JavaScript, los botones «Ver» de los selectores sobran (clase .sin-js).
+  document.documentElement.classList.add('js')
+
+  // Selectores que muestran el resultado al cambiar (consultorio, prestación): mandan su formulario.
+  document.addEventListener('change', (e) => {
+    const s = e.target
+    if (s instanceof HTMLSelectElement && s.hasAttribute('data-enviar') && s.form) s.form.requestSubmit()
+  })
 
   // Ventanas: <button data-abre="id"> abre <dialog id="id">; [data-cierra] la cierra; tocar el velo también.
   document.addEventListener('click', (e) => {

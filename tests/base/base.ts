@@ -33,7 +33,11 @@ export const d1 = (db: DatabaseSync) => ({
       bind(...a: any[]) { args = a; return st },
       async first() { return (db.prepare(sql).get(...args) as any) ?? null },
       async all() { return { results: db.prepare(sql).all(...args) as any[] } },
-      async run() { const r = db.prepare(sql).run(...args); return { meta: { changes: Number(r.changes), last_row_id: Number(r.lastInsertRowid) } } },
+      async run() {
+        // Como D1: una sentencia con RETURNING devuelve sus filas también en run() (y en los lotes).
+        if (/\breturning\b/i.test(sql)) { const results = db.prepare(sql).all(...args) as any[]; return { results, meta: { changes: results.length, last_row_id: 0 } } }
+        const r = db.prepare(sql).run(...args); return { results: [], meta: { changes: Number(r.changes), last_row_id: Number(r.lastInsertRowid) } }
+      },
     }
     return st
   },

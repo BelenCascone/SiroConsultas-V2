@@ -319,6 +319,7 @@ pacientes.get('/pacientes/:id{[0-9]+}', async (c) => {
     {aviso === 'existe' && <Aviso>Ese DNI ya era de {p.nombre} {p.apellido}: te mostramos su ficha.</Aviso>}
     {aviso === 'editado' && <Aviso tipo="ok">Cambios guardados.</Aviso>}
     {aviso === 'reactivado' && <Aviso tipo="ok">{p.nombre} está activo otra vez.</Aviso>}
+    {aviso === 'atendido' && <Aviso tipo="ok">Turno atendido. La consulta se escribe en su historia clínica.</Aviso>}
     {aviso === 'baja' && (
       <div class="aviso ok columna-chica" role="status">
         <span>{p.nombre} {p.apellido} quedó dado de baja.</span>
@@ -350,7 +351,7 @@ pacientes.get('/pacientes/:id{[0-9]+}', async (c) => {
             <a class="boton debe-boton" href={`/cobros/nuevo?paciente=${id}`} data-modulo="cobros"><span>Debe</span><strong>Cobrar {pesos(fila.saldo)}</strong></a>
           )}
           <a class="redondo" href={enlaceWhatsapp(p.celular)} target="_blank" rel="noopener" aria-label="Escribirle por WhatsApp" title="Escribirle por WhatsApp"><Charla /></a>
-          <a class="redondo destacado-redondo" href={`/turnos/nuevo?paciente=${id}`} data-modulo="agenda" aria-label="Darle turno" title="Darle turno"><Mas /></a>
+          <a class="redondo destacado-redondo" href={`/turnos/nuevo?paciente=${id}&volver=/pacientes/${id}`} data-modulo="agenda" aria-label="Darle turno" title="Darle turno"><Mas /></a>
           <a class="redondo" href={`/pacientes/${id}/editar`} data-abre="ventana-editar" aria-label="Editar datos" title="Editar datos"><Lapiz /></a>
         </div>
       )}
