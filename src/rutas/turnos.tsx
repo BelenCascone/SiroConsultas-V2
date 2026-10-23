@@ -73,11 +73,12 @@ const Barra = ({ paso, paciente, quien, resto }: { paso: number; paciente?: stri
   </>
 )
 
-function FormAltaTurno({ datos, errores }: { datos?: Record<string, string | null>; errores?: Errores }) {
+function FormAltaTurno({ datos, errores, lleva }: { datos?: Record<string, string | null>; errores?: Errores; lleva: Q }) {
   const v = (k: string) => datos?.[k] ?? undefined
   return (
-    <Tarjeta titulo="Paciente nuevo" accion={<a href="/turnos/nuevo">Cancelar</a>}>
+    <Tarjeta titulo="Paciente nuevo" accion={<a href={url(lleva)}>Cancelar</a>}>
       <form method="post" action="/turnos/paciente" class="columna" novalidate>
+        {Object.entries(lleva).map(([k, v]) => v && <input type="hidden" name={k} value={v} />)}
         <div class="campos-2">
           <Campo etiqueta="DNI" nombre="dni" modoTeclado="numeric" valor={v('dni')} error={errores?.dni} requerido autocompletar="off" autofocus />
           <Campo etiqueta="Celular" nombre="celular" tipo="tel" valor={v('celular')} error={errores?.celular} requerido autocompletar="off" />
@@ -93,10 +94,10 @@ function FormAltaTurno({ datos, errores }: { datos?: Record<string, string | nul
 }
 
 type Candidato = { id: number; nombre: string; apellido: string; dni: string; detalle: string }
-function FilaCandidato({ p }: { p: Candidato }) {
+function FilaCandidato({ p, lleva }: { p: Candidato; lleva: Q }) {
   return (
     <li>
-      <a class="fila-enlace" href={url({ paciente: String(p.id) })}>
+      <a class="fila-enlace" href={url({ ...lleva, paciente: String(p.id) })}>
         <span class="avatar-chico" aria-hidden="true">{iniciales(p.nombre, p.apellido)}</span>
         <span class="columna-chica"><strong>{p.nombre} {p.apellido}</strong><span class="suave chico">DNI {dniConPuntos(p.dni)}{p.detalle}</span></span>
       </a>
@@ -116,6 +117,8 @@ async function pasoPaciente(c: C, q: Q, opts: { errores?: Errores; datos?: Recor
         WHERE p.baja_en IS NULL GROUP BY p.id ORDER BY MAX(t.fecha) DESC, p.apellido LIMIT 6`).all<{ id: number; nombre: string; apellido: string; dni: string; ultimo: string; faltas: number }>(),
   ])
   const formulario = !!(q.nuevo || opts.errores)
+  // Si se vino de un hueco de la agenda, el día, la hora y el consultorio se conservan.
+  const lleva: Q = { consultorio: q.consultorio, fecha: q.fecha, hora: q.hora }
   const filas: Candidato[] = busqueda
     ? hallados.filter((p) => !p.baja).slice(0, 8).map((p) => ({ ...p, detalle: ` · ${p.celular}` }))
     : (recientes.results ?? []).map((p) => ({ ...p, detalle: ` · vino el ${fechaCorta(p.ultimo)}${p.faltas ? ` · ${p.faltas === 1 ? '1 falta' : `${p.faltas} faltas`}` : ''}` }))
@@ -123,18 +126,19 @@ async function pasoPaciente(c: C, q: Q, opts: { errores?: Errores; datos?: Recor
     <div class="angosto columna">
       <Barra paso={0} />
       {opts.mensaje && <Aviso tipo={q.aviso === 'existe' ? 'ambar' : 'error'}>{opts.mensaje}</Aviso>}
-      {formulario ? <FormAltaTurno datos={opts.datos} errores={opts.errores} /> : (
+      {formulario ? <FormAltaTurno datos={opts.datos} errores={opts.errores} lleva={lleva} /> : (
         <Tarjeta titulo="¿Para quién es?">
           <form class="buscador" method="get" action="/turnos/nuevo" role="search">
+            {Object.entries(lleva).map(([k, v]) => v && <input type="hidden" name={k} value={v} />)}
             <Lupa />
             <label for="busca-turno" class="oculto-visual">Buscar paciente</label>
             <input id="busca-turno" name="q" type="search" value={busqueda} placeholder="Nombre, DNI o celular" autocomplete="off" />
           </form>
           <h3>{busqueda ? 'Resultados' : 'Últimos que vinieron'}</h3>
-          {filas.length ? <ul class="lista">{filas.map((p) => <FilaCandidato p={p} />)}</ul>
+          {filas.length ? <ul class="lista">{filas.map((p) => <FilaCandidato p={p} lleva={lleva} />)}</ul>
             : <p class="suave vacio">{busqueda ? 'No encontramos pacientes con eso.' : 'Todavía no vino nadie. Empezá con un paciente nuevo.'}</p>}
           <div class="ventana-pie entre">
-            <Boton href="/turnos/nuevo?nuevo=1" variante="oscuro"><Mas />Paciente nuevo</Boton>
+            <Boton href={url({ ...lleva, nuevo: '1' })} variante="oscuro"><Mas />Paciente nuevo</Boton>
           </div>
         </Tarjeta>
       )}
@@ -324,19 +328,21 @@ turnos.get('/turnos/nuevo', (c) => vistaNuevo(c, c.req.query()))
 
 // ---------- Alta rápida dentro de Dar turno ----------
 turnos.post('/turnos/paciente', async (c) => {
-  const { datos, errores } = validarAlta(await c.req.parseBody())
-  if (Object.keys(errores).length) return pasoPaciente(c, {}, { errores, datos, status: 422 })
+  const form = await c.req.parseBody() as Record<string, string>
+  const lleva: Q = { consultorio: form.consultorio, fecha: form.fecha, hora: form.hora }
+  const { datos, errores } = validarAlta(form)
+  if (Object.keys(errores).length) return pasoPaciente(c, lleva, { errores, datos, status: 422 })
   const db = c.env.DB
   const existe = await db.prepare('SELECT id FROM pacientes WHERE dni = ?').bind(datos.dni).first<{ id: number }>()
-  if (existe) return c.redirect(url({ paciente: String(existe.id) }))
+  if (existe) return c.redirect(url({ ...lleva, paciente: String(existe.id) }))
   try {
     const r = await db.prepare('INSERT INTO pacientes (dni, nombre, apellido, celular, correo) VALUES (?, ?, ?, ?, ?) RETURNING id')
       .bind(datos.dni, datos.nombre, datos.apellido, datos.celular, datos.correo).first<{ id: number }>()
     await registrar(c, 'paciente_alta', `paciente:${r!.id}`, c.get('email'))
-    return c.redirect(url({ paciente: String(r!.id) }))
+    return c.redirect(url({ ...lleva, paciente: String(r!.id) }))
   } catch (e) {
     const otro = await db.prepare('SELECT id FROM pacientes WHERE dni = ?').bind(datos.dni).first<{ id: number }>()
-    if (otro) return c.redirect(url({ paciente: String(otro.id) }))
+    if (otro) return c.redirect(url({ ...lleva, paciente: String(otro.id) }))
     throw e
   }
 })
