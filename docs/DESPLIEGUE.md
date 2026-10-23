@@ -2,7 +2,7 @@
 
 Cada vez que se une algo a `main`, GitHub Actions corre **todas las pruebas** y, solo si pasan, despliega la demo en Cloudflare: migraciones de la base, datos ficticios (si la base está vacía), el Worker y una prueba de humo (`scripts/humo.sh`). En cada PR corren solo las pruebas.
 
-## Lo que ya está creado en Cloudflare (23/10/2026)
+## Lo que ya está creado en Cloudflare (cuenta de BC Informática, 23/10/2026)
 - Base D1 `siroconsultas-v2-demo` (su id ya está en `wrangler.jsonc`).
 - Archivos R2 `siroconsultas-v2-demo-archivos` y `siroconsultas-v2-demo-respaldos`.
 
