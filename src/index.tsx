@@ -12,6 +12,7 @@ import { configuracion } from './rutas/configuracion'
 import { inicio, datosProfesional, avisosSinLeer } from './rutas/inicio'
 import { componentes } from './rutas/componentes'
 import { pacientes } from './rutas/pacientes'
+import { turnos } from './rutas/turnos'
 import { Documento, Pagina, type Seccion } from './ui/pagina'
 import { Boton, Tarjeta } from './ui/componentes'
 
@@ -75,12 +76,12 @@ app.use('*', async (c, next) => {
 app.route('/', inicio)
 app.route('/', componentes)
 app.route('/', pacientes)
+app.route('/', turnos)
 app.route('/', configuracion)
 
 // ---------- Secciones que se arman en las próximas etapas ----------
 const PROXIMAS: { ruta: string; seccion: Seccion; titulo: string }[] = [
   { ruta: '/agenda', seccion: 'agenda', titulo: 'Agenda' },
-  { ruta: '/turnos/nuevo', seccion: 'agenda', titulo: 'Dar turno' },
   { ruta: '/bloqueos/nuevo', seccion: 'agenda', titulo: 'Bloquear la agenda' },
   { ruta: '/cobros', seccion: 'cobros', titulo: 'Cobros' },
   { ruta: '/cobros/nuevo', seccion: 'cobros', titulo: 'Cobrar' },
