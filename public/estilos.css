@@ -350,3 +350,19 @@ select.entrada { appearance: none; background-image: linear-gradient(45deg, tran
 .config-prestacion .interruptor { grid-column: 1 / -1; }
 .config-dia[data-config-apagado] > div, .config-dia[data-config-apagado] > button { display: none; }
 .config-contenido .entrada[type='file'] { max-width: 100%; }
+
+/* ---------- consultas ---------- */
+.consulta-cabecera { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 16px; }
+.consulta-cabecera > .columna-chica { flex: 1; min-width: 220px; }
+.consulta-cabecera h1 { font-size: 24px; }
+.consulta-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+.consulta-layout > *, .consulta-historia > * { min-width: 0; }
+.consulta-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.consulta-signos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding-top: 16px; }
+.consulta-pie { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.consulta-texto { white-space: pre-wrap; overflow-wrap: anywhere; }
+.consulta-huella { overflow-wrap: anywhere; }
+.consulta-historia { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+[data-consulta-error][hidden], [data-consulta-plan-anterior][hidden] { display: none; }
+[data-consulta-editor] textarea.entrada { min-height: 110px; }
+[data-consulta-editor] .campo { min-width: 0; }

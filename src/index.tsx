@@ -11,6 +11,7 @@ import { ingreso } from './rutas/ingreso'
 import { configuracion } from './rutas/configuracion'
 import { inicio, datosProfesional, avisosSinLeer } from './rutas/inicio'
 import { componentes } from './rutas/componentes'
+import { consultas } from './rutas/consultas'
 import { pacientes } from './rutas/pacientes'
 import { Documento, Pagina, type Seccion } from './ui/pagina'
 import { Boton, Tarjeta } from './ui/componentes'
@@ -74,6 +75,7 @@ app.use('*', async (c, next) => {
 
 app.route('/', inicio)
 app.route('/', componentes)
+app.route('/', consultas)
 app.route('/', pacientes)
 app.route('/', configuracion)
 

@@ -97,4 +97,108 @@
     }
   })
 
+
+  // ---------- consultas ----------
+  // Cola única de autoguardado. Nunca se guarda texto clínico en localStorage.
+  const editor = document.querySelector('[data-consulta-editor]')
+  if (editor) {
+    const formulario = editor.querySelector('[data-consulta-formulario]')
+    const estado = editor.querySelector('[data-consulta-estado]')
+    const aviso = editor.querySelector('[data-consulta-error]')
+    let pendiente = false, guardando = null, temporizador, conflicto = false
+    const informarError = (mensaje) => {
+      aviso.textContent = mensaje
+      aviso.hidden = false
+      const enlace = document.createElement('a')
+      enlace.href = editor.dataset.consultaHistoria
+      enlace.target = '_blank'; enlace.rel = 'noopener'
+      enlace.textContent = ' Abrir la historia guardada en otra pestaña'
+      aviso.append(enlace)
+    }
+    const guardar = (forzar = false) => {
+      if (conflicto) return Promise.resolve(false)
+      if (forzar) pendiente = true
+      clearTimeout(temporizador)
+      if (guardando) return guardando
+      if (!pendiente) return Promise.resolve(true)
+      guardando = (async () => {
+        while (pendiente) {
+          pendiente = false
+          estado.textContent = 'Guardando borrador…'
+          try {
+            const respuesta = await fetch(formulario.action, { method: 'POST', body: new FormData(formulario), headers: { Accept: 'application/json' } })
+            let datos
+            try { datos = await respuesta.json() } catch { throw new Error('El servidor no pudo guardar el borrador. Probá de nuevo.') }
+            if (!respuesta.ok) {
+              conflicto = respuesta.status === 409
+              throw new Error(datos.error || 'No se pudo guardar el borrador.')
+            }
+            for (const version of editor.querySelectorAll('[data-consulta-version]')) version.value = String(datos.version)
+            history.replaceState(null, '', datos.url)
+            estado.textContent = `Borrador guardado · versión ${datos.version}`
+            aviso.hidden = true
+          } catch (error) {
+            pendiente = true
+            estado.textContent = 'Cambios sin guardar'
+            informarError(`${error instanceof TypeError ? 'No se pudo conectar para guardar. Probá de nuevo.' : error instanceof Error ? error.message : 'No se pudo guardar.'} El texto sigue en esta pantalla.`)
+            return false
+          }
+        }
+        return true
+      })().finally(() => { guardando = null })
+      return guardando
+    }
+    const cambio = () => {
+      pendiente = true
+      estado.textContent = conflicto ? 'Conflicto: cambios sin guardar' : 'Cambios sin guardar'
+      clearTimeout(temporizador)
+      if (!conflicto) temporizador = setTimeout(() => guardar(), 800)
+    }
+    formulario.addEventListener('input', cambio)
+    formulario.addEventListener('change', cambio)
+    formulario.addEventListener('submit', async (evento) => {
+      if (evento.defaultPrevented) return
+      evento.preventDefault()
+      await guardar(true)
+      formulario.dataset.enviando = '0'
+      for (const b of formulario.querySelectorAll('[aria-disabled]')) b.removeAttribute('aria-disabled')
+    })
+    editor.addEventListener('click', async (evento) => {
+      const boton = evento.target instanceof Element ? evento.target.closest('button, a') : null
+      if (!boton) return
+      if (boton.hasAttribute('data-consulta-ninguno')) {
+        formulario.elements.namedItem(boton.dataset.consultaNinguno).value = 'Ninguno'
+        cambio()
+      }
+      if (boton.hasAttribute('data-consulta-copiar')) {
+        formulario.elements.namedItem('plan').value = editor.querySelector('[data-consulta-plan-anterior]').value
+        cambio()
+      }
+      if (boton.hasAttribute('data-consulta-control')) {
+        formulario.elements.namedItem('proximo_control').value = boton.dataset.consultaControl
+        cambio()
+      }
+      if (boton.hasAttribute('data-consulta-terminar')) {
+        if (await guardar(Number(formulario.elements.namedItem('version').value) === 0)) editor.querySelector('#consulta-terminar').showModal()
+      }
+      if (boton.hasAttribute('data-consulta-salir')) {
+        evento.preventDefault()
+        if (await guardar()) location.assign(boton.href)
+      }
+    })
+    for (const form of editor.querySelectorAll('[data-consulta-mutacion]')) form.addEventListener('submit', async (evento) => {
+      if (evento.defaultPrevented) return
+      evento.preventDefault()
+      if (await guardar(Number(formulario.elements.namedItem('version').value) === 0)) HTMLFormElement.prototype.submit.call(form)
+      else {
+        form.dataset.enviando = '0'
+        for (const b of form.querySelectorAll('[aria-disabled]')) b.removeAttribute('aria-disabled')
+        form.closest('dialog')?.close()
+      }
+    })
+    window.addEventListener('beforeunload', (evento) => {
+      if (pendiente || guardando) { evento.preventDefault(); evento.returnValue = '' }
+    })
+  }
+
 })()
