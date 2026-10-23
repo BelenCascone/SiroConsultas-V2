@@ -31,7 +31,7 @@ describe('Huecos y controles', () => {
   })
   it('no ofrece lo que pisa un turno, un horario propuesto o un bloqueo de horas', () => {
     const d = agenda({
-      turnos: [{ fecha: LUNES, hora: '08:30', duracion_min: 30, paciente: 'Ana Gómez' }],
+      turnos: [{ id: 1, fecha: LUNES, hora: '08:30', duracion_min: 30, paciente: 'Ana Gómez' }],
       bloqueos: [{ desde: LUNES, hasta: LUNES, hora_desde: '09:30', hora_hasta: '10:00', consultorio_id: null, motivo: 'personal', detalle: null }],
     })
     expect(huecos(diaDe(d, 1, LUNES), 30, '2029-01-01', 0)).toEqual(['08:00', '09:00'])
@@ -49,7 +49,7 @@ describe('Huecos y controles', () => {
     expect(huecos(diaDe(agenda(), 1, LUNES), 30, LUNES, aMinutos('08:45'))).toEqual(['09:00', '09:30'])
   })
   it('avisa superposición y fuera de horario, y frena lo pasado o bloqueado', () => {
-    const d = diaDe(agenda({ turnos: [{ fecha: LUNES, hora: '08:00', duracion_min: 30, paciente: 'Ana Gómez' }] }), 1, LUNES)
+    const d = diaDe(agenda({ turnos: [{ id: 1, fecha: LUNES, hora: '08:00', duracion_min: 30, paciente: 'Ana Gómez' }] }), 1, LUNES)
     expect(controlar(d, '08:15', 30, '2029-01-01', 0).avisos.map((a) => a.tipo)).toEqual(['superpone'])
     expect(controlar(d, '09:45', 30, '2029-01-01', 0).avisos.map((a) => a.tipo)).toEqual(['fuera_horario'])
     expect(controlar(d, '09:00', 30, '2029-01-01', 0)).toEqual({ errores: [], avisos: [] })

@@ -43,6 +43,12 @@
     if (grupo) for (const b of grupo.querySelectorAll('[data-alterna]')) b.setAttribute('aria-pressed', String(b === t))
   })
 
+  // Agenda: las ventanas llegan abiertas desde el servidor; se vuelven modales y, al cerrarlas, se vuelve a la agenda de abajo.
+  for (const d of document.querySelectorAll('dialog[data-volver]')) {
+    if (typeof d.showModal === 'function') { d.removeAttribute('open'); d.showModal() }
+    d.addEventListener('close', () => { window.location.href = d.dataset.volver })
+  }
+
   for (const aviso of document.querySelectorAll('[data-config-abrir]')) {
     const ventana = document.getElementById(aviso.dataset.configAbrir)
     if (ventana instanceof HTMLDialogElement) ventana.showModal()
