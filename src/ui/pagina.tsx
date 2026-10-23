@@ -5,7 +5,7 @@ import type { Instalacion, Modulo } from '../lib/instalacion'
 import { Campana } from './iconos'
 
 /** Sube con cada cambio de estilos.css o app.js para que el navegador no use la copia vieja. */
-export const VERSION_ESTATICOS = '2.0.0-0'
+export const VERSION_ESTATICOS = '2.0.0-x1'
 
 export type Seccion = 'hoy' | 'agenda' | 'pacientes' | 'cobros' | 'estadisticas' | 'configuracion' | 'otra'
 
@@ -27,6 +27,7 @@ export function Documento({ titulo, inst, children }: { titulo: string; inst: In
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta name="robots" content="noindex, nofollow" />
+          <link rel="icon" href="data:," />
           <title>{`${titulo} · SiroConsultas${marca}`}</title>
           <link rel="preload" href="/fuentes/plus-jakarta-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="" />
           <link rel="stylesheet" href={`/estilos.css?v=${VERSION_ESTATICOS}`} />

@@ -8,6 +8,7 @@ import { leerInstalacion, moduloDe, habilitado } from './lib/instalacion'
 import { leerSesion } from './lib/sesion'
 import { SECRETO_MIN } from './lib/firma'
 import { ingreso } from './rutas/ingreso'
+import { configuracion } from './rutas/configuracion'
 import { inicio, datosProfesional, avisosSinLeer } from './rutas/inicio'
 import { componentes } from './rutas/componentes'
 import { Documento, Pagina, type Seccion } from './ui/pagina'
@@ -72,6 +73,7 @@ app.use('*', async (c, next) => {
 
 app.route('/', inicio)
 app.route('/', componentes)
+app.route('/', configuracion)
 
 // ---------- Secciones que se arman en las próximas etapas ----------
 const PROXIMAS: { ruta: string; seccion: Seccion; titulo: string }[] = [
@@ -82,7 +84,6 @@ const PROXIMAS: { ruta: string; seccion: Seccion; titulo: string }[] = [
   { ruta: '/cobros', seccion: 'cobros', titulo: 'Cobros' },
   { ruta: '/cobros/nuevo', seccion: 'cobros', titulo: 'Cobrar' },
   { ruta: '/estadisticas', seccion: 'estadisticas', titulo: 'Estadísticas' },
-  { ruta: '/configuracion', seccion: 'configuracion', titulo: 'Configuración' },
   { ruta: '/avisos', seccion: 'otra', titulo: 'Avisos' },
 ]
 for (const p of PROXIMAS) {
