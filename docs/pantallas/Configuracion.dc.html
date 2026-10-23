@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Configuración</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+.campo{height:44px;box-sizing:border-box;width:100%;padding:0 12px;border-radius:12px;border:0;box-shadow:inset 0 0 0 1px #C5D6DA;background:#FFFFFF;color:#02261E;font-size:15px;min-width:0}
+.etq{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:#4A5F5C;min-width:0}
+.tarjeta{background:#FFFFFF;border-radius:26px;padding:24px;box-shadow:0 1px 2px rgba(2,38,30,0.05),0 16px 40px rgba(2,38,30,0.07);display:flex;flex-direction:column;gap:16px;min-width:0}
+.tit{margin:0;font-size:18px;font-weight:800}
+.sub{margin:0;font-size:15px;font-weight:700}
+.ayuda{font-size:13px;line-height:1.45;color:#4A5F5C}
+.menu-item:hover{background:rgba(255,255,255,0.7)}
+.fila:hover{background:#F7FAFB}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; min-height: 1300px; box-sizing: border-box; padding: 24px 40px 56px; background: radial-gradient(520px 260px at 18% 0%, rgba(137,201,201,0.34), transparent 70%), radial-gradient(440px 240px at 72% 4%, rgba(218,252,146,0.50), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; gap: 22px;">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #89C9C9; box-shadow: 8px 0 0 -2px #DAFC92;"></span>
+      <span style="font-weight: 800; font-size: 17px; margin-left: 6px;">SiroConsultas</span>
+    </div>
+    <nav aria-label="Menú principal" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: rgba(255,255,255,0.85); border-radius: 999px; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 8px 24px rgba(2,38,30,0.06);">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="{{n.href}}" style="{{n.style}}">{{n.label}}</a>
+      </sc-for>
+    </nav>
+    <span aria-label="Estás en Configuración" style="width: 44px; height: 44px; border-radius: 50%; background: #02261E; color: #DAFC92; display: grid; place-items: center; font-weight: 800; font-size: 15px;">JP</span>
+  </header>
+
+  <div style="width: 100%; max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items: start;">
+
+    <aside style="display: flex; flex-direction: column; gap: 4px;">
+      <h1 style="margin: 0 0 10px 12px; font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">Configuración</h1>
+      <nav aria-label="Secciones" style="display: flex; flex-direction: column; gap: 2px;">
+        <sc-for list="{{secciones}}" as="x" hint-placeholder-count="7">
+          <button type="button" class="menu-item" onClick="{{x.elegir}}" aria-current="{{x.actual}}" style="{{x.style}}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{x.ico}}"></path></svg>
+            <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span>{{x.label}}</span><span style="{{x.subStyle}}">{{x.sub}}</span></span>
+          </button>
+        </sc-for>
+      </nav>
+    </aside>
+
+    <main style="display: flex; flex-direction: column; gap: 16px; min-width: 0;">
+      <sc-if value="{{hayAviso}}" hint-placeholder-val="{{false}}">
+        <div class="paso" role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 20px; border-radius: 999px; background: #E4F4EA; color: #166534; font-weight: 600;">
+          <span>{{aviso}}</span>
+          <button type="button" onClick="{{cerrarAviso}}" style="height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: transparent; color: inherit; font-size: 14px; font-weight: 700; text-decoration: underline;">Listo</button>
+        </div>
+      </sc-if>
+
+      <!-- Perfil -->
+      <sc-if value="{{sPerfil}}" hint-placeholder-val="{{true}}">
+        <section class="tarjeta paso" aria-labelledby="t-perfil">
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <h2 id="t-perfil" class="tit">Tu perfil</h2>
+            <span class="ayuda">Sale en los certificados, pedidos y comprobantes. Sin nombre y matrícula no se pueden hacer documentos.</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <span aria-hidden="true" style="width: 72px; height: 72px; border-radius: 50%; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800; font-size: 24px;">JP</span>
+            <button type="button" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">Cambiar foto</button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+            <sc-for list="{{camposPerfil}}" as="c" hint-placeholder-count="5">
+              <label class="etq">{{c.label}}<input class="campo" type="{{c.tipo}}" value="{{c.valor}}"></label>
+            </sc-for>
+          </div>
+          <div style="display: flex; justify-content: flex-end;"><button type="button" onClick="{{guardar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar cambios</button></div>
+        </section>
+      </sc-if>
+
+      <!-- Consultorios y horarios -->
+      <sc-if value="{{sConsultorios}}" hint-placeholder-val="{{false}}">
+        <section class="tarjeta paso" aria-labelledby="t-cons">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <h2 id="t-cons" class="tit">Consultorios y horarios</h2>
+              <span class="ayuda">Los horarios arman los huecos de la agenda y lo que se ofrece en tu página para pedir turno.</span>
+            </div>
+            <button type="button" onClick="{{nc.abrir}}" style="flex: 0 0 auto; height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">+ Agregar consultorio</button>
+          </div>
+          <sc-for list="{{consultorios}}" as="c" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 20px; box-shadow: inset 0 0 0 1.5px #E9F1F3;">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                <span style="display: flex; flex-direction: column; line-height: 1.35; min-width: 0;"><span style="font-weight: 800; font-size: 16px;">{{c.nombre}}</span><span class="ayuda">{{c.dir}}</span></span>
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" onClick="{{c.editar}}" aria-expanded="{{c.abiertoAria}}" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 0; background: transparent; color: #24605F; font-size: 14px; font-weight: 700;">{{c.editarTxt}}</button>
+                  <button type="button" onClick="{{c.toggle}}" role="switch" aria-checked="{{c.activoAria}}" aria-label="{{c.activoLabel}}" style="{{c.switch}}"><span style="width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF;"></span></button>
+                </span>
+              </div>
+              <sc-if value="{{c.cerrado}}" hint-placeholder-val="{{true}}">
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                  <sc-for list="{{c.resumen}}" as="r" hint-placeholder-count="5">
+                    <span style="font-size: 13px; padding: 4px 10px; border-radius: 10px; background: #F2F7F9; font-variant-numeric: tabular-nums;"><b>{{r.dia}}</b> {{r.horas}}</span>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{c.abierto}}" hint-placeholder-val="{{false}}">
+                <div class="paso" style="display: flex; flex-direction: column; gap: 10px;">
+                  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+                    <label class="etq">Nombre<input class="campo" type="text" value="{{c.nombre}}"></label>
+                    <label class="etq">Dirección<input class="campo" type="text" value="{{c.dir}}"></label>
+                  </div>
+                  <sc-for list="{{c.dias}}" as="d" hint-placeholder-count="6">
+                    <div style="display: grid; grid-template-columns: 110px 64px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 48px; border-top: 1px solid #E9F1F3;">
+                      <span style="font-weight: 600;">{{d.dia}}</span>
+                      <button type="button" onClick="{{d.toggle}}" role="switch" aria-checked="{{d.onAria}}" aria-label="{{d.aria}}" style="{{d.switch}}"><span style="width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF;"></span></button>
+                      <sc-if value="{{d.on}}" hint-placeholder-val="{{true}}">
+                        <span style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px;">
+                          <input class="campo" type="time" value="{{d.a1}}" aria-label="Desde" style="width: 110px;"> a <input class="campo" type="time" value="{{d.a2}}" aria-label="Hasta" style="width: 110px;">
+                          <sc-if value="{{d.tarde}}" hint-placeholder-val="{{false}}"><span style="display: flex; align-items: center; gap: 6px;">y <input class="campo" type="time" value="{{d.b1}}" aria-label="Desde" style="width: 110px;"> a <input class="campo" type="time" value="{{d.b2}}" aria-label="Hasta" style="width: 110px;"></span></sc-if>
+                        </span>
+                      </sc-if>
+                      <sc-if value="{{d.off}}" hint-placeholder-val="{{false}}"><span class="ayuda">No atendés</span></sc-if>
+                    </div>
+                  </sc-for>
+                  <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                    <button type="button" onClick="{{c.editar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+                    <button type="button" onClick="{{c.guardar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar horarios</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <span class="ayuda">Un consultorio apagado no se ofrece para nuevos turnos; sus turnos e historia se conservan. Antes de cada feriado te preguntamos si atendés. Para un día o unas horas puntuales, usá «Bloquear» en la agenda.</span>
+        </section>
+      </sc-if>
+
+      <!-- Prestaciones -->
+      <sc-if value="{{sPrestaciones}}" hint-placeholder-val="{{false}}">
+        <section class="tarjeta paso" aria-labelledby="t-prest">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <h2 id="t-prest" class="tit">Prestaciones</h2>
+              <span class="ayuda">Lo que ofrecés. La duración arma la agenda y el importe es lo que se cobra si es particular.</span>
+            </div>
+            <button type="button" style="flex: 0 0 auto; height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">+ Agregar prestación</button>
+          </div>
+          <div role="table" aria-labelledby="t-prest" style="display: flex; flex-direction: column;">
+            <div role="row" style="display: grid; grid-template-columns: minmax(0, 1fr) 130px 160px 70px; gap: 12px; padding: 6px 8px; font-size: 13px; font-weight: 700; color: #4A5F5C;"><span role="columnheader">Prestación</span><span role="columnheader">Duración</span><span role="columnheader">Particular</span><span role="columnheader">Activa</span></div>
+            <sc-for list="{{prestaciones}}" as="p" hint-placeholder-count="3">
+              <div role="row" class="fila" style="display: grid; grid-template-columns: minmax(0, 1fr) 130px 160px 70px; gap: 12px; align-items: center; min-height: 60px; padding: 6px 8px; border-top: 1px solid #E9F1F3; border-radius: 10px;">
+                <input role="cell" class="campo" type="text" value="{{p.nombre}}" aria-label="Nombre de la prestación" style="font-weight: 600;">
+                <select role="cell" class="campo" aria-label="Duración"><option>{{p.dur}}</option><option>15 min</option><option>45 min</option><option>60 min</option></select>
+                <span role="cell" style="display: flex; align-items: center; gap: 6px; font-weight: 700;">$ <input class="campo" type="text" inputmode="numeric" value="{{p.importe}}" aria-label="Importe particular" style="font-variant-numeric: tabular-nums;"></span>
+                <button role="cell" type="button" onClick="{{p.toggle}}" aria-pressed="{{p.onAria}}" aria-label="{{p.aria}}" style="{{p.switch}}"><span style="width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF;"></span></button>
+              </div>
+            </sc-for>
+          </div>
+          <span class="ayuda">Un importe 0 se cobra como «Sin cargo» y no lleva comprobante. Cambiar un importe no toca los cobros ya hechos.</span>
+          <div style="display: flex; justify-content: flex-end;"><button type="button" onClick="{{guardar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar cambios</button></div>
+        </section>
+      </sc-if>
+
+      <!-- Obras sociales -->
+      <sc-if value="{{sObras}}" hint-placeholder-val="{{false}}">
+        <section class="tarjeta paso" aria-labelledby="t-os">
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <h2 id="t-os" class="tit">Obras sociales con las que trabajás</h2>
+            <span class="ayuda">Son las que aparecen al cargar la cobertura de un paciente. Con obra social cobrás solo el copago; la app no hace la liquidación con la obra social.</span>
+          </div>
+          <label style="position: relative; display: flex; align-items: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 14px; color: #4A5F5C;"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+            <input class="campo" type="search" placeholder="Buscar en el catálogo de obras sociales de Argentina" aria-label="Buscar obra social" style="padding-left: 42px; height: 48px; border-radius: 16px;">
+          </label>
+          <sc-for list="{{obras}}" as="o" hint-placeholder-count="5">
+            <div class="fila" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 12px; border-top: 1px solid #E9F1F3; border-radius: 10px;">
+              <span style="display: flex; flex-direction: column; line-height: 1.35;"><span style="font-weight: 700;">{{o.nombre}}</span><span class="ayuda">{{o.sub}}</span></span>
+              <button type="button" onClick="{{o.quitar}}" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; font-size: 14px; font-weight: 600;">{{o.quitarTxt}}</button>
+            </div>
+          </sc-for>
+          <span class="ayuda">Dejar de usar una obra social no cambia a los pacientes que ya la tienen.</span>
+        </section>
+      </sc-if>
+
+      <!-- Cobros y comprobantes -->
+      <sc-if value="{{sCobros}}" hint-placeholder-val="{{false}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 16px;">
+          <section class="tarjeta" aria-labelledby="t-fis">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <h2 id="t-fis" class="tit">Datos fiscales</h2>
+                <span class="ayuda">Para emitir factura C. Si falta alguno, todo sigue funcionando pero solo se ofrece el comprobante interno.</span>
+              </div>
+              <span style="flex: 0 0 auto; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: #E4F4EA; color: #166534;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Factura C lista</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+              <sc-for list="{{camposFiscales}}" as="c" hint-placeholder-count="4">
+                <label class="etq">{{c.label}}<input class="campo" type="text" value="{{c.valor}}"></label>
+              </sc-for>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9; font-size: 14px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 11h12v10H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg>
+              <span style="flex: 1;"><b>Certificado de ARCA:</b> lo carga BC Informática. Vence el 10/2028.</span>
+            </div>
+          </section>
+
+          <section class="tarjeta" aria-labelledby="t-transf">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <h2 id="t-transf" class="tit">Datos para que te transfieran</h2>
+              <span class="ayuda">Se mandan con «Enviar datos de pago». La app no se conecta a tu cuenta ni guarda claves.</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+              <sc-for list="{{camposTransf}}" as="c" hint-placeholder-count="3">
+                <label class="etq">{{c.label}}<input class="campo" type="text" value="{{c.valor}}"></label>
+              </sc-for>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span role="img" aria-label="Imagen del QR cargada" style="width: 56px; height: 56px; border-radius: 12px; background: #F2F7F9; box-shadow: inset 0 0 0 1px #C5D6DA; display: grid; place-items: center; font-size: 11px; color: #4A5F5C;">QR</span>
+              <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.35;"><span style="font-weight: 600;">Imagen del QR de tu banco o billetera</span><span class="ayuda">Opcional. Se adjunta si lo elegís al mandar los datos.</span></span>
+              <button type="button" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">Cambiar imagen</button>
+            </div>
+          </section>
+
+          <section class="tarjeta" aria-labelledby="t-comp">
+            <h2 id="t-comp" class="tit">Tu comprobante interno</h2>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start;">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span aria-hidden="true" style="width: 48px; height: 48px; border-radius: 12px; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800;">JP</span>
+                  <button type="button" style="height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">Cambiar logo</button>
+                </div>
+                <div class="etq">Color
+                  <div role="radiogroup" aria-label="Color del comprobante" style="display: flex; gap: 8px;">
+                    <sc-for list="{{colores}}" as="k" hint-placeholder-count="4">
+                      <button type="button" role="radio" onClick="{{k.elegir}}" aria-checked="{{k.on}}" aria-label="{{k.label}}" style="{{k.style}}"></button>
+                    </sc-for>
+                  </div>
+                </div>
+                <label class="etq">Pie del comprobante<input class="campo" type="text" value="Gracias por tu visita · Consultorio Centro, San Martín 900, Paraná"></label>
+              </div>
+              <div aria-label="Vista previa" style="padding: 16px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(2,38,30,0.08), 0 8px 24px rgba(2,38,30,0.08); display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                <span style="{{previaCab}}"><b>Julieta Pereyra</b><span>N.º 0162</span></span>
+                <span style="color: #4A5F5C;">Comprobante interno · no válido como factura</span>
+                <span style="display: flex; justify-content: space-between;"><span>Control · Diego Paz</span><b>$ 12.000</b></span>
+                <span style="color: #4A5F5C; border-top: 1px solid #E9F1F3; padding-top: 6px;">Gracias por tu visita · Consultorio Centro…</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="tarjeta" aria-labelledby="t-mas">
+            <h2 id="t-mas" class="tit">Contadora y ausencias</h2>
+            <label class="etq">Correo de tu contadora<input class="campo" type="email" value="estudio.contable@ejemplo.com" style="max-width: 420px;"></label>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-radius: 16px; background: #F2F7F9;">
+              <span style="display: flex; flex-direction: column; line-height: 1.4;"><span style="font-weight: 700;">Cobrar cuando el paciente no viene</span><span class="ayuda">Al marcarlo ausente, se le carga el importe de la prestación del turno. Solo vos lo podés perdonar, con un motivo.</span></span>
+              <button type="button" onClick="{{togAusencia}}" role="switch" aria-checked="{{ausenciaAria}}" aria-label="Cobrar cuando el paciente no viene" style="{{ausenciaSwitch}}"><span style="width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF;"></span></button>
+            </div>
+            <div style="display: flex; justify-content: flex-end;"><button type="button" onClick="{{guardar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar cambios</button></div>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- Mensajes -->
+      <sc-if value="{{sMensajes}}" hint-placeholder-val="{{false}}">
+        <section class="tarjeta paso" aria-labelledby="t-msj">
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <h2 id="t-msj" class="tit">Recordatorio de turno</h2>
+            <span class="ayuda">Lo que le llega al paciente para confirmar. Solo lleva nombre, día, hora y lugar: nunca el motivo ni datos clínicos.</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="etq">Mensaje<textarea rows="6" style="box-sizing: border-box; width: 100%; padding: 12px 14px; border-radius: 14px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-size: 15px; line-height: 1.5; color: #02261E; resize: vertical;">Hola {nombre}, te recordamos tu turno el {dia} a las {hora}.
+{lugar}
+¿Nos confirmás que venís? Si no podés, avisanos así reprogramamos. ¡Gracias!</textarea></label>
+              <span class="ayuda">Podés usar: <b>{nombre}</b> · <b>{dia}</b> · <b>{hora}</b> · <b>{lugar}</b></span>
+              <button type="button" style="align-self: flex-start; min-height: 40px; border: 0; background: transparent; padding: 0; color: #24605F; font-size: 14px; font-weight: 700;">Volver al mensaje original</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 600; color: #4A5F5C;">Así lo ve Diego (presencial)</span>
+              <div style="padding: 14px; border-radius: 18px; background: #E7F6E9; font-size: 14px; line-height: 1.5; white-space: pre-line;">Hola Diego, te recordamos tu turno el viernes 24/10 a las 17:00.
+Consultorio Norte · Belgrano 1200, Paraná
+¿Nos confirmás que venís? Si no podés, avisanos así reprogramamos. ¡Gracias!</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <sc-for list="{{opcionesMsj}}" as="o" hint-placeholder-count="1">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-radius: 16px; background: #F2F7F9;">
+                <span style="display: flex; flex-direction: column; line-height: 1.4;"><span style="font-weight: 700;">{{o.label}}</span><span class="ayuda">{{o.sub}}</span></span>
+                <button type="button" onClick="{{o.toggle}}" role="switch" aria-checked="{{o.onAria}}" aria-label="{{o.label}}" style="{{o.switch}}"><span style="width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF;"></span></button>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: flex; justify-content: flex-end;"><button type="button" onClick="{{guardar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar cambios</button></div>
+        </section>
+      </sc-if>
+
+      <!-- Cuenta y seguridad -->
+      <sc-if value="{{sCuenta}}" hint-placeholder-val="{{false}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 16px;">
+          <section class="tarjeta" aria-labelledby="t-seg">
+            <h2 id="t-seg" class="tit">Cuenta y seguridad</h2>
+            <sc-for list="{{seguridad}}" as="x" hint-placeholder-count="4">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 8px 0; border-top: 1px solid #E9F1F3;">
+                <span style="display: flex; flex-direction: column; line-height: 1.4; min-width: 0;"><span style="font-weight: 700;">{{x.label}}</span><span class="ayuda">{{x.sub}}</span></span>
+                <button type="button" onClick="{{x.hacer}}" style="flex: 0 0 auto; height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">{{x.boton}}</button>
+              </div>
+            </sc-for>
+          </section>
+          <section class="tarjeta" aria-labelledby="t-legal" style="gap: 8px;">
+            <h2 id="t-legal" class="sub">Términos y privacidad</h2>
+            <span style="font-size: 14px;">Aceptaste la versión 1.0 el 23/10/2026. <a href="#" style="font-weight: 700;">Leer los términos</a> · <a href="#" style="font-weight: 700;">Leer la política de privacidad</a></span>
+          </section>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{nc.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 110px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="Agregar consultorio" class="paso" style="width: 100%; max-width: 680px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Agregar consultorio</h2>
+          <button type="button" onClick="{{nc.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Cómo atendés ahí?</span>
+          <div role="radiogroup" aria-label="Tipo de consultorio" style="display: flex; gap: 8px;">
+            <sc-for list="{{nc.tipos}}" as="t" hint-placeholder-count="2">
+              <button type="button" role="radio" onClick="{{t.elegir}}" aria-checked="{{t.on}}" style="{{t.style}}">{{t.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+          <label class="etq">Nombre<input type="text" value="{{nc.nombre}}" placeholder="Ej.: Sur" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px;"></label>
+          <sc-if value="{{nc.presencial}}" hint-placeholder-val="{{true}}">
+            <label class="etq">Dirección<input type="text" value="Laurencena 450, Paraná" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px;"></label>
+          </sc-if>
+          <sc-if value="{{nc.video}}" hint-placeholder-val="{{false}}">
+            <span class="ayuda" style="align-self: end; padding-bottom: 10px;">Sin dirección: al paciente le mandamos el enlace de la videollamada.</span>
+          </sc-if>
+          <sc-if value="{{nc.presencial}}" hint-placeholder-val="{{true}}">
+            <label class="etq" style="grid-column: 1 / -1;">Cómo llegar (opcional)<input type="text" placeholder="Enlace del mapa o indicaciones: piso, timbre" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px;"></label>
+          </sc-if>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 13px; font-weight: 700; color: #4A5F5C; margin-bottom: 4px;">Días y horarios</span>
+          <sc-for list="{{nc.dias}}" as="d" hint-placeholder-count="6">
+            <div style="display: grid; grid-template-columns: 110px 64px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 52px; border-top: 1px solid #E9F1F3;">
+              <span style="font-weight: 600;">{{d.dia}}</span>
+              <button type="button" onClick="{{d.toggle}}" role="switch" aria-checked="{{d.onAria}}" aria-label="{{d.aria}}" style="{{d.switch}}"><span style="width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF;"></span></button>
+              <sc-if value="{{d.on}}" hint-placeholder-val="{{false}}">
+                <span class="paso" style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px;">
+                  <input type="time" value="09:00" aria-label="Desde" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; width: 110px;"> a <input type="time" value="13:00" aria-label="Hasta" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; width: 110px;">
+                  <button type="button" style="min-height: 40px; border: 0; background: transparent; padding: 0 6px; color: #24605F; font-size: 13px; font-weight: 700;">+ Otro horario</button>
+                </span>
+              </sc-if>
+              <sc-if value="{{d.off}}" hint-placeholder-val="{{true}}"><span class="ayuda">No atendés</span></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <span class="ayuda">Desde que lo guardás se ofrece en la agenda y en tu página para pedir turno. Los feriados y bloqueos se respetan igual.</span>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" onClick="{{nc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+          <button type="button" onClick="{{nc.guardar}}" style="{{nc.guardarStyle}}">{{nc.guardarTxt}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ sec: 'perfil', aviso: '', editando: 'centro', apagados: {}, diasOff: {}, prestOff: {}, osQuitadas: {}, color: 0, ausencia: false, correoAuto: true, nc: null, consSur: false }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    var sw = function (on, chico) { var h = chico ? 28 : 32, w = chico ? 48 : 52; return 'flex: 0 0 auto; width: ' + w + 'px; height: ' + h + 'px; border-radius: 999px; border: 0; padding: 3px; display: flex; ' + (on ? 'background: #24605F; justify-content: flex-end;' : 'background: #C5D6DA; justify-content: flex-start;'); };
+    var navBase = 'display: flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-size: 15px; color: #02261E; font-weight: 500;';
+    var nav = [['Hoy', 'Main.dc.html'], ['Agenda', 'Agenda.dc.html'], ['Pacientes', 'Pacientes.dc.html'], ['Cobros', 'Comprobante.dc.html'], ['Estadísticas', 'Estadisticas.dc.html']].map(function (n) { return { label: n[0], href: n[1], style: navBase }; });
+
+    var SEC = [
+      ['perfil', 'Tu perfil', 'Nombre, matrícula, foto', 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0'],
+      ['consultorios', 'Consultorios y horarios', s.consSur ? '4 consultorios' : '3 consultorios', 'M4 21V8l8-5 8 5v13M9 21v-6h6v6'],
+      ['prestaciones', 'Prestaciones', 'Duración e importe', 'M4 6h16M4 12h16M4 18h10'],
+      ['obras', 'Obras sociales', '5 en uso', 'M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z'],
+      ['cobros', 'Cobros y comprobantes', 'Fiscal, transferencias, contadora', 'M3 7h18v10H3zM7 12h.01M12 12a2 2 0 1 0 0 .01'],
+      ['mensajes', 'Recordatorios', 'Mensaje de WhatsApp', 'M4 5h16v11H8l-4 4z'],
+      ['cuenta', 'Cuenta y seguridad', 'Ingreso, respaldos', 'M6 11h12v10H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3']
+    ];
+    var secciones = SEC.map(function (x) {
+      var o = s.sec === x[0];
+      return { label: x[1], sub: x[2], ico: x[3], actual: o ? 'page' : 'false', elegir: set({ sec: x[0], aviso: '' }),
+        style: 'display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 14px; border-radius: 16px; border: 0; text-align: left; font-size: 15px; ' + (o ? 'background: #FFFFFF; color: #02261E; font-weight: 700; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 8px 20px rgba(2,38,30,0.06);' : 'background: transparent; color: #02261E; font-weight: 600;'),
+        subStyle: 'font-size: 12px; font-weight: 500; color: #4A5F5C;' };
+    });
+    var campos = function (l) { return l.map(function (c) { return { label: c[0], valor: c[1], tipo: c[2] || 'text' }; }); };
+
+    var DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    var CONS = [
+      ['centro', 'Centro', 'San Martín 900, Paraná', [['09:00', '13:00', '15:00', '19:00'], ['09:00', '13:00'], ['09:00', '13:00', '15:00', '19:00'], null, ['09:00', '13:00'], null]],
+      ['norte', 'Norte', 'Belgrano 1200, Paraná', [null, ['15:00', '20:00'], null, ['15:00', '20:00'], ['15:00', '20:00'], ['09:00', '12:00']]],
+      ['video', 'Videollamada', 'Sin dirección: le mandamos el enlace', [['13:00', '14:30'], null, ['13:00', '14:30'], null, null, null]]
+    ];
+    if (s.consSur) CONS.push(['sur', 'Sur', 'Laurencena 450, Paraná', [null, ['09:00', '13:00'], null, ['09:00', '13:00'], null, null]]);
+    var N = s.nc || { tipo: 'presencial', dias: {} };
+    var ncCambia = function (x) { return function () { self.setState({ nc: Object.assign({}, N, x) }); }; };
+    var ncDias = DIAS.map(function (d, i) {
+      var on = !!N.dias[i];
+      return { dia: d, on: on, off: !on, onAria: on ? 'true' : 'false', aria: 'Atendés los ' + d.toLowerCase() + ' en este consultorio', switch: sw(on, true),
+        toggle: function () { var x = Object.assign({}, N.dias); x[i] = !on; self.setState({ nc: Object.assign({}, N, { dias: x }) }); } };
+    });
+    var ncHay = ncDias.some(function (d) { return d.on; });
+    var nc = { on: !!s.nc, presencial: N.tipo === 'presencial', video: N.tipo === 'video', nombre: N.tipo === 'video' ? 'Videollamada 2' : 'Sur', dias: ncDias,
+      tipos: [['presencial', 'Presencial'], ['video', 'Videollamada']].map(function (t) { var o = N.tipo === t[0]; return { label: t[1], on: o ? 'true' : 'false', elegir: ncCambia({ tipo: t[0] }), style: 'min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; font-size: 14px; ' + (o ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') }; }),
+      guardarTxt: ncHay ? 'Guardar consultorio' : 'Elegí al menos un día',
+      guardarStyle: 'height: 48px; padding: 0 22px; border-radius: 16px; border: 0; font-size: 15px; font-weight: 700; ' + (ncHay ? 'background: #02261E; color: #FFFFFF;' : 'background: #E9F1F3; color: #4A5F5C; cursor: default;'),
+      guardar: ncHay ? set({ nc: null, consSur: true, aviso: 'Agregaste el consultorio Sur. Ya aparece en la agenda y en tu página para pedir turno.' }) : function () {},
+      abrir: set({ nc: { tipo: 'presencial', dias: { 1: true, 3: true } }, editando: null }), cerrar: set({ nc: null }) };
+    var consultorios = CONS.map(function (c) {
+      var activo = !s.apagados[c[0]], abierto = s.editando === c[0];
+      var dias = DIAS.map(function (d, i) {
+        var h = c[3][i], k = c[0] + '-' + i, on = !!h && !s.diasOff[k];
+        var hh = h || ['09:00', '13:00'];
+        return { dia: d, on: on, off: !on, onAria: on ? 'true' : 'false', aria: 'Atendés los ' + d.toLowerCase(), switch: sw(on, true),
+          toggle: function () { var o = Object.assign({}, s.diasOff); o[k] = on; self.setState({ diasOff: o }); },
+          a1: hh[0], a2: hh[1], tarde: !!hh[2], b1: hh[2] || '', b2: hh[3] || '' };
+      });
+      var hc = function (x) { return x.replace(':00', '').replace(/^0/, ''); };
+      var resumen = DIAS.map(function (d, i) { var h = c[3][i]; return h ? { dia: d.slice(0, 3), horas: hc(h[0]) + '–' + hc(h[1]) + (h[2] ? ' y ' + hc(h[2]) + '–' + hc(h[3]) : '') } : null; }).filter(Boolean);
+      return { nombre: c[1], dir: c[2], abierto: abierto, cerrado: !abierto, abiertoAria: abierto ? 'true' : 'false', editarTxt: abierto ? 'Cerrar' : 'Editar horarios',
+        editar: set({ editando: abierto ? null : c[0] }), guardar: set({ editando: null, aviso: 'Guardaste los horarios de ' + c[1] + '. La agenda ya los usa.' }),
+        activoAria: activo ? 'true' : 'false', activoLabel: 'Consultorio ' + c[1] + ' activo', switch: sw(activo),
+        toggle: function () { var o = Object.assign({}, s.apagados); o[c[0]] = activo; self.setState({ apagados: o, aviso: activo ? 'Apagaste ' + c[1] + ': ya no se ofrece para turnos nuevos.' : c[1] + ' está activo otra vez.' }); },
+        dias: dias, resumen: resumen };
+    });
+
+    var prestaciones = [['Primera consulta', '60 min', '15.000'], ['Control', '30 min', '12.000'], ['Evolución', '45 min', '16.700']].map(function (p) {
+      var on = !s.prestOff[p[0]];
+      return { nombre: p[0], dur: p[1], importe: p[2], onAria: on ? 'true' : 'false', aria: p[0] + ' activa', switch: sw(on, true),
+        toggle: function () { var o = Object.assign({}, s.prestOff); o[p[0]] = on; self.setState({ prestOff: o }); } };
+    });
+    var obras = [['OSDE', '24 pacientes'], ['Swiss Medical', '16 pacientes'], ['PAMI', '9 pacientes'], ['IOSPER', '4 pacientes'], ['Galeno', '2 pacientes']].map(function (o) {
+      var q = !!s.osQuitadas[o[0]];
+      return { nombre: o[0], sub: q ? 'Ya no se ofrece al cargar pacientes nuevos' : o[1], quitarTxt: q ? 'Volver a usar' : 'Dejar de usar',
+        quitar: function () { var x = Object.assign({}, s.osQuitadas); x[o[0]] = !q; self.setState({ osQuitadas: x }); } };
+    });
+    var COL = [['Verde azulado', '#24605F'], ['Azul', '#1D5FB8'], ['Violeta', '#5B3F8C'], ['Holly', '#02261E']];
+    var colores = COL.map(function (k, i) {
+      var o = s.color === i;
+      return { label: k[0], on: o ? 'true' : 'false', elegir: set({ color: i }),
+        style: 'width: 44px; height: 44px; border-radius: 50%; border: 0; background: ' + k[1] + '; box-shadow: ' + (o ? '0 0 0 3px #FFFFFF, 0 0 0 5px ' + k[1] : 'none') + ';' };
+    });
+    var opcionesMsj = [
+      ['correoAuto', 'Mandar el recordatorio por correo, solo', 'Cada mañana, a los que tienen turno al día siguiente y dejaron su correo.']
+    ].map(function (o) {
+      var on = !!s[o[0]]; var x = {}; x[o[0]] = !on;
+      return { label: o[1], sub: o[2], onAria: on ? 'true' : 'false', switch: sw(on), toggle: set(x) };
+    });
+    var seguridad = [
+      ['Ingreso con segundo código', 'Activo con tu app de códigos. Te lo pedimos en cada dispositivo nuevo.', 'Cambiar', 'Te mandamos los pasos para cambiar la app de códigos.'],
+      ['Respaldo diario cifrado', 'El último fue hoy a las 3:00.', 'Ver respaldos', 'Abriste la lista de respaldos.'],
+      ['Ver la agenda en Google Calendar', 'Un enlace privado, solo lectura. Generar uno nuevo desactiva el anterior.', 'Generar enlace', 'Generaste un enlace nuevo. Copialo ahora: se muestra una sola vez.'],
+      ['Llevarte todos tus datos', 'Pacientes, historias, cobros y comprobantes en un archivo. Queda registrado.', 'Exportar todo', 'Estamos preparando tu archivo. Te avisamos cuando esté listo.']
+    ].map(function (x) { return { label: x[0], sub: x[1], boton: x[2], hacer: set({ aviso: x[3] }) }; });
+
+    return {
+      nav: nav, secciones: secciones,
+      sPerfil: s.sec === 'perfil', sConsultorios: s.sec === 'consultorios', sPrestaciones: s.sec === 'prestaciones', sObras: s.sec === 'obras', sCobros: s.sec === 'cobros', sMensajes: s.sec === 'mensajes', sCuenta: s.sec === 'cuenta',
+      hayAviso: !!s.aviso, aviso: s.aviso, cerrarAviso: set({ aviso: '' }), guardar: set({ aviso: 'Guardaste los cambios.' }),
+      camposPerfil: campos([['Nombre y apellido', 'Julieta Pereyra'], ['Especialidad', 'Kinesiología y fisiatría'], ['Matrícula', 'MP 4821'], ['WhatsApp', '343 555-0100', 'tel'], ['Correo', 'julieta.pereyra@ejemplo.com', 'email']]),
+      consultorios: consultorios, nc: nc, prestaciones: prestaciones, obras: obras,
+      camposFiscales: campos([['CUIT', '27-30111222-4'], ['Condición frente al IVA', 'Monotributista'], ['Domicilio fiscal', 'San Martín 900, Paraná'], ['Punto de venta', '0001']]),
+      camposTransf: campos([['Alias', 'julieta.kine.ejemplo'], ['CBU o CVU', '0000003100000000000001'], ['Titular', 'Julieta Pereyra']]),
+      colores: colores, previaCab: 'display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 2px solid ' + COL[s.color][1] + '; color: ' + COL[s.color][1] + ';',
+      ausenciaAria: s.ausencia ? 'true' : 'false', ausenciaSwitch: sw(s.ausencia), togAusencia: set({ ausencia: !s.ausencia }),
+      opcionesMsj: opcionesMsj, seguridad: seguridad
+    };
+  }
+}
+</script>
+</body>
+</html>

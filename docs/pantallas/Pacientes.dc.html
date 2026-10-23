@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pacientes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button,input{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+.fila:hover{background:#F2F7F9}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; min-height: 1000px; box-sizing: border-box; padding: 24px 40px 56px; background: radial-gradient(520px 260px at 18% 0%, rgba(137,201,201,0.34), transparent 70%), radial-gradient(440px 240px at 72% 4%, rgba(218,252,146,0.50), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; gap: 24px;">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #89C9C9; box-shadow: 8px 0 0 -2px #DAFC92;"></span>
+      <span style="font-size: 18px; font-weight: 800; margin-left: 6px; letter-spacing: -0.01em;">SiroConsultas</span>
+    </div>
+    <nav aria-label="Menú principal" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: rgba(255,255,255,0.85); border-radius: 999px; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 8px 24px rgba(2,38,30,0.06);">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="{{n.href}}" aria-current="{{n.actual}}" style="{{n.style}}">{{n.label}}</a>
+      </sc-for>
+    </nav>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button type="button" aria-label="Avisos: 3 nuevos" title="Avisos" style="position: relative; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #FFFFFF; color: #02261E; display: grid; place-items: center; box-shadow: 0 1px 2px rgba(2,38,30,0.08);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5h4"></path></svg>
+        <span aria-hidden="true" style="position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; border-radius: 50%; background: #24605F; box-shadow: 0 0 0 2px #FFFFFF;"></span>
+      </button>
+      <a href="Configuracion.dc.html" aria-label="Configuración" title="Configuración" style="width: 44px; height: 44px; border-radius: 50%; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800; font-size: 15px; text-decoration: none;">JP</a>
+    </div>
+  </header>
+
+  <section style="display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center;">
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.02em;">Pacientes</h1>
+      <span style="color: #4A5F5C;">{{totalTxt}}</span>
+    </div>
+    <div style="width: 100%; max-width: 720px; display: flex; gap: 10px;">
+      <label for="busca" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 20px; background: #FFFFFF; border-radius: 18px; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 12px 32px rgba(2,38,30,0.08); color: #4A5F5C;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input id="busca" type="search" placeholder="Buscar por nombre, DNI o celular" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 16px; color: #02261E; outline: none;">
+      </label>
+      <button type="button" onClick="{{abrirNuevo}}" style="display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 22px; border-radius: 18px; border: 0; background: #DAFC92; color: #02261E; font-size: 15px; font-weight: 800; white-space: nowrap;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Paciente nuevo
+      </button>
+    </div>
+    <div role="group" aria-label="Filtrar" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
+      <sc-for list="{{filtros}}" as="f" hint-placeholder-count="6">
+        <button type="button" onClick="{{f.elegir}}" aria-pressed="{{f.on}}" style="{{f.style}}">{{f.label}}<span style="{{f.numStyle}}">{{f.n}}</span></button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section aria-label="Lista de pacientes" style="width: 100%; max-width: 1140px; margin: 0 auto; box-sizing: border-box; background: #FFFFFF; border-radius: 28px; padding: 8px 8px 12px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 20px 48px rgba(2,38,30,0.08);">
+    <div role="row" style="display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; padding: 12px 16px; font-size: 13px; font-weight: 700; color: #4A5F5C;">
+      <button type="button" onClick="{{ordenNombre}}" style="{{ordenNombreStyle}}">Paciente {{flechaNombre}}</button>
+      <span>Celular</span>
+      <button type="button" onClick="{{ordenUltimo}}" style="{{ordenUltimoStyle}}">Último turno {{flechaUltimo}}</button>
+      <button type="button" onClick="{{ordenProx}}" style="{{ordenProxStyle}}">Próximo turno {{flechaProx}}</button>
+      <span style="text-align: right;">Saldo</span>
+    </div>
+    <sc-for list="{{filas}}" as="p" hint-placeholder-count="10">
+      <a href="Ficha.dc.html" class="fila" style="width: 100%; box-sizing: border-box; text-decoration: none; display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; align-items: center; min-height: 60px; padding: 8px 16px; border: 0; border-top: 1px solid #E9F1F3; background: transparent; color: #02261E; text-align: left; font-size: 15px; border-radius: 0;">
+        <span style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+          <span aria-hidden="true" style="{{p.avatar}}">{{p.iniciales}}</span>
+          <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;">
+            <span style="font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{p.nombre}}</span>
+          </span>
+        </span>
+        <span style="font-variant-numeric: tabular-nums;">{{p.cel}}</span>
+        <span style="font-variant-numeric: tabular-nums;">{{p.ultimo}}</span>
+        <span style="{{p.proxStyle}}">{{p.proximo}}</span>
+        <span style="{{p.saldoStyle}}">{{p.saldo}}</span>
+      </a>
+    </sc-for>
+    <sc-if value="{{vacio}}" hint-placeholder-val="{{false}}">
+      <div style="padding: 32px 16px; text-align: center; color: #4A5F5C; border-top: 1px solid #E9F1F3;">No hay pacientes con ese filtro.</div>
+    </sc-if>
+    <div style="display: flex; justify-content: center; padding-top: 8px; border-top: 1px solid #E9F1F3;">
+      <button type="button" style="height: 44px; padding: 0 20px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">Ver más pacientes</button>
+    </div>
+  </section>
+
+  <sc-if value="{{hayModal}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 20; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 140px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="{{modalTitulo}}" class="paso" style="width: 100%; max-width: 540px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+
+        <sc-if value="{{verNuevo}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Paciente nuevo</h2>
+              <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+              <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C;">DNI<input type="text" inputmode="numeric" value="46.111.222" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-size: 15px; color: #02261E;"></label>
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C;">Nombre<input type="text" value="Lara" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-size: 15px; color: #02261E;"></label>
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C;">Apellido<input type="text" value="Méndez" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-size: 15px; color: #02261E;"></label>
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C;">Celular<input type="tel" value="11 5555-0140" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-size: 15px; color: #02261E;"></label>
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C;">Correo (opcional)<input type="email" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-size: 15px; color: #02261E;"></label>
+            </div>
+            <span style="font-size: 13px; line-height: 1.4; padding: 10px 12px; border-radius: 14px; background: #E5F2FF; color: #1D5FB8;">El DNI es único: si ya existe, te mostramos esa ficha. El resto de los datos se completan en la ficha, antes de la primera consulta.</span>
+            <button type="button" onClick="{{guardarNuevo}}" style="height: 48px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar paciente</button>
+            <button type="button" onClick="{{cerrar}}" style="height: 44px; border-radius: 14px; border: 0; background: transparent; color: #4A5F5C; font-size: 14px; font-weight: 600;">Cancelar</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ filtro: 'todos', orden: 'nombre', sel: null, nuevo: false, agregados: [] }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+
+    var navBase = 'display: flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-size: 15px; ';
+    var nav = [['Hoy', 'Main.dc.html'], ['Agenda', 'Agenda.dc.html'], ['Pacientes', 'Pacientes.dc.html'], ['Cobros', 'Comprobante.dc.html'], ['Estadísticas', 'Estadisticas.dc.html']].map(function (n, i) {
+      return { label: n[0], href: n[1], actual: i === 2 ? 'page' : 'false', style: navBase + (i === 2 ? 'background: #DCEFEF; color: #24605F; font-weight: 700;' : 'color: #02261E; font-weight: 500;') };
+    });
+
+    // nombre, celular, correo, DNI, cobertura, veces, faltas, último (texto, orden), detalle último, próximo, saldo (centavos)
+    var P = [
+      ['Ana Quiroga', '11 5555-0110', 'ana.q@correo.com', '30.111.222', 'OSDE', 5, 0, '21/10', 1021, 'Control', 'Mar 28/10 · 10:30', 0, true, 1028.1, false],
+      ['Camila Sosa', '11 5555-0161', 'cami.sosa@correo.com', '38.444.555', 'Particular', 2, 0, '21/10', 1021, 'Evolución', 'Vie 31/10 · 16:00', 0, false, 1031.16, false],
+      ['Carlos Vera', '11 5555-0106', 'sin correo', '12.345.678', 'PAMI', 10, 1, '2/10', 1002, 'Control', 'Hoy · 12:30', 0, false, 1023.125, false],
+      ['Diego Paz', '11 5555-0199', 'diego.paz@correo.com', '33.222.111', 'Swiss Medical', 4, 0, '6/10', 1006, 'Control', 'Vie 24/10 · 17:00', 1200000, false, 1024.17, false],
+      ['Elena Castro', '11 5555-0123', 'elena.castro@correo.com', '22.333.444', 'Swiss Medical', 6, 0, '20/10', 1020, 'Evolución', 'Mar 28/10 · 9:00', 0, false, 1028.09, false],
+      ['Hugo Ibarra', '11 5555-0145', 'hugo.i@correo.com', '27.888.999', 'Particular', 3, 0, '20/10', 1020, 'Control', 'Vie 24/10 · 11:30', 0, false, 1024.115, false],
+      ['Lucas Benítez', '11 5555-0104', 'lucas.b@correo.com', '36.555.444', 'OSDE', 6, 0, '25/9', 925, 'Control', 'Hoy · 11:00', 0, false, 1023.11, false],
+      ['Martina Gómez', '11 5555-0103', 'martina.g@correo.com', '45.678.901', 'Sin completar', 0, 0, '—', 0, 'Nunca vino', 'Hoy · 10:30', 0, false, 1023.105, false],
+      ['Pedro Luna', '11 5555-0152', 'pedro.luna@correo.com', '25.666.777', 'Galeno', 8, 0, '20/10', 1020, 'Control', 'Vie 24/10 · 9:00', 0, false, 1024.09, false],
+      ['Rosa Medina', '11 5555-0131', 'rosa.m@correo.com', '18.999.000', 'PAMI', 4, 1, '20/10', 1020, 'Ausente', 'Sáb 25/10 · 9:30', 0, false, 1025.095, false],
+      ['Tomás Ferreyra', '11 5555-0102', 'tomas.f@correo.com', '40.777.888', 'Particular', 3, 0, 'Hoy', 1023, 'Control', 'Sin turno', 950000, false, 99999, false],
+      ['Valeria Ruiz', '11 5555-0188', 'vale.ruiz@correo.com', '41.222.333', 'Particular', 1, 0, '20/10', 1020, 'Primera consulta', 'Sáb 25/10 · 11:00', 1500000, false, 1025.11, false],
+      ['Julián Rey', '11 5555-0170', 'julian.rey@correo.com', '39.000.111', 'OSDE', 1, 0, '21/10', 1021, 'Primera consulta', 'Sin turno', 0, false, 99999, false],
+      ['Nicolás Díaz', '11 5555-0193', 'nico.diaz@correo.com', '31.444.333', 'Galeno', 7, 2, '21/10', 1021, 'Control', 'Sin turno', 0, true, 99999, false],
+      ['Irene Paredes', '11 5555-0117', 'irene.p@correo.com', '20.555.666', 'IOMA', 12, 0, '3/3', 303, 'Control', 'Sin turno', 0, false, 99999, true]
+    ].concat(s.agregados);
+
+    var pesos = function (c) { var v = Math.round(c / 100); return '$ ' + v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+    var MARCA = 'font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; ';
+    var marcasDe = function (p) {
+      var m = [];
+      if (p[5] === 0) m.push({ label: 'Primera consulta', style: MARCA + 'background: #E5F2FF; color: #1D5FB8;' });
+      if (p[4] === 'Sin completar') m.push({ label: 'Ficha incompleta', style: MARCA + 'background: #FFF1D6; color: #8A5300;' });
+      if (p[12]) m.push({ label: 'Control vencido', style: MARCA + 'background: #FDE8E8; color: #9E2016;' });
+      if (p[14]) m.push({ label: 'Dado de baja', style: MARCA + 'background: #ECEFF3; color: #475467;' });
+      if (p[6]) m.push({ label: p[6] === 1 ? '1 falta' : p[6] + ' faltas', style: MARCA + 'background: #ECEFF3; color: #475467;' });
+      return m;
+    };
+    var FILTROS = [
+      ['todos', 'Todos', function (p) { return !p[14]; }],
+      ['deben', 'Te deben', function (p) { return !p[14] && p[11] > 0; }],
+      ['control', 'Control vencido', function (p) { return !p[14] && p[12]; }],
+      ['sinTurno', 'Sin próximo turno', function (p) { return !p[14] && p[10] === 'Sin turno'; }],
+      ['nuevos', 'Primera consulta', function (p) { return !p[14] && p[5] === 0; }],
+      ['dni', 'Ficha incompleta', function (p) { return !p[14] && p[4] === 'Sin completar'; }],
+      ['baja', 'Dados de baja', function (p) { return p[14]; }]
+    ];
+    var filtros = FILTROS.map(function (f) {
+      var o = s.filtro === f[0], n = P.filter(f[2]).length;
+      return { label: f[1], n: f[0] === 'todos' ? '' : n, on: o ? 'true' : 'false', elegir: set({ filtro: f[0] }),
+        style: 'display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; font-size: 14px; ' + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: rgba(255,255,255,0.88); color: #02261E; font-weight: 600; box-shadow: 0 1px 2px rgba(2,38,30,0.06);'),
+        numStyle: f[0] === 'todos' ? 'display: none;' : 'font-size: 12px; font-weight: 800; min-width: 20px; padding: 1px 6px; border-radius: 999px; ' + (o ? 'background: rgba(255,255,255,0.18);' : 'background: #E9F1F3;') };
+    });
+    var activo = FILTROS.filter(function (f) { return f[0] === s.filtro; })[0];
+    var lista = P.filter(activo[2]).slice().sort(function (a, b) { return s.orden === 'nombre' ? a[0].localeCompare(b[0]) : s.orden === 'ultimo' ? b[8] - a[8] : a[13] - b[13]; });
+    var COLORES = [['#DCEFEF', '#24605F'], ['#F3FDE0', '#3D6B0A'], ['#E5F2FF', '#1D5FB8'], ['#EFEAF6', '#5B3F8C']];
+    var avatar = function (i, tam) { var c = COLORES[i % COLORES.length]; return 'width: ' + tam + 'px; height: ' + tam + 'px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: ' + Math.round(tam * 0.36) + 'px; background: ' + c[0] + '; color: ' + c[1] + ';'; };
+    var datos = function (p) {
+      var idx = P.indexOf(p);
+      var ini = p[0].split(' ').map(function (x) { return x.charAt(0); }).join('').slice(0, 2);
+      var sinProx = p[10] === 'Sin turno';
+      return {
+        nombre: p[0], iniciales: ini, avatar: avatar(idx, 40), avatarGrande: avatar(idx, 56), marcas: marcasDe(p), cel: p[1], mail: p[2],
+        dni: 'DNI ' + p[3], cobertura: p[4] === 'Sin completar' ? 'Ficha sin completar' : p[4], fichaTxt: p[4] === 'Sin completar' ? 'Completar la ficha' : 'Abrir la ficha completa',
+        ultimo: p[7], ultimoSub: p[9],
+        proximo: p[10], proxStyle: sinProx ? 'color: #4A5F5C;' : (p[10].indexOf('Hoy') === 0 ? 'font-weight: 700;' : ''),
+        saldo: p[11] ? 'Debe ' + pesos(p[11]) : 'Al día', debe: p[11] > 0, noDebe: !p[11],
+        saldoStyle: 'text-align: right; font-variant-numeric: tabular-nums; ' + (p[11] ? 'color: #8A5300; font-weight: 700;' : 'color: #4A5F5C;'),
+        saldoCaja: 'padding: 12px; border-radius: 16px; display: flex; flex-direction: column; line-height: 1.3; min-width: 0; ' + (p[11] ? 'background: #FFF1D6; color: #8A5300;' : 'background: #F2F7F9; color: #4A5F5C;'),
+        vecesTxt: p[5] === 0 ? 'Nunca' : p[5] === 1 ? '1 vez' : p[5] + ' veces'
+      };
+    };
+    var filas = lista.map(datos);
+        var ordSt = function (o) { return 'justify-self: start; border: 0; background: transparent; padding: 0; min-height: 32px; font: inherit; font-size: 13px; font-weight: 700; color: ' + (o ? '#02261E' : '#4A5F5C') + ';'; };
+
+    return {
+      nav: nav, filtros: filtros, filas: filas, vacio: !filas.length,
+      totalTxt: P.filter(function (p) { return !p[14]; }).length + ' pacientes · ' + P.filter(function (p) { return p[11] > 0; }).length + ' te deben · ' + P.filter(function (p) { return p[12]; }).length + ' con control vencido',
+      ordenNombre: set({ orden: 'nombre' }), ordenUltimo: set({ orden: 'ultimo' }), ordenProx: set({ orden: 'prox' }), ordenProxStyle: ordSt(s.orden === 'prox'), flechaProx: s.orden === 'prox' ? '↑' : '',
+      ordenNombreStyle: ordSt(s.orden === 'nombre'), ordenUltimoStyle: ordSt(s.orden === 'ultimo'),
+      flechaNombre: s.orden === 'nombre' ? '↓' : '', flechaUltimo: s.orden === 'ultimo' ? '↓' : '',
+      hayModal: s.nuevo, verNuevo: s.nuevo,
+      modalTitulo: 'Paciente nuevo',
+      cerrar: set({ nuevo: false }), abrirNuevo: set({ nuevo: true }),
+      guardarNuevo: function () {
+        var n = ['Lara Méndez', '11 5555-0140', 'sin correo', '46.111.222', 'Sin completar', 0, 0, '—', 0, 'Nunca vino', 'Sin turno', 0, false, 99999, false];
+        self.setState({ agregados: s.agregados.concat([n]), nuevo: false });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

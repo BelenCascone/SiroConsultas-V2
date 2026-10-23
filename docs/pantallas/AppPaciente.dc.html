@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>App del paciente</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#E9F1F3}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .26s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; padding: 32px 24px; background: #E9F1F3; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #02261E; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; align-items: flex-start;">
+
+  <div style="width: 390px; height: 844px; position: relative; overflow: hidden; border-radius: 44px; background: radial-gradient(320px 220px at 10% 0%, rgba(137,201,201,0.40), transparent 70%), radial-gradient(300px 200px at 95% 6%, rgba(218,252,146,0.55), transparent 70%), #F2F7F9; box-shadow: 0 0 0 10px #02261E, 0 30px 60px rgba(2,38,30,0.25); font-size: 15px; line-height: 1.45;">
+    <div style="position: absolute; inset: 0 0 80px 0; overflow-y: auto; padding: 20px 18px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px;">
+
+      <header style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 13px; color: #4A5F5C;">Consultorio de Julia</span>
+          <span style="font-size: 20px; font-weight: 700;">Hola, Martina</span>
+        </div>
+        <span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #89C9C9; box-shadow: 8px 0 0 -2px #DAFC92; margin-right: 8px;"></span>
+      </header>
+
+      <sc-if value="{{tabInicio}}" hint-placeholder-val="{{true}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 14px;">
+          <section aria-label="Tu próximo turno" style="background: #FFFFFF; border-radius: 24px; padding: 18px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 12px 28px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13px; color: #4A5F5C; font-weight: 600;">Tu próximo turno</span>
+              <span style="{{estadoChip}}">{{estado}}</span>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 22px; font-weight: 700;">{{proxCuando}}</span>
+              <span style="color: #4A5F5C;">Control · Consultorio Centro</span>
+              <span style="color: #4A5F5C; font-size: 14px;">San Martín 900, Paraná</span>
+            </div>
+            <sc-if value="{{sinConfirmar}}" hint-placeholder-val="{{true}}">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button type="button" onClick="{{confirmar}}" style="height: 48px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Confirmo</button>
+                <button type="button" onClick="{{abrirCambio}}" style="height: 48px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600;">Cambiar o cancelar</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{conAviso}}" hint-placeholder-val="{{false}}">
+              <p class="paso" style="margin: 0; font-size: 14px; color: #4A5F5C;">{{avisoTurno}}</p>
+            </sc-if>
+          </section>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button type="button" onClick="{{irPagos}}" style="{{saldoTile}}">
+              <span style="font-size: 13px; font-weight: 600;">{{saldoLabel}}</span>
+              <span style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums;">{{saldoTxt}}</span>
+            </button>
+            <button type="button" onClick="{{irTurnos}}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 14px; border-radius: 18px; border: 0; background: #FFFFFF; color: #02261E; text-align: left;">
+              <span style="font-size: 13px; font-weight: 600; color: #4A5F5C;">Tus turnos</span>
+              <span style="font-size: 22px; font-weight: 800;">1 próximo</span>
+            </button>
+          </div>
+
+          <button type="button" onClick="{{pedirTurno}}" style="height: 54px; border-radius: 16px; border: 0; background: #DAFC92; color: #02261E; font-size: 16px; font-weight: 800;">+ Pedir turno</button>
+          <span style="font-size: 13px; color: #4A5F5C; text-align: center;">Abre la misma página para pedir turno online, con tus datos ya cargados.</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{tabTurnos}}" hint-placeholder-val="{{false}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 14px;">
+          <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Tus turnos</h1>
+          <section aria-labelledby="t-prox" style="display: flex; flex-direction: column; gap: 8px;">
+            <h2 id="t-prox" style="margin: 0; font-size: 13px; font-weight: 700; color: #4A5F5C;">Próximos</h2>
+            <div style="background: #FFFFFF; border-radius: 18px; padding: 14px 16px; display: flex; align-items: center; gap: 12px;">
+              <span style="flex: 1; display: flex; flex-direction: column;"><span style="font-weight: 700;">{{proxCuando}}</span><span style="font-size: 13px; color: #4A5F5C;">Control · Consultorio Centro</span></span>
+              <span style="{{estadoChip}}">{{estado}}</span>
+            </div>
+          </section>
+          <section aria-labelledby="t-pas" style="display: flex; flex-direction: column; gap: 8px;">
+            <h2 id="t-pas" style="margin: 0; font-size: 13px; font-weight: 700; color: #4A5F5C;">Anteriores</h2>
+            <div style="background: #FFFFFF; border-radius: 18px; padding: 2px 16px;">
+              <sc-for list="{{pasados}}" as="p" hint-placeholder-count="2">
+                <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid #E9F1F3;">
+                  <span style="flex: 1; display: flex; flex-direction: column;"><span style="font-weight: 600;">{{p.t}}</span><span style="font-size: 13px; color: #4A5F5C;">{{p.d}}</span></span>
+                  <span style="{{p.chip}}">{{p.e}}</span>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+          <p style="margin: 0; font-size: 13px; color: #4A5F5C;">Acá ves fechas y estados. Lo que se habló en la consulta no aparece en la app.</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{tabPagos}}" hint-placeholder-val="{{false}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 14px;">
+          <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Tus pagos</h1>
+          <section style="{{saldoCaja}}">
+            <span style="font-size: 14px; font-weight: 600;">{{saldoLabel}}</span>
+            <span style="font-size: 34px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">{{saldoTxt}}</span>
+            <sc-if value="{{debe}}" hint-placeholder-val="{{true}}">
+              <span style="font-size: 14px;">Resto de la primera consulta del 23/10</span>
+              <button type="button" onClick="{{pagar}}" style="margin-top: 10px; height: 50px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Pagar con Mercado Pago</button>
+            </sc-if>
+          </section>
+          <section aria-labelledby="p-hist" style="display: flex; flex-direction: column; gap: 8px;">
+            <h2 id="p-hist" style="margin: 0; font-size: 13px; font-weight: 700; color: #4A5F5C;">Lo que pagaste</h2>
+            <div style="background: #FFFFFF; border-radius: 18px; padding: 2px 16px;">
+              <sc-for list="{{pagos}}" as="pg" hint-placeholder-count="2">
+                <div style="display: flex; align-items: center; gap: 10px; min-height: 60px; border-top: 1px solid #E9F1F3;">
+                  <span style="flex: 1; display: flex; flex-direction: column;"><span style="font-weight: 600;">{{pg.s}}</span><span style="font-size: 13px; color: #4A5F5C;">{{pg.d}}</span></span>
+                  <span style="font-weight: 700; font-variant-numeric: tabular-nums;">{{pg.m}}</span>
+                  <button type="button" onClick="{{pg.ver}}" aria-label="Ver comprobante" style="height: 44px; padding: 0 10px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 13px;">Comprobante</button>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{tabDatos}}" hint-placeholder-val="{{false}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 14px;">
+          <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Tus datos</h1>
+          <section style="background: #FFFFFF; border-radius: 18px; padding: 2px 16px;">
+            <sc-for list="{{datos}}" as="d" hint-placeholder-count="4">
+              <div style="display: flex; flex-direction: column; justify-content: center; min-height: 56px; border-top: 1px solid #E9F1F3;">
+                <span style="font-size: 13px; color: #4A5F5C;">{{d.k}}</span><span style="font-weight: 600;">{{d.v}}</span>
+              </div>
+            </sc-for>
+          </section>
+          <p style="margin: 0; font-size: 13px; color: #4A5F5C;">Si algo cambió, avisale al consultorio por WhatsApp y lo corrige en tu ficha.</p>
+        </div>
+      </sc-if>
+    </div>
+
+    <nav aria-label="Secciones" style="position: absolute; left: 0; right: 0; bottom: 0; height: 80px; box-sizing: border-box; padding: 8px 10px 16px; background: #FFFFFF; box-shadow: 0 -1px 0 #E9F1F3; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button type="button" onClick="{{t.elegir}}" aria-current="{{t.actual}}" style="{{t.style}}">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.icon}}"></path></svg>
+          <span>{{t.label}}</span>
+        </button>
+      </sc-for>
+    </nav>
+
+    <sc-if value="{{toast}}" hint-placeholder-val="{{false}}">
+      <div role="status" class="paso" style="position: absolute; left: 16px; right: 16px; bottom: 92px; padding: 12px 14px; border-radius: 14px; background: #02261E; color: #FFFFFF; font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <span>{{toastTxt}}</span>
+        <button type="button" onClick="{{cerrarToast}}" style="height: 44px; padding: 0 10px; border: 0; background: transparent; color: #DAFC92; font-weight: 700; font-size: 14px;">Listo</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{verCambio}}" hint-placeholder-val="{{false}}">
+      <div style="position: absolute; inset: 0; background: rgba(2,38,30,0.35); display: flex; align-items: flex-end;">
+        <div class="paso" role="dialog" aria-modal="true" aria-label="Cambiar o cancelar" style="width: 100%; box-sizing: border-box; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 10px 18px 26px; display: flex; flex-direction: column; gap: 10px;">
+          <span aria-hidden="true" style="align-self: center; width: 40px; height: 4px; border-radius: 4px; background: #DDE8EB;"></span>
+          <h2 style="margin: 0; font-size: 19px; font-weight: 700;">¿Qué querés hacer?</h2>
+          <span style="font-size: 14px; color: #4A5F5C;">{{proxCuando}} · Control</span>
+          <button type="button" onClick="{{pedirOtro}}" style="height: 52px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Pedir otro horario</button>
+          <button type="button" onClick="{{cancelar}}" style="height: 52px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600;">Cancelar el turno</button>
+          <button type="button" onClick="{{cerrarCambio}}" style="height: 44px; border-radius: 12px; border: 0; background: transparent; color: #24605F; font-size: 15px; font-weight: 700;">Volver</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <aside style="width: 320px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #4A5F5C;">
+    <h2 style="margin: 0; font-size: 18px; color: #02261E;">Lo que ve el paciente</h2>
+    <p style="margin: 0;">Igual que en SiroStudio: su próximo turno para confirmar o cambiar, sus turnos, lo que debe con el botón de Mercado Pago, lo que pagó con el comprobante y sus datos.</p>
+    <p style="margin: 0;">No ve nada clínico: ni historia, ni notas, ni diagnósticos.</p>
+    <p style="margin: 0; padding: 10px 12px; border-radius: 12px; background: #FFF1D6; color: #8A5300;">A definir: cómo entra (por ejemplo, un enlace por WhatsApp con un código) y si los documentos que le mandaste aparecen acá.</p>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ tab: 'Inicio', turno: 'pendiente', cambio: false, pagado: false, toast: '' }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    var chip = 'font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; ';
+    var ESTADO = {
+      pendiente: ['Confirmalo', 'background:#E5F2FF;color:#1D5FB8;'],
+      confirmado: ['Confirmado', 'background:#E4F4EA;color:#166534;'],
+      cambio: ['Pediste otro horario', 'background:#FFF1D6;color:#8A5300;'],
+      cancelado: ['Cancelado', 'background:#FDE8E8;color:#9E2016;']
+    };
+    var AVISO = {
+      confirmado: 'Listo, le avisamos al consultorio. Te recordamos el día anterior por WhatsApp.',
+      cambio: 'Le avisamos al consultorio. Te escriben por WhatsApp con otro horario.',
+      cancelado: 'Cancelaste el turno. Si querés otro, tocá «Pedir turno».'
+    };
+    var ICON = {
+      Inicio: 'M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5',
+      Turnos: 'M4 6.5h16v13H4zM4 10.5h16M8.5 3.5v5M15.5 3.5v5',
+      Pagos: 'M3.5 7.5h17v11h-17zM3.5 11h17M7 15h3',
+      Datos: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20c1-3.6 4-5.5 7.5-5.5s6.5 1.9 7.5 5.5'
+    };
+    var tabs = ['Inicio', 'Turnos', 'Pagos', 'Datos'].map(function (t) {
+      var on = s.tab === t;
+      return { label: t, icon: ICON[t], actual: on ? 'page' : null, elegir: set({ tab: t, toast: '' }),
+        style: 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; border: 0; border-radius: 14px; font-size: 13px; ' + (on ? 'background:#DCEFEF;color:#24605F;font-weight:800;' : 'background:transparent;color:#4A5F5C;font-weight:600;') };
+    });
+    var debe = !s.pagado;
+    var pagos = [
+      { s: 'Primera consulta', d: '23/10 · Efectivo · una parte', m: '$ 10.000' }
+    ];
+    if (s.pagado) pagos.unshift({ s: 'Resto de la primera consulta', d: '23/10 · Mercado Pago', m: '$ 5.000' });
+    pagos.forEach(function (p) { p.ver = set({ toast: 'Se abre el comprobante interno en PDF.' }); });
+    return {
+      tabInicio: s.tab === 'Inicio', tabTurnos: s.tab === 'Turnos', tabPagos: s.tab === 'Pagos', tabDatos: s.tab === 'Datos',
+      tabs: tabs,
+      irPagos: set({ tab: 'Pagos' }), irTurnos: set({ tab: 'Turnos' }),
+      pedirTurno: set({ toast: 'Se abre la página para pedir turno online.' }),
+      proxCuando: s.turno === 'cancelado' ? 'Jue 6/11 · 10:30 (cancelado)' : 'Jue 6/11 · 10:30',
+      estado: ESTADO[s.turno][0], estadoChip: chip + ESTADO[s.turno][1],
+      sinConfirmar: s.turno === 'pendiente', conAviso: s.turno !== 'pendiente', avisoTurno: AVISO[s.turno] || '',
+      confirmar: set({ turno: 'confirmado' }),
+      verCambio: s.cambio, abrirCambio: set({ cambio: true }), cerrarCambio: set({ cambio: false }),
+      pedirOtro: set({ cambio: false, turno: 'cambio' }), cancelar: set({ cambio: false, turno: 'cancelado' }),
+      debe: debe, saldoTxt: debe ? '$ 5.000' : '$ 0', saldoLabel: debe ? 'Debés' : 'Estás al día',
+      saldoTile: 'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 14px; border-radius: 18px; border: 0; text-align: left; ' + (debe ? 'background:#FFF1D6;color:#8A5300;' : 'background:#E4F4EA;color:#166534;'),
+      saldoCaja: 'display: flex; flex-direction: column; gap: 2px; padding: 20px; border-radius: 24px; ' + (debe ? 'background:#FFF1D6;color:#8A5300;' : 'background:#E4F4EA;color:#166534;'),
+      pagar: set({ pagado: true, toast: 'Pagaste $ 5.000 con Mercado Pago. Ya está en tu cuenta.' }),
+      pagos: pagos,
+      pasados: [
+        { t: 'Primera consulta', d: 'Jue 23/10 · 10:30', e: 'Atendido', chip: chip + 'background:#E4F4EA;color:#166534;' }
+      ],
+      datos: [{ k: 'Nombre', v: 'Martina Gómez' }, { k: 'DNI', v: '45.678.901' }, { k: 'Celular', v: '343 555-0142' }, { k: 'Cobertura', v: 'OSDE' }],
+      toast: !!s.toast, toastTxt: s.toast, cerrarToast: set({ toast: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>

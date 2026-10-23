@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ficha del paciente</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+.campo{height:44px;box-sizing:border-box;padding:0 12px;border-radius:12px;border:0;box-shadow:inset 0 0 0 1px #C5D6DA;background:#FFFFFF;color:#02261E;font-size:15px;min-width:0}
+.etq{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:#4A5F5C;min-width:0}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+.item:hover{background:#F2F7F9}
+.fila-doc:hover{background:#F7FAFB}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; min-height: 1100px; box-sizing: border-box; padding: 24px 40px 56px; background: radial-gradient(520px 260px at 18% 0%, rgba(137,201,201,0.34), transparent 70%), radial-gradient(440px 240px at 72% 4%, rgba(218,252,146,0.50), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; gap: 22px;">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+    <a href="Pacientes.dc.html" style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px 0 12px; border-radius: 999px; background: rgba(255,255,255,0.88); color: #02261E; text-decoration: none; font-weight: 600; box-shadow: 0 1px 2px rgba(2,38,30,0.06);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+      Pacientes
+    </a>
+    <nav aria-label="Menú principal" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: rgba(255,255,255,0.85); border-radius: 999px; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 8px 24px rgba(2,38,30,0.06);">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="{{n.href}}" style="{{n.style}}">{{n.label}}</a>
+      </sc-for>
+    </nav>
+    <a href="Configuracion.dc.html" aria-label="Configuración" title="Configuración" style="width: 44px; height: 44px; border-radius: 50%; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800; font-size: 15px; text-decoration: none;">JP</a>
+  </header>
+
+  <sc-if value="{{deBaja}}" hint-placeholder-val="{{false}}">
+    <div class="paso" role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 20px; border-radius: 999px; background: #ECEFF3; color: #475467;">
+      <span><b>Dado de baja el 23/10</b> · {{motivoBaja}}. La historia y los cobros se conservan; no se le pueden dar turnos.</span>
+      <button type="button" onClick="{{reactivar}}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #02261E; color: #FFFFFF; font-size: 14px; font-weight: 700;">Reactivar</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{hayAviso}}" hint-placeholder-val="{{false}}">
+    <div class="paso" role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 20px; border-radius: 999px; background: #E4F4EA; color: #166534; font-weight: 600;">
+      <span>{{aviso}}</span>
+      <button type="button" onClick="{{cerrarAviso}}" style="height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: transparent; color: inherit; font-size: 14px; font-weight: 700; text-decoration: underline;">Listo</button>
+    </div>
+  </sc-if>
+
+  <section style="{{cabecera}}">
+    <div style="display: flex; align-items: center; gap: 18px; min-width: 0;">
+      <span aria-hidden="true" style="width: 72px; height: 72px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 26px; background: #EFEAF6; color: #5B3F8C;">DP</span>
+      <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+        <h1 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15;">{{d.nombre}} {{d.apellido}}</h1>
+        <span style="color: #4A5F5C;">DNI {{d.dni}} · {{d.edad}} · {{d.cobertura}} · {{d.celular}}</span>
+      </div>
+    </div>
+    <sc-if value="{{activo}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+        <sc-if value="{{debe}}" hint-placeholder-val="{{true}}">
+          <button type="button" onClick="{{cb.abrir}}" style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; height: 56px; padding: 0 20px; border-radius: 18px; border: 0; background: #FFF1D6; color: #8A5300; line-height: 1.2;"><span style="font-size: 13px; font-weight: 600;">Debe</span><span style="font-size: 18px; font-weight: 800;">{{debeTxt}}</span></button>
+        </sc-if>
+        <div style="position: relative;">
+          <button type="button" onClick="{{toggleMenuDoc}}" aria-expanded="{{menuDocAria}}" aria-haspopup="menu" aria-label="Hacer certificado, receta o pedido" title="Hacer certificado, receta o pedido" style="width: 56px; height: 56px; border-radius: 50%; border: 0; background: #E9F1F3; color: #02261E; display: grid; place-items: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l5 5v13H6zM14 3v5h5M12.5 11v6M9.5 14h6"></path></svg></button>
+          <sc-if value="{{menuDoc}}" hint-placeholder-val="{{false}}">
+            <div role="menu" aria-label="Hacer un documento" class="paso" style="position: absolute; top: 64px; right: 0; z-index: 10; width: 270px; background: #FFFFFF; border-radius: 18px; padding: 6px; box-shadow: 0 16px 40px rgba(2,38,30,0.18); display: flex; flex-direction: column;">
+              <button type="button" role="menuitem" class="item" onClick="{{doc.abrirCert}}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 12px; border-radius: 12px; border: 0; background: transparent; color: #02261E; font-size: 15px; font-weight: 600; text-align: left;"><span aria-hidden="true" style="width: 32px; height: 32px; flex: 0 0 auto; border-radius: 10px; background: #E9F1F3; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"></path></svg></span>Certificado</button>
+              <button type="button" role="menuitem" class="item" onClick="{{doc.abrirReceta}}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 12px; border-radius: 12px; border: 0; background: transparent; color: #02261E; font-size: 15px; font-weight: 600; text-align: left;"><span aria-hidden="true" style="width: 32px; height: 32px; flex: 0 0 auto; border-radius: 10px; background: #E9F1F3; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3.5a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7-7l7-7zM7 7l7 7"></path></svg></span>Receta (MisRx)</button>
+              <button type="button" role="menuitem" class="item" onClick="{{doc.abrirPedido}}" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 12px; border-radius: 12px; border: 0; background: transparent; color: #02261E; font-size: 15px; font-weight: 600; text-align: left;"><span aria-hidden="true" style="width: 32px; height: 32px; flex: 0 0 auto; border-radius: 10px; background: #E9F1F3; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3M7 15h10"></path></svg></span>Pedido de estudios</button>
+            </div>
+          </sc-if>
+        </div>
+        <a href="#" aria-label="Escribirle por WhatsApp" title="Escribirle por WhatsApp" style="width: 56px; height: 56px; border-radius: 50%; background: #E4F4EA; color: #166534; display: grid; place-items: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 4.54 0 8.24 3.7 8.24 8.24 0 4.55-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.17.24-.64.8-.78.97-.14.17-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28z"></path></svg></a>
+        <button type="button" onClick="{{darTurno}}" aria-label="Darle turno" title="Darle turno" style="width: 56px; height: 56px; border-radius: 50%; border: 0; background: #DAFC92; color: #02261E; display: grid; place-items: center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+      </div>
+      <button type="button" onClick="{{abrirEditar}}" aria-label="Editar datos personales" title="Editar datos personales" style="position: absolute; top: 14px; right: 14px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #F2F7F9; color: #02261E; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path><path d="M13.5 6.5l4 4"></path></svg></button>
+    </sc-if>
+  </section>
+
+  <div role="tablist" aria-label="Secciones de la ficha" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 4px; align-self: center; border-radius: 999px; background: rgba(255,255,255,0.88); box-shadow: 0 1px 2px rgba(2,38,30,0.06);">
+    <sc-for list="{{pestanas}}" as="p" hint-placeholder-count="5">
+      <button type="button" role="tab" aria-selected="{{p.on}}" onClick="{{p.elegir}}" style="{{p.style}}">{{p.label}}</button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{tabResumen}}" hint-placeholder-val="{{true}}">
+    <div class="paso" style="display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start;">
+      <section style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 10px;">
+        <h2 style="margin: 0 0 4px; font-size: 17px; font-weight: 700;">Datos</h2>
+        <sc-for list="{{datos}}" as="x" hint-placeholder-count="8">
+          <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px; padding-bottom: 8px; border-bottom: 1px solid #E9F1F3;">
+            <span style="color: #4A5F5C;">{{x.k}}</span><span style="font-weight: 600; text-align: right; min-width: 0;">{{x.v}}</span>
+          </div>
+        </sc-for>
+      </section>
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <section style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 10px;">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700;">Próximo turno</h2>
+          <span style="font-size: 20px; font-weight: 800;">{{proximo}}</span>
+          <span style="{{proximoNota}}">{{proximoNotaTxt}}</span>
+        </section>
+        <section style="{{saldoCaja}}">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700; color: #02261E;">Saldo</h2>
+          <span style="font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums;">{{saldoTxt}}</span>
+          <span style="font-size: 14px;">{{saldoSub}}</span>
+        </section>
+        <section style="background: rgba(255,255,255,0.75); border-radius: 26px; padding: 20px 22px; display: flex; flex-direction: column; gap: 6px;">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700;">Próximo control</h2>
+          <span style="font-weight: 600;">Semana del 17/11</span>
+          <span style="font-size: 14px; color: #4A5F5C;">Cada 6 semanas, según la última consulta.</span>
+        </section>
+      </div>
+      <section style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700;">Últimas consultas</h2>
+          <button type="button" onClick="{{irHistoria}}" style="min-height: 40px; border: 0; background: transparent; padding: 0; color: #24605F; font-size: 14px; font-weight: 700;">Ver todas</button>
+        </div>
+        <sc-for list="{{consultasCortas}}" as="c" hint-placeholder-count="3">
+          <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9;">
+            <span style="font-size: 13px; color: #4A5F5C; font-weight: 600;">{{c.fecha}} · {{c.tipo}}</span>
+            <span style="font-size: 14px;">{{c.texto}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{tabHistoria}}" hint-placeholder-val="{{false}}">
+    <div class="paso" style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: start;">
+      <section style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700;">Consultas</h2>
+          <div style="display: flex; gap: 8px;">
+          <button type="button" onClick="{{abrirExportar}}" style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Exportar historia clínica</button>
+          <sc-if value="{{activo}}" hint-placeholder-val="{{true}}">
+            <a href="Consulta.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 999px; background: #02261E; color: #FFFFFF; font-size: 14px; font-weight: 700; text-decoration: none;">Empezar consulta sin turno</a>
+          </sc-if>
+          </div>
+        </div>
+        <sc-for list="{{consultas}}" as="c" hint-placeholder-count="4">
+          <article style="display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 18px; box-shadow: inset 0 0 0 1px #E9F1F3;">
+            <div style="display: flex; justify-content: space-between; gap: 8px;"><span style="font-weight: 700;">{{c.fecha}} · {{c.tipo}}</span><span style="font-size: 13px; color: #4A5F5C;">{{c.lugar}}</span></div>
+            <span style="font-size: 14px;">{{c.texto}}</span>
+            <sc-if value="{{c.hayDocs}}" hint-placeholder-val="{{false}}">
+              <button type="button" onClick="{{c.verDocs}}" style="align-self: flex-start; min-height: 36px; border: 0; background: transparent; padding: 0; color: #24605F; font-size: 13px; font-weight: 700; text-align: left;">En esta consulta: {{c.docs}}</button>
+            </sc-if>
+          </article>
+        </sc-for>
+      </section>
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <section style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;"><h2 style="margin: 0; font-size: 17px; font-weight: 700;">Mediciones</h2><sc-if value="{{activo}}" hint-placeholder-val="{{true}}"><button type="button" aria-label="Agregar medición" title="Agregar medición" style="width: 40px; height: 40px; border-radius: 50%; border: 0; background: #E9F1F3; color: #02261E; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></sc-if></div>
+          <div style="display: flex; justify-content: space-between; font-size: 14px;"><span style="color: #4A5F5C;">Peso</span><span style="font-weight: 600;">78 kg · 6/10</span></div>
+          <div style="display: flex; justify-content: space-between; font-size: 14px;"><span style="color: #4A5F5C;">Talla</span><span style="font-weight: 600;">1,76 m · 4/8</span></div>
+        </section>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{tabTurnos}}" hint-placeholder-val="{{false}}">
+    <section class="paso" style="width: 100%; max-width: 900px; box-sizing: border-box; align-self: center; background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 8px;">
+      <sc-for list="{{turnos}}" as="t" hint-placeholder-count="6">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9;">
+          <span style="font-weight: 700; min-width: 170px;">{{t.cuando}}</span>
+          <span style="flex: 1; min-width: 0; color: #4A5F5C;">{{t.detalle}}</span>
+          <span style="{{t.chip}}">{{t.estado}}</span>
+        </div>
+      </sc-for>
+      <a href="Agenda.dc.html" style="align-self: center; min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: 700;">Moverlos o cancelarlos desde la agenda</a>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{tabPagos}}" hint-placeholder-val="{{false}}">
+    <section class="paso" style="width: 100%; max-width: 900px; box-sizing: border-box; align-self: center; background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 8px;">
+      <sc-for list="{{pagos}}" as="m" hint-placeholder-count="5">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9;">
+          <span style="font-weight: 700; min-width: 70px;">{{m.fecha}}</span>
+          <span style="flex: 1; min-width: 0;">{{m.detalle}}</span>
+          <span style="{{m.importeStyle}}">{{m.importe}}</span>
+          <a href="Comprobante.dc.html" style="min-width: 170px; text-align: right; font-size: 14px; font-weight: 600;">{{m.comp}}</a>
+        </div>
+      </sc-for>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{tabDocs}}" hint-placeholder-val="{{false}}">
+    <section class="paso" style="width: 100%; max-width: 1000px; box-sizing: border-box; align-self: center; background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;">
+        <div role="group" aria-label="Filtrar documentos" style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <sc-for list="{{filtrosDoc}}" as="f" hint-placeholder-count="5">
+            <button type="button" onClick="{{f.elegir}}" aria-pressed="{{f.on}}" style="{{f.style}}">{{f.label}} <span style="font-weight: 500; opacity: 0.75;">{{f.n}}</span></button>
+          </sc-for>
+        </div>
+        <sc-if value="{{activo}}" hint-placeholder-val="{{true}}">
+          <button type="button" style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.3 3.3 0 0 1 4.7 4.7L10.2 17.7a1.7 1.7 0 0 1-2.4-2.4L15.5 7.6"></path></svg>Adjuntar estudio</button>
+        </sc-if>
+      </div>
+      <div role="row" style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 160px 70px 100px; gap: 12px; padding: 4px 12px; font-size: 13px; font-weight: 700; color: #4A5F5C;">
+        <span></span><span>Documento</span><span>De dónde salió</span><span>Fecha</span><span style="text-align: right;">Acciones</span>
+      </div>
+      <sc-for list="{{docs}}" as="x" hint-placeholder-count="7">
+        <div class="fila-doc" style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 160px 70px 100px; gap: 12px; align-items: center; min-height: 64px; padding: 8px 12px; border-top: 1px solid #E9F1F3; border-radius: 12px;">
+          <span aria-hidden="true" style="{{x.icoStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{x.ico}}"></path></svg></span>
+          <span style="display: flex; flex-direction: column; line-height: 1.35; min-width: 0;">
+            <span style="{{x.tituloStyle}}">{{x.tipo}} · {{x.titulo}}</span>
+            <span style="font-size: 13px; color: #4A5F5C;">{{x.detalle}}</span>
+          </span>
+          <span style="font-size: 14px; color: #4A5F5C;">{{x.origen}}</span>
+          <span style="font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums;">{{x.fecha}}</span>
+          <span style="display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
+            <sc-if value="{{x.conPdf}}" hint-placeholder-val="{{true}}">
+              <a href="#" aria-label="Ver" title="Ver" style="width: 44px; height: 44px; border-radius: 50%; background: #E9F1F3; color: #02261E; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path></svg></a>
+            </sc-if>
+            <sc-if value="{{x.enviable}}" hint-placeholder-val="{{true}}">
+              <button type="button" onClick="{{x.enviar}}" aria-label="Mandárselo" title="Mandárselo" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: #E9F1F3; color: #02261E; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"></path></svg></button>
+            </sc-if>
+            <sc-if value="{{x.nota}}" hint-placeholder-val="{{false}}">
+              <span style="font-size: 13px; color: #4A5F5C; text-align: right;">{{x.notaTxt}}</span>
+            </sc-if>
+          </span>
+        </div>
+      </sc-for>
+      <span style="font-size: 13px; color: #4A5F5C; text-align: center;">El certificado, la receta y el pedido se hacen con el botón de documento de arriba o durante la consulta. Nada se borra: lo que se anotó mal se anula con el motivo.</span>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{hayModal}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 20; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 110px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="{{modalTitulo}}" class="paso" style="{{modalCaja}}">
+
+        <sc-if value="{{verEditar}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Editar datos</h2>
+              <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+              <label class="etq">Nombre<input class="campo" type="text" value="Diego"></label>
+              <label class="etq">Apellido<input class="campo" type="text" value="Paz"></label>
+              <label class="etq">DNI<input class="campo" type="text" value="{{dniEdit}}" onInput="{{cambiarDni}}"></label>
+              <label class="etq">Nacimiento<input class="campo" type="date" value="1988-03-14"></label>
+              <label class="etq">Celular<input class="campo" type="tel" value="11 5555-0199"></label>
+              <label class="etq">Correo<input class="campo" type="email" value="diego.paz@correo.com"></label>
+              <label class="etq" style="grid-column: span 2;">Domicilio<input class="campo" type="text" value="Av. Siempreviva 742, Paraná"></label>
+              <label class="etq">Ocupación<input class="campo" type="text" value="Docente"></label>
+              <label class="etq">Cobertura<select class="campo"><option>Particular</option><option selected>Swiss Medical</option><option>OSDE</option><option>PAMI</option></select></label>
+              <label class="etq">N.º de afiliado<input class="campo" type="text" value="80012345601"></label>
+              <label class="etq">Consultorio<select class="campo"><option>Centro</option><option selected>Norte</option><option>Videollamada</option></select></label>
+            </div>
+            <span style="font-size: 13px; color: #4A5F5C;">Cada cambio queda registrado con la fecha.</span>
+            <label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 0 14px; border-radius: 14px; background: #F2F7F9; font-size: 14px; font-weight: 600;">Mandarle recordatorios de turno<input type="checkbox" checked style="width: 22px; height: 22px; accent-color: #02261E;"></label>
+            <sc-if value="{{dniCambio}}" hint-placeholder-val="{{false}}">
+              <span class="paso" style="font-size: 13px; line-height: 1.4; padding: 10px 12px; border-radius: 14px; background: #FFF1D6; color: #8A5300;">Vas a cambiar el DNI de 33.222.111 a {{dniEdit}}. El anterior queda en el historial de cambios.</span>
+            </sc-if>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <button type="button" onClick="{{abrirBaja}}" style="min-height: 44px; border: 0; background: transparent; padding: 0; color: #9E2016; font-size: 14px; font-weight: 700;">Dar de baja al paciente</button>
+              <div style="display: flex; gap: 8px;">
+                <button type="button" onClick="{{cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+                <button type="button" onClick="{{guardarEditar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar cambios</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{verBaja}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Dar de baja a Diego Paz</h2>
+              <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+            </div>
+            <span style="font-size: 14px; color: #4A5F5C;">No se borra nada: la historia clínica, los cobros y los comprobantes se conservan. Deja de aparecer en la lista y no se le pueden dar turnos ni puede pedirlos online. Lo podés reactivar cuando quieras.</span>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Motivo</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                <sc-for list="{{motivos}}" as="m" hint-placeholder-count="5">
+                  <button type="button" onClick="{{m.elegir}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
+                </sc-for>
+              </div>
+            </div>
+            <span style="font-size: 13px; line-height: 1.4; padding: 10px 12px; border-radius: 14px; background: #FFF1D6; color: #8A5300;"><b>Tiene un turno el viernes 24/10 a las 17:00.</b> Al darlo de baja se cancela solo y le avisamos por WhatsApp.</span>
+            <sc-if value="{{debe}}" hint-placeholder-val="{{true}}">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; line-height: 1.4; padding: 10px 10px 10px 12px; border-radius: 14px; background: #FDE8E8; color: #9E2016;">
+                <span><b>{{saldoTxt}}.</b> Para darlo de baja primero tiene que quedar al día.</span>
+                <button type="button" onClick="{{cb.abrir}}" style="flex: 0 0 auto; height: 44px; padding: 0 14px; border-radius: 12px; border: 0; background: #9E2016; color: #FFFFFF; font-size: 14px; font-weight: 700;">{{debeTxt}}</button>
+              </div>
+            </sc-if>
+            <button type="button" onClick="{{confirmarBaja}}" style="{{bajaStyle}}">{{bajaTxt}}</button>
+            <button type="button" onClick="{{cerrar}}" style="height: 44px; border-radius: 14px; border: 0; background: transparent; color: #4A5F5C; font-size: 14px; font-weight: 600;">Cancelar</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{exp.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 120px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="Exportar historia clínica completa" class="paso" style="width: 100%; max-width: 620px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Exportar historia clínica completa</h2>
+          <button type="button" onClick="{{exp.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; flex: 0 0 auto; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+        <sc-if value="{{exp.confirmar}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <span>Se genera un único archivo ZIP con toda la historia de Diego Paz.</span>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 16px; background: #F2F7F9;">
+              <b style="display: flex; align-items: center; gap: 10px; overflow-wrap: anywhere; margin-bottom: 4px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18H6zM11 3v2M13 5v2M11 7v2M13 9v2M11 13h2v3h-2z"></path></svg>Historia_Clinica_Paz_Diego.zip</b>
+              <sc-for list="{{exp.items}}" as="i" hint-placeholder-count="4">
+                <span style="display: flex; flex-direction: column; line-height: 1.35; padding: 4px 0 4px 30px;"><span style="font-weight: 600; font-size: 14px;">{{i.t}}</span><span style="font-size: 13px; color: #4A5F5C;">{{i.s}}</span></span>
+              </sc-for>
+            </div>
+            <span style="display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.4; color: #4A5F5C;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto;"><path d="M6 11h12v10H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg>Archivo protegido: la descarga requiere tu sesión y queda registrada. Contiene datos de salud: guardalo en un lugar seguro.</span>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" onClick="{{exp.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+              <button type="button" onClick="{{exp.preparar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Preparar ZIP</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{exp.listo}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div role="status" style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 8px 0;">
+              <span aria-hidden="true" style="width: 64px; height: 64px; border-radius: 50%; background: #E4F4EA; color: #166534; display: grid; place-items: center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+              <span style="font-size: 18px; font-weight: 800;">Tu archivo está listo</span>
+              <span style="font-size: 14px; color: #4A5F5C;">4 consultas, 5 documentos y 2 estudios adjuntos · 3,4 MB</span>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" onClick="{{exp.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cerrar</button>
+              <button type="button" onClick="{{exp.cerrar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Descargar ZIP</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{tm.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 120px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="Darle turno" class="paso" style="width: 100%; max-width: 700px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Darle turno a {{tm.nombre}}</h2>
+            <span style="font-size: 14px; color: #4A5F5C;">{{tm.sub}}</span>
+          </div>
+          <button type="button" onClick="{{tm.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; flex: 0 0 auto; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Prestación<select style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"><option selected>Control</option><option>Evolución</option><option>Primera consulta</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Consultorio<select style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"><option selected>Norte</option><option>Centro</option><option>Videollamada</option></select></label>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px; border-radius: 999px; background: #F2F7F9;">
+          <button type="button" onClick="{{tm.antes}}" aria-label="Semana anterior" style="{{tm.antesStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <span style="font-weight: 700;">{{tm.semanaTxt}}</span>
+          <button type="button" onClick="{{tm.despues}}" aria-label="Semana siguiente" style="{{tm.despuesStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: start;">
+          <sc-for list="{{tm.dias}}" as="d" hint-placeholder-count="5">
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C; text-align: center;">{{d.label}}</span>
+              <sc-for list="{{d.slots}}" as="h" hint-placeholder-count="3">
+                <button type="button" onClick="{{h.elegir}}" aria-pressed="{{h.on}}" style="{{h.style}}">{{h.hora}}</button>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Solo ves los horarios libres. Al guardar le mandamos la confirmación por WhatsApp.</span>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" onClick="{{tm.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+          <button type="button" onClick="{{tm.guardar}}" style="{{tm.guardarStyle}}">{{tm.guardarTxt}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{cb.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 120px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="Cobrar" class="paso" style="width: 100%; max-width: 560px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Cobrarle a {{cb.nombre}}</h2>
+          <button type="button" onClick="{{cb.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; flex: 0 0 auto; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #F2F7F9;">
+              <span style="display: flex; flex-direction: column; line-height: 1.35; min-width: 0;"><span style="font-weight: 700;">{{cb.concepto}}</span><span style="font-size: 13px; color: #4A5F5C;">{{cb.detalle}}</span></span>
+              <span style="font-size: 26px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap;">{{cb.importe}}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Cuánto pagó?</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                <sc-for list="{{cb.cuanto}}" as="x" hint-placeholder-count="3">
+                  <button type="button" onClick="{{x.elegir}}" aria-pressed="{{x.on}}" style="{{x.style}}">{{x.label}}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{cb.parte}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                  <label style="display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 14px; border-radius: 12px; background: #E9F1F3; font-weight: 700;">$ <input type="text" inputmode="numeric" value="{{cb.parteNum}}" aria-label="Pagó" style="width: 90px; border: 0; background: transparent; font-size: 15px; font-weight: 700; color: #02261E; font-family: inherit;"></label>
+                  <span style="font-size: 14px; color: #8A5300; background: #FFF1D6; padding: 6px 12px; border-radius: 999px; font-weight: 600;">{{cb.restoTxt}}</span>
+                </div>
+              </sc-if>
+            </div>
+            <sc-if value="{{cb.pagaAlgo}}" hint-placeholder-val="{{true}}">
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Cómo pagó?</span>
+                  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;">
+                    <sc-for list="{{cb.medios}}" as="m" hint-placeholder-count="4">
+                      <button type="button" onClick="{{m.elegir}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Le mandás el comprobante por WhatsApp?</span>
+                  <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <sc-for list="{{cb.tipos}}" as="t" hint-placeholder-count="3">
+                      <button type="button" onClick="{{t.elegir}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.label}}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+            <button type="button" onClick="{{cb.guardar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">{{cb.guardarTxt}}</button>
+          </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{doc.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 120px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="{{doc.titulo}}" class="paso" style="width: 100%; max-width: 600px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800;">{{doc.titulo}}</h2>
+          <button type="button" onClick="{{doc.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; flex: 0 0 auto; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+        <sc-if value="{{doc.verCert}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9; font-size: 14px;">
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Paciente</span><b>{{doc.nombre}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">DNI</span><b>{{doc.dni}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Edad</span><b>{{doc.edad}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Cobertura</span><b>{{doc.cobertura}}</b></span>
+            </div>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Diagnóstico<textarea maxlength="300" placeholder="Ej.: Lumbalgia aguda" style="box-sizing: border-box; width: 100%; min-height: 84px; padding: 10px 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; line-height: 1.5; font-family: inherit; resize: vertical;">{{doc.diag}}</textarea></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0; max-width: 200px;">Días de reposo<input type="number" min="1" max="365" value="2" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Se genera un PDF con tu nombre y matrícula, listo para imprimir y firmar a mano. Queda guardado en sus documentos.</span>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" onClick="{{doc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+              <button type="button" onClick="{{doc.generar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Generar certificado</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{doc.verPedido}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9; font-size: 14px;">
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Paciente</span><b>{{doc.nombre}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">DNI</span><b>{{doc.dni}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Edad</span><b>{{doc.edad}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Cobertura</span><b>{{doc.cobertura}}</b></span>
+            </div>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Estudios o prácticas<textarea maxlength="800" placeholder="Uno por renglón" style="box-sizing: border-box; width: 100%; min-height: 84px; padding: 10px 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; line-height: 1.5; font-family: inherit; resize: vertical;">{{doc.estudios}}</textarea><span style="font-weight: 500;">Uno por renglón.</span></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Diagnóstico presuntivo (opcional)<input type="text" value="{{doc.diag}}" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Se genera un PDF con tu nombre y matrícula, listo para imprimir y firmar a mano. Queda guardado en sus documentos.</span>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" onClick="{{doc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+              <button type="button" onClick="{{doc.generar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Generar pedido</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{doc.verReceta}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 16px; background: #E5F2FF; color: #1D5FB8;">
+              <span style="font-weight: 700;">La receta digital se hace en MisRx</span>
+              <ol style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6; color: #02261E;">
+                <li>Abrí MisRx en tu celular.</li>
+                <li>Cargá al paciente con su DNI: <b>{{doc.dni}}</b>.</li>
+                <li>Hacé la receta y mandásela desde MisRx.</li>
+              </ol>
+              <a href="#" style="align-self: flex-start; min-height: 32px; display: flex; align-items: center; font-size: 14px; font-weight: 700; color: #1D5FB8;">Ver el instructivo de MisRx (PDF)</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="font-weight: 700;">Anotá acá lo que le recetaste</span>
+              <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Queda en sus documentos y en la consulta, para tenerlo a mano la próxima vez.</span>
+            </div>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Medicamento<input type="text" maxlength="120" value="{{doc.med}}" placeholder="Ej.: Amoxicilina 500 mg" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Indicaciones (opcional)<input type="text" maxlength="300" value="{{doc.ind}}" placeholder="Ej.: 1 comprimido cada 8 h durante 7 días" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0; max-width: 200px;">Fecha<input type="date" value="2026-10-23" max="2026-10-23" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" onClick="{{doc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+              <button type="button" onClick="{{doc.guardarReceta}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar en la ficha</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{doc.verListo}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div role="status" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #E4F4EA; color: #166534;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+              <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.35; min-width: 0;"><span style="font-weight: 700;">{{doc.listoTit}}</span><span style="font-size: 13px; overflow-wrap: anywhere;">{{doc.pdf}}</span></span>
+              <a href="#" style="flex: 0 0 auto; min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: 700; color: #166534;">Ver PDF</a>
+            </div>
+            <span style="font-weight: 700;">¿Se lo mandás a {{doc.nombre}}?</span>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+              <button type="button" onClick="{{doc.porWa}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700; padding: 0 12px;">Por WhatsApp</button>
+              <button type="button" onClick="{{doc.porMail}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; padding: 0 12px;">Por correo</button>
+              <button type="button" onClick="{{doc.bajar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; padding: 0 12px;">Descargar PDF</button>
+            </div>
+            <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Se abre tu WhatsApp o tu correo con el mensaje escrito; el PDF lo adjuntás desde ahí. Nada sale solo.</span>
+            <button type="button" onClick="{{doc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Ahora no</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ tab: 'resumen', modal: null, baja: false, motivo: null, motivoBaja: '', dni: '33.222.111', dniEdit: '33.222.111', aviso: '', tm: null, cb: null, doc: null, exp: null, menuDoc: false, resta: 12000, turnoNuevo: null, docsNuevos: [], filtroDoc: 'todos' }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    // ---- Piezas comunes: darle turno, cobrar y documentos, sin salir de la pantalla ----
+    var pesosTxt = function (n) { return '$ ' + n.toLocaleString('es-AR'); };
+    var tmAbrir = function (nombre, semana, sug) { return function () { self.setState({ tm: { nombre: nombre, semIni: semana, sem: semana, sug: sug || '', slot: null }, doc: null }); }; };
+    var tmArmar = function (alGuardar) {
+      var t = s.tm || { nombre: '', semIni: 0, sem: 0, sug: '', slot: null };
+      var fch = function (d) { return d.getDate() + '/' + (d.getMonth() + 1); };
+      var NOM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+      var HS = [['9:00', '10:30', '16:00'], ['11:00', '17:30'], ['9:30', '12:00', '15:00', '18:00'], ['10:00', '16:30'], ['9:00', '11:30', '17:00']];
+      var cambia = function (x) { return function () { self.setState({ tm: Object.assign({}, t, x) }); }; };
+      var dias = NOM.map(function (n, i) {
+        var lbl = n + ' ' + fch(new Date(2026, 9, 27 + t.sem * 7 + i));
+        return { label: lbl, slots: HS[(i + t.sem) % 5].map(function (h) {
+          var k = lbl + ' · ' + h, o = t.slot === k;
+          return { hora: h, on: o ? 'true' : 'false', elegir: cambia({ slot: k }), style: 'height: 44px; border-radius: 12px; border: 0; font-size: 14px; font-variant-numeric: tabular-nums; ' + (o ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') };
+        }) };
+      });
+      var flecha = function (ok) { return 'width: 44px; height: 44px; border-radius: 50%; border: 0; display: grid; place-items: center; ' + (ok ? 'background: #FFFFFF; color: #02261E;' : 'background: transparent; color: #C5D6DA; cursor: default;'); };
+      return { on: !!s.tm, nombre: t.nombre,
+        sub: t.sug ? 'Ya está abierta la semana sugerida para el control (' + t.sug + ').' : 'Elegí el día y el horario.',
+        semanaTxt: 'Semana del ' + fch(new Date(2026, 9, 27 + t.sem * 7)) + (t.sug && t.sem === t.semIni ? ' · la sugerida' : ''),
+        dias: dias, antes: t.sem > 0 ? cambia({ sem: t.sem - 1 }) : function () {}, antesStyle: flecha(t.sem > 0), despues: cambia({ sem: t.sem + 1 }), despuesStyle: flecha(true),
+        guardarTxt: t.slot ? 'Guardar turno · ' + t.slot : 'Elegí un horario',
+        guardarStyle: 'height: 48px; padding: 0 22px; border-radius: 16px; border: 0; font-size: 15px; font-weight: 700; ' + (t.slot ? 'background: #02261E; color: #FFFFFF;' : 'background: #E9F1F3; color: #4A5F5C; cursor: default;'),
+        guardar: t.slot ? function () { alGuardar(t.nombre, t.slot); } : function () {},
+        cerrar: function () { self.setState({ tm: null }); } };
+    };
+    var cbArmar = function (o) {
+      var c = Object.assign({ cuanto: 'todo', medio: 'Efectivo', tipo: 'interno' }, s.cb || {});
+      var cambia = function (x) { return function () { self.setState({ cb: Object.assign({}, c, x) }); }; };
+      var chip = 'height: 44px; padding: 0 16px; border-radius: 999px; border: 0; font-size: 14px; ';
+      var on = 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;', off = 'background: #E9F1F3; color: #02261E; font-weight: 600;';
+      var pago = c.cuanto === 'parte' ? Math.round(o.monto / 2) : c.cuanto === 'nada' ? 0 : o.monto;
+      return { on: !!s.cb, nombre: o.nombre, concepto: o.concepto, detalle: o.detalle, importe: pesosTxt(o.monto),
+        cuanto: [['todo', 'Todo'], ['parte', 'Una parte'], ['nada', 'Nada por ahora']].map(function (x) { var k = c.cuanto === x[0]; return { label: x[1], on: k ? 'true' : 'false', elegir: cambia({ cuanto: x[0] }), style: chip + (k ? on : off) }; }),
+        parte: c.cuanto === 'parte', pagaAlgo: c.cuanto !== 'nada', parteNum: pago.toLocaleString('es-AR'), restoTxt: 'Queda debiendo ' + pesosTxt(o.monto - pago),
+        medios: ['Efectivo', 'Transferencia', 'Tarjeta', 'Otro'].map(function (m) { var k = c.medio === m; return { label: m, on: k ? 'true' : 'false', elegir: cambia({ medio: m }), style: 'height: 44px; border-radius: 14px; border: 0; font-size: 14px; ' + (k ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : off) }; }),
+        tipos: [['interno', 'Comprobante interno'], ['arca', 'Factura C'], ['no', 'Ahora no']].map(function (x) { var k = c.tipo === x[0]; return { label: x[1], on: k ? 'true' : 'false', elegir: cambia({ tipo: x[0] }), style: chip + (k ? on : off) }; }),
+        guardarTxt: c.cuanto === 'nada' ? 'Dejar en «Te deben»' : 'Guardar pago de ' + pesosTxt(pago),
+        guardar: function () {
+          var txt = c.cuanto === 'nada' ? 'Quedó en «Te deben»: ' + pesosTxt(o.monto) + '.' : 'Cobraste ' + pesosTxt(pago) + ' en ' + c.medio.toLowerCase() + (c.tipo === 'no' ? '.' : ' y le mandamos ' + (c.tipo === 'arca' ? 'la factura C' : 'el comprobante') + ' por WhatsApp.') + (c.cuanto === 'parte' ? ' Debe ' + pesosTxt(o.monto - pago) + '.' : '');
+          o.alGuardar(txt, c.cuanto);
+        },
+        abrir: function () { self.setState({ cb: { cuanto: 'todo', medio: 'Efectivo', tipo: 'interno' } }); },
+        cerrar: function () { self.setState({ cb: null }); } };
+    };
+    var docArmar = function (o) {
+      var d = s.doc || { tipo: null, listo: false };
+      var abrir = function (t) { return function () { self.setState({ doc: { tipo: t, listo: false }, menuDoc: false }); }; };
+      var nombreDoc = d.tipo === 'cert' ? 'el certificado' : 'el pedido de estudios';
+      var envio = function (txt) { return function () { self.setState({ doc: null }); o.alAviso(txt); }; };
+      return { on: !!d.tipo, nombre: o.nombre, dni: o.dni, edad: o.edad, cobertura: o.cobertura, diag: o.diag, estudios: o.estudios, med: o.med, ind: o.ind,
+        titulo: d.listo ? (d.tipo === 'cert' ? 'Certificado listo' : 'Pedido listo') : { cert: 'Certificado', pedido: 'Pedido de estudios', receta: 'Receta digital (MisRx)' }[d.tipo] || '',
+        verCert: d.tipo === 'cert' && !d.listo, verPedido: d.tipo === 'pedido' && !d.listo, verReceta: d.tipo === 'receta', verListo: !!d.listo,
+        listoTit: (d.tipo === 'cert' ? 'Certificado' : 'Pedido de estudios') + ' guardado en sus documentos',
+        pdf: (d.tipo === 'cert' ? 'Certificado' : 'Pedido') + '_' + o.archivo + '_2026-10-23.pdf',
+        generar: function () { self.setState({ doc: { tipo: d.tipo, listo: true } }); o.alHacer(d.tipo); },
+        guardarReceta: function () { self.setState({ doc: null }); o.alHacer('receta'); },
+        porWa: envio('Se abrió WhatsApp con el mensaje para ' + o.nombre + ': adjuntale ' + nombreDoc + '.'),
+        porMail: envio('Se abrió tu correo con el mensaje para ' + o.nombre + ': adjuntale ' + nombreDoc + '.'),
+        bajar: envio('Descargaste ' + nombreDoc + '.'),
+        cerrar: function () { self.setState({ doc: null }); },
+        abrirCert: abrir('cert'), abrirPedido: abrir('pedido'), abrirReceta: abrir('receta') };
+    };
+
+    var activo = !s.baja;
+
+    var navBase = 'display: flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-size: 15px; ';
+    var nav = [['Hoy', 'Main.dc.html'], ['Agenda', 'Agenda.dc.html'], ['Pacientes', 'Pacientes.dc.html'], ['Cobros', 'Comprobante.dc.html'], ['Estadísticas', 'Estadisticas.dc.html']].map(function (n, i) {
+      return { label: n[0], href: n[1], style: navBase + (i === 2 ? 'background: #DCEFEF; color: #24605F; font-weight: 700;' : 'color: #02261E; font-weight: 500;') };
+    });
+    var d = { nombre: 'Diego', apellido: 'Paz', dni: s.dni, edad: '38 años', cobertura: 'Swiss Medical', celular: '11 5555-0199' };
+    var PEST = [['resumen', 'Resumen'], ['historia', 'Historia clínica'], ['turnos', 'Turnos'], ['pagos', 'Pagos'], ['docs', 'Documentos']];
+    var pestanas = PEST.map(function (p) {
+      var o = s.tab === p[0];
+      return { label: p[1], on: o ? 'true' : 'false', elegir: set({ tab: p[0] }), style: 'min-height: 40px; padding: 0 18px; border-radius: 999px; border: 0; font-size: 14px; ' + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: transparent; color: #02261E; font-weight: 600;') };
+    });
+    var datos = [
+      ['Nacimiento', '14/3/1988 (38 años)'], ['DNI', s.dni], ['Celular', '11 5555-0199'], ['Correo', 'diego.paz@correo.com'],
+      ['Domicilio', 'Av. Siempreviva 742, Paraná'], ['Ocupación', 'Docente'], ['Cobertura', 'Swiss Medical · 80012345601'],
+      ['Consultorio', 'Norte'], ['Recordatorios', 'Sí, por WhatsApp']
+    ].map(function (x) { return { k: x[0], v: x[1] }; });
+    var CONS = [
+      ['6/10', 'Control', 'Norte', 'Sigue con dolor lumbar leve. Ejercicios de movilidad 3 veces por semana. Control en 6 semanas.'],
+      ['25/8', 'Evolución', 'Norte', 'Mejoró la movilidad. Se ajusta la rutina.'],
+      ['4/8', 'Control', 'Centro', 'Dolor lumbar después de mudanza. Se indica reposo relativo y estudios.'],
+      ['12/6', 'Primera consulta', 'Centro', 'Consulta por contractura cervical. Antecedentes sin datos relevantes.']
+    ].map(function (c, i) { var dc = ['Certificado y medicación', '', 'Pedido de estudios', 'Certificado'][i]; return { fecha: c[0], tipo: c[1], lugar: 'Consultorio ' + c[2], texto: c[3], hayDocs: !!dc, docs: dc, verDocs: set({ tab: 'docs', filtroDoc: 'todos' }) }; });
+    var CHIP = 'font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; ';
+    var turnos = [
+      ['Vie 24/10 · 17:00', 'Control · Consultorio Norte', s.baja ? 'Cancelado' : 'No puede venir', s.baja ? 'background:#ECEFF3;color:#475467;' : 'background:#FDE8E8;color:#9E2016;'],
+      ['Lun 6/10 · 16:00', 'Control · Consultorio Norte', 'Atendido · falta cobrar', 'background:#FFF1D6;color:#8A5300;'],
+      ['Lun 25/8 · 15:30', 'Evolución · Consultorio Norte', 'Atendido', 'background:#E4F4EA;color:#166534;'],
+      ['Mié 13/8 · 10:00', 'Evolución · Consultorio Centro', 'Ausente', 'background:#FDE8E8;color:#9E2016;'],
+      ['Lun 4/8 · 9:30', 'Control · Consultorio Centro', 'Atendido', 'background:#E4F4EA;color:#166534;'],
+      ['Jue 12/6 · 11:00', 'Primera consulta · Consultorio Centro', 'Atendido', 'background:#E4F4EA;color:#166534;']
+    ].map(function (t) { return { cuando: t[0], detalle: t[1], estado: t[2], chip: CHIP + t[3] }; });
+    var saldado = s.resta === 0;
+    var pagos = [
+      s.resta < 12000 ? ['23/10', 'Control del 6/10 · efectivo', pesosTxt(12000 - s.resta), 'Comprobante interno 0162', false] : ['6/10', 'Control', 'Debe $ 12.000', 'Sin comprobante', true],
+      ['25/8', 'Evolución · transferencia', '$ 12.000', 'Factura C 0001-00000231', false],
+      ['4/8', 'Control · efectivo', '$ 10.000', 'Comprobante interno 0148', false],
+      ['12/6', 'Primera consulta · tarjeta', '$ 15.000', 'Factura C 0001-00000187', false]
+    ].map(function (m) { return { fecha: m[0], detalle: m[1], importe: m[2], comp: m[3], importeStyle: 'min-width: 120px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; ' + (m[4] ? 'color: #8A5300;' : '') }; });
+    var MOT = ['Ya no viene', 'Se mudó', 'Falleció', 'Ficha duplicada', 'Otro'];
+    var motivos = MOT.map(function (m) {
+      var o = s.motivo === m;
+      return { label: m, on: o ? 'true' : 'false', elegir: set({ motivo: m }), style: 'min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; font-size: 14px; ' + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') };
+    });
+    var DOCI = { cert: ['Certificado', 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6', '#DCEFEF', '#24605F'], pedido: ['Pedido de estudios', 'M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3M7 15h10', '#E5F2FF', '#1D5FB8'], med: ['Medicación', 'M10.5 3.5a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7-7l7-7zM7 7l7 7', '#EFEAF6', '#5B3F8C'], estudio: ['Estudio', 'M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.3 3.3 0 0 1 4.7 4.7L10.2 17.7a1.7 1.7 0 0 1-2.4-2.4L15.5 7.6', '#F3FDE0', '#3D6B0A'] };
+    var NUEVOS = { cert: ['cert', 'Lumbalgia mecánica', '2 días de reposo', 'Hecho desde la ficha', '23/10', ''], pedido: ['pedido', 'Resonancia de columna lumbar', 'Diagnóstico presuntivo: lumbalgia mecánica', 'Hecho desde la ficha', '23/10', ''], receta: ['med', 'Ibuprofeno 600 mg', '1 comprimido cada 8 h durante 5 días', 'Hecho desde la ficha', '23/10', ''] };
+    var DOCS = s.docsNuevos.map(function (k) { return NUEVOS[k]; }).concat([
+      ['cert', 'Lumbalgia', '2 días de reposo', 'Consulta del 6/10', '6/10', ''],
+      ['med', 'Ibuprofeno 400 mg', '1 comprimido cada 8 h durante 5 días', 'Consulta del 6/10', '6/10', ''],
+      ['estudio', 'Laboratorio de rutina', 'PDF · 240 KB', 'Lo subiste el 1/10', '1/10', ''],
+      ['estudio', 'Ecografía abdominal', 'Imagen · 1,2 MB', 'Lo subiste el 12/8', '12/8', ''],
+      ['pedido', 'Rx de columna lumbar, frente y perfil', 'Diagnóstico presuntivo: lumbalgia', 'Consulta del 4/8', '4/8', ''],
+      ['med', 'Diclofenac 75 mg', 'Anulada: se anotó la dosis equivocada', 'Consulta del 4/8', '4/8', 'anulada'],
+      ['cert', 'Asistencia a la consulta', 'Sin reposo', 'Consulta del 12/6', '12/6', '']
+    ]);
+    var FD = [['todos', 'Todos'], ['cert', 'Certificados'], ['pedido', 'Pedidos'], ['med', 'Medicación'], ['estudio', 'Estudios']];
+    var filtrosDoc = FD.map(function (f) {
+      var o = s.filtroDoc === f[0];
+      return { label: f[1], n: DOCS.filter(function (x) { return f[0] === 'todos' || x[0] === f[0]; }).length, on: o ? 'true' : 'false', elegir: set({ filtroDoc: f[0] }),
+        style: 'min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; font-size: 14px; ' + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') };
+    });
+    var docs = DOCS.filter(function (x) { return s.filtroDoc === 'todos' || x[0] === s.filtroDoc; }).map(function (x) {
+      var I = DOCI[x[0]], anul = x[5] === 'anulada', pdf = x[0] === 'cert' || x[0] === 'pedido';
+      return { tipo: I[0], titulo: x[1], detalle: x[2], origen: x[3], fecha: x[4], ico: I[1],
+        icoStyle: 'width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: ' + I[2] + '; color: ' + I[3] + ';',
+        tituloStyle: 'font-weight: 700; overflow-wrap: anywhere; ' + (anul ? 'text-decoration: line-through; color: #4A5F5C;' : ''),
+        conPdf: pdf || x[0] === 'estudio', enviable: pdf, enviar: set({ doc: { tipo: x[0], listo: true } }),
+        nota: x[0] === 'med', notaTxt: anul ? 'Anulada' : 'Hecha en MisRx' };
+    });
+    var cb = cbArmar({ nombre: 'Diego Paz', concepto: 'Control del 6/10', detalle: 'Consultorio Norte · particular', monto: s.resta,
+      alGuardar: function (txt, cuanto) { self.setState({ cb: null, resta: cuanto === 'todo' ? 0 : cuanto === 'parte' ? s.resta - Math.round(s.resta / 2) : s.resta, aviso: txt }); } });
+    var tm = tmArmar(function (nombre, slot) { self.setState({ tm: null, turnoNuevo: slot, aviso: 'Le diste turno a Diego para el ' + slot + '. Le mandamos la confirmación por WhatsApp.' }); });
+    var doc = docArmar({ nombre: 'Diego Paz', dni: s.dni, edad: '38 años', cobertura: 'Swiss Medical', archivo: 'Paz_Diego', diag: 'Lumbalgia mecánica', estudios: 'Resonancia de columna lumbar', med: 'Ibuprofeno 600 mg', ind: '1 comprimido cada 8 h durante 5 días',
+      alHacer: function (t) { self.setState({ docsNuevos: [t].concat(s.docsNuevos), aviso: t === 'receta' ? 'Anotaste la medicación en sus documentos.' : '' }); },
+      alAviso: function (txt) { self.setState({ aviso: txt }); } });
+    var dniCambio = s.dniEdit.replace(/\D/g, '') !== s.dni.replace(/\D/g, '');
+
+    return {
+      nav: nav, d: d, pestanas: pestanas, datos: datos, activo: activo, deBaja: s.baja, motivoBaja: s.motivoBaja,
+      cabecera: 'position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 20px; padding: 28px 76px 28px 28px; border-radius: 28px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 20px 48px rgba(2,38,30,0.08); background: ' + (s.baja ? '#F7F9FA; color: #4A5F5C;' : '#FFFFFF;'),
+      tabResumen: s.tab === 'resumen', tabHistoria: s.tab === 'historia', tabTurnos: s.tab === 'turnos', tabPagos: s.tab === 'pagos', tabDocs: s.tab === 'docs',
+      irHistoria: set({ tab: 'historia' }),
+      proximo: s.baja ? 'Sin turnos' : s.turnoNuevo ? s.turnoNuevo : 'Viernes 24/10 · 17:00',
+      proximoNotaTxt: s.baja ? 'Se canceló al darlo de baja y le avisamos.' : s.turnoNuevo ? 'Control · Consultorio Norte. Le mandamos la confirmación.' : 'Avisó que no puede venir. Movelo desde la agenda.',
+      proximoNota: 'font-size: 14px; ' + (s.baja || s.turnoNuevo ? 'color: #4A5F5C;' : 'color: #9E2016;'),
+      consultas: CONS, consultasCortas: CONS.slice(0, 3), turnos: turnos, pagos: pagos,
+      tm: tm, cb: cb, doc: doc, darTurno: tmAbrir('Diego Paz', 3, 'semana del 17/11'),
+      menuDoc: s.menuDoc, menuDocAria: s.menuDoc ? 'true' : 'false', toggleMenuDoc: set({ menuDoc: !s.menuDoc }),
+      filtrosDoc: filtrosDoc, docs: docs,
+      saldoTxt: saldado ? 'Al día' : 'Debe ' + pesosTxt(s.resta), saldoSub: saldado ? 'Pagó hoy el control del 6/10.' : s.resta < 12000 ? 'Pagó una parte del control del 6/10.' : 'Control del 6/10, sin pagar.', debeTxt: 'Cobrar ' + pesosTxt(s.resta),
+      saldoCaja: 'border-radius: 26px; padding: 22px; display: flex; flex-direction: column; gap: 6px; ' + (saldado ? 'background: #E4F4EA; color: #166534;' : 'background: #FFF8EA; color: #8A5300;'),
+      abrirExportar: set({ exp: 'confirmar' }),
+      exp: { on: !!s.exp, confirmar: s.exp === 'confirmar', listo: s.exp === 'listo', preparar: set({ exp: 'listo' }), cerrar: set({ exp: null }),
+        items: [['Historia_Clinica.pdf', 'Datos, antecedentes, consultas con signos vitales, aclaraciones y turnos'], ['Estudios_y_Laboratorios/', 'Los 2 archivos originales adjuntos'], ['Documentacion_Historica/', 'Documentos fuente migrados (si existen)'], ['LEEME.txt', 'Fecha, cantidad de archivos y huella SHA-256 de cada uno']].map(function (x) { return { t: x[0], s: x[1] }; }) },
+      hayAviso: !!s.aviso, aviso: s.aviso, cerrarAviso: set({ aviso: '' }),
+      hayModal: !!s.modal, verEditar: s.modal === 'editar', verBaja: s.modal === 'baja',
+      modalTitulo: s.modal === 'editar' ? 'Editar datos' : 'Dar de baja',
+      modalCaja: 'width: 100%; max-width: ' + (s.modal === 'editar' ? '760px' : '540px') + '; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24);',
+      abrirEditar: set({ modal: 'editar', dniEdit: s.dni }), abrirBaja: set({ modal: 'baja', motivo: null }), cerrar: set({ modal: null }),
+      dniEdit: s.dniEdit, dniCambio: dniCambio,
+      cambiarDni: function (e) { if (e && e.target) self.setState({ dniEdit: e.target.value }); },
+      guardarEditar: function () { self.setState({ modal: null, dni: s.dniEdit, aviso: dniCambio ? 'Guardaste los cambios. El DNI anterior quedó en el historial.' : 'Guardaste los cambios.' }); },
+      motivos: motivos,
+      debe: !saldado,
+      bajaTxt: !saldado ? 'Primero tiene que quedar al día' : s.motivo ? 'Dar de baja' : 'Elegí un motivo',
+      bajaStyle: 'height: 48px; border-radius: 16px; border: 0; font-size: 15px; font-weight: 700; ' + (s.motivo && saldado ? 'background: #9E2016; color: #FFFFFF;' : 'background: #E9F1F3; color: #4A5F5C; cursor: default;'),
+      confirmarBaja: s.motivo && saldado ? set({ modal: null, baja: true, motivoBaja: s.motivo, aviso: '' }) : function () {},
+      reactivar: set({ baja: false, motivoBaja: '', aviso: 'Diego Paz está activo otra vez. Ya le podés dar turnos.' })
+    };
+  }
+}
+</script>
+</body>
+</html>

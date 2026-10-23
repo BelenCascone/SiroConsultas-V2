@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Enviar a la contadora</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 860px; box-sizing: border-box; padding: 24px 40px 56px; background: radial-gradient(520px 260px at 18% 0%, rgba(137,201,201,0.34), transparent 70%), radial-gradient(440px 240px at 72% 4%, rgba(218,252,146,0.50), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; align-items: center; gap: 24px;">
+
+  <header style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px 0 12px; border-radius: 999px; background: rgba(255,255,255,0.88); color: #02261E; text-decoration: none; font-weight: 600; box-shadow: 0 1px 2px rgba(2,38,30,0.06);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+      Volver a Cobros
+    </a>
+  </header>
+
+  <div style="width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;">
+      <h1 style="margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.02em;">Enviar a la contadora</h1>
+      <span style="color: #4A5F5C;">Una planilla con cobros, pagos y comprobantes.</span>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
+      <sc-for list="{{periodos}}" as="p" hint-placeholder-count="4">
+        <button type="button" onClick="{{p.elegir}}" aria-pressed="{{p.on}}" style="{{p.style}}">{{p.label}}</button>
+      </sc-for>
+    </div>
+    <sc-if value="{{rango}}" hint-placeholder-val="{{false}}">
+      <div class="paso" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 12px; margin-top: -8px;">
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #4A5F5C; font-weight: 600;">Desde<input type="date" value="2026-10-01" style="height: 44px; width: 170px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font: inherit; font-size: 15px;"></label>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #4A5F5C; font-weight: 600;">Hasta<input type="date" value="2026-10-15" style="height: 44px; width: 170px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font: inherit; font-size: 15px;"></label>
+      </div>
+    </sc-if>
+
+    <div style="background: #FFFFFF; border-radius: 28px; padding: 28px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 20px 48px rgba(2,38,30,0.08); display: flex; flex-direction: column; gap: 22px;">
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+        <div style="padding: 16px; border-radius: 18px; background: #E9F1F3; display: flex; flex-direction: column;">
+          <span style="font-size: 13px; color: #4A5F5C;">Cobrado</span>
+          <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">{{d.cobrado}}</span>
+          <span style="font-size: 13px; color: #4A5F5C;">{{d.pagos}} pagos</span>
+        </div>
+        <div style="padding: 16px; border-radius: 18px; background: #F3FDE0; display: flex; flex-direction: column;">
+          <span style="font-size: 13px; color: #3D6B0A;">Facturado</span>
+          <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">{{d.facturado}}</span>
+          <span style="font-size: 13px; color: #4A5F5C;">{{d.facturas}} facturas C</span>
+        </div>
+        <div style="padding: 16px; border-radius: 18px; background: #E9F1F3; display: flex; flex-direction: column;">
+          <span style="font-size: 13px; color: #4A5F5C;">Sin factura</span>
+          <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">{{d.interno}}</span>
+          <span style="font-size: 13px; color: #4A5F5C;">{{d.internos}} comprobantes internos</span>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font-size: 13px; color: #4A5F5C;">La planilla trae tres hojas</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="padding: 8px 14px; border-radius: 999px; background: #E9F1F3; font-size: 14px;"><b>Cobros</b> · paciente, prestación, cobertura, saldo</span>
+          <span style="padding: 8px 14px; border-radius: 999px; background: #E9F1F3; font-size: 14px;"><b>Pagos</b> · medio y anulados con motivo</span>
+          <span style="padding: 8px 14px; border-radius: 999px; background: #E9F1F3; font-size: 14px;"><b>Comprobantes</b> · número, receptor, CAE</span>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; background: #F2F7F9; box-shadow: inset 0 0 0 1px #DDE8EB;">
+        <span style="display: flex; flex-direction: column; line-height: 1.35; min-width: 0;"><span style="font-size: 13px; color: #4A5F5C;">Para</span><span style="font-weight: 700;">Estudio contable Ríos</span><span style="font-size: 13px; color: #4A5F5C;">contadora@estudiorios.com.ar</span></span>
+        <a href="#" style="font-size: 14px; font-weight: 600; min-height: 44px; display: flex; align-items: center;">Cambiar</a>
+      </div>
+
+      <sc-if value="{{noEnviado}}" hint-placeholder-val="{{true}}">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button type="button" onClick="{{enviar}}" style="height: 52px; border-radius: 16px; border: 0; background: #DAFC92; color: #02261E; font-size: 16px; font-weight: 800;">Enviar {{d.nombre}}</button>
+          <a href="#" style="align-self: center; font-size: 14px; font-weight: 600; min-height: 44px; display: flex; align-items: center;">Solo descargar la planilla</a>
+        </div>
+      </sc-if>
+      <sc-if value="{{enviado}}" hint-placeholder-val="{{false}}">
+        <div class="paso" role="status" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; background: #E4F4EA; color: #166534;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto;"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          <span><b>Enviado.</b> Te llegó una copia a tu correo.</span>
+        </div>
+      </sc-if>
+    </div>
+
+    <section aria-labelledby="hist" style="background: rgba(255,255,255,0.75); border-radius: 28px; padding: 20px 24px; display: flex; flex-direction: column; gap: 4px;">
+      <h2 id="hist" style="margin: 0 0 6px; font-size: 17px; font-weight: 700;">Envíos anteriores</h2>
+      <sc-for list="{{historial}}" as="h" hint-placeholder-count="3">
+        <div style="display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 14px;"><span style="font-weight: 600;">{{h.periodo}}</span><span style="color: #4A5F5C;">{{h.fecha}}</span></div>
+      </sc-for>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ per: 0, enviado: false }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    var D = [
+      { label: 'Octubre', nombre: 'octubre', cobrado: '$ 1.284.000', pagos: 71, facturado: '$ 846.000', facturas: 44, interno: '$ 438.000', internos: 26 },
+      { label: 'Septiembre', nombre: 'septiembre', cobrado: '$ 1.190.500', pagos: 66, facturado: '$ 802.000', facturas: 41, interno: '$ 388.500', internos: 24 },
+      { label: 'Tercer trimestre', nombre: 'el trimestre', cobrado: '$ 3.402.000', pagos: 190, facturado: '$ 2.310.000', facturas: 118, interno: '$ 1.092.000', internos: 70 },
+      { label: 'Elegir fechas', nombre: 'del 1/10 al 15/10', cobrado: '$ 642.000', pagos: 35, facturado: '$ 420.000', facturas: 22, interno: '$ 222.000', internos: 13 }
+    ];
+    var chip = 'min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; font-size: 14px; ';
+    var periodos = D.map(function (p, i) {
+      var o = s.per === i;
+      return { label: p.label, on: o ? 'true' : 'false', elegir: set({ per: i, enviado: false }),
+        style: chip + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: rgba(255,255,255,0.88); color: #02261E; font-weight: 600; box-shadow: 0 1px 2px rgba(2,38,30,0.06);') };
+    });
+    return {
+      periodos: periodos, d: D[s.per], rango: s.per === 3,
+      noEnviado: !s.enviado, enviado: s.enviado, enviar: set({ enviado: true }),
+      historial: [{ periodo: 'Septiembre', fecha: 'enviado el 2/10' }, { periodo: 'Agosto', fecha: 'enviado el 1/9' }, { periodo: 'Julio', fecha: 'enviado el 4/8' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

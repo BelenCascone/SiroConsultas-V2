@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Estadísticas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button,select,input{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+.tarjeta{background:#FFFFFF;border-radius:26px;padding:22px;box-shadow:0 1px 2px rgba(2,38,30,0.05),0 16px 40px rgba(2,38,30,0.07);display:flex;flex-direction:column;gap:14px;min-width:0}
+.tit{margin:0;font-size:17px;font-weight:700}
+.ayuda{font-size:13px;color:#4A5F5C}
+.barra:hover .seg,.barra:focus-visible .seg{filter:brightness(0.9)}
+.fila-b:hover{background:#F7FAFB}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 1500px; box-sizing: border-box; padding: 24px 40px 56px; background: radial-gradient(520px 260px at 18% 0%, rgba(137,201,201,0.34), transparent 70%), radial-gradient(440px 240px at 72% 4%, rgba(218,252,146,0.50), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; gap: 22px;">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #89C9C9; box-shadow: 8px 0 0 -2px #DAFC92;"></span>
+      <span style="font-weight: 800; font-size: 17px; margin-left: 6px;">SiroConsultas</span>
+    </div>
+    <nav aria-label="Menú principal" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: rgba(255,255,255,0.85); border-radius: 999px; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 8px 24px rgba(2,38,30,0.06);">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="{{n.href}}" aria-current="{{n.actual}}" style="{{n.style}}">{{n.label}}</a>
+      </sc-for>
+    </nav>
+    <a href="Configuracion.dc.html" aria-label="Configuración" title="Configuración" style="width: 44px; height: 44px; border-radius: 50%; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800; font-size: 15px; text-decoration: none;">JP</a>
+  </header>
+
+  <div style="width: 100%; max-width: 1140px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <h1 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.02em;">Estadísticas</h1>
+        <span style="color: #4A5F5C;">{{subtitulo}}</span>
+      </div>
+      <div role="group" aria-label="Filtros" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+        <sc-for list="{{periodos}}" as="p" hint-placeholder-count="4">
+          <button type="button" onClick="{{p.elegir}}" aria-pressed="{{p.on}}" style="{{p.style}}">{{p.label}}</button>
+        </sc-for>
+        <label style="position: relative; display: flex; align-items: center;">
+          <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Consultorio</span>
+          <select onChange="{{cambiarCons}}" style="height: 44px; padding: 0 36px 0 16px; border-radius: 999px; border: 0; background: #FFFFFF; color: #02261E; font-size: 14px; font-weight: 600; box-shadow: 0 1px 2px rgba(2,38,30,0.06); appearance: none;">
+            <sc-for list="{{consultorios}}" as="c" hint-placeholder-count="4">
+              <option value="{{c.v}}" selected="{{c.sel}}">{{c.label}}</option>
+            </sc-for>
+          </select>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 14px; pointer-events: none;"><path d="M6 9l6 6 6-6"></path></svg>
+        </label>
+      </div>
+    </div>
+    <sc-if value="{{rango}}" hint-placeholder-val="{{false}}">
+      <div class="paso" style="display: flex; justify-content: flex-end; align-items: flex-end; gap: 12px; margin-top: -8px;">
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #4A5F5C; font-weight: 600;">Desde<input type="date" value="2026-10-01" style="height: 44px; width: 170px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px;"></label>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #4A5F5C; font-weight: 600;">Hasta<input type="date" value="2026-10-15" style="height: 44px; width: 170px; box-sizing: border-box; padding: 0 14px; border-radius: 14px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px;"></label>
+      </div>
+    </sc-if>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;">
+      <sc-for list="{{tiles}}" as="t" hint-placeholder-count="4">
+        <div style="{{t.caja}}">
+          <span style="font-size: 13px; font-weight: 600; color: #4A5F5C;">{{t.label}}</span>
+          <span style="font-size: 30px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15;">{{t.valor}}</span>
+          <span style="font-size: 13px; color: #4A5F5C;">{{t.sub}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <h2 style="margin: 8px 0 -6px; font-size: 20px; font-weight: 800;">Pacientes y consultas</h2>
+    <div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start;">
+      <section class="tarjeta" aria-labelledby="t-pv">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <h3 id="t-pv" class="tit">Primera vez y pacientes que vuelven</h3>
+            <span class="ayuda">Consultas por mes, últimos 6 meses. Tocá un mes para ver el detalle.</span>
+          </div>
+          <button type="button" onClick="{{togTabla}}" aria-pressed="{{tablaAria}}" style="flex: 0 0 auto; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 13px; font-weight: 600;">{{tablaBtn}}</button>
+        </div>
+        <div style="display: flex; gap: 18px; font-size: 13px; color: #4A5F5C;">
+          <span style="display: flex; align-items: center; gap: 6px;"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 4px; background: #1D5FB8;"></span>Primera vez</span>
+          <span style="display: flex; align-items: center; gap: 6px;"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 4px; background: #00918C;"></span>Vuelven</span>
+        </div>
+        <sc-if value="{{verGrafico}}" hint-placeholder-val="{{true}}">
+          <div style="display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 8px;">
+            <div aria-hidden="true" style="height: 220px; display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; color: #4A5F5C; text-align: right; font-variant-numeric: tabular-nums;">
+              <sc-for list="{{ejeY}}" as="y" hint-placeholder-count="5"><span style="line-height: 1; transform: translateY(-6px);">{{y}}</span></sc-for>
+            </div>
+            <div style="position: relative; height: 220px; border-bottom: 1px solid #C5D6DA; background: repeating-linear-gradient(to top, transparent 0, transparent 54px, #E9F1F3 54px, #E9F1F3 55px);">
+              <div style="position: absolute; inset: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; padding: 0 12px; align-items: end;">
+                <sc-for list="{{meses}}" as="m" hint-placeholder-count="6">
+                  <button type="button" class="barra" onClick="{{m.elegir}}" aria-pressed="{{m.on}}" aria-label="{{m.aria}}" title="{{m.aria}}" style="{{m.col}}">
+                    <span style="font-size: 12px; font-weight: 700; color: #02261E; font-variant-numeric: tabular-nums;">{{m.total}}</span>
+                    <span class="seg" style="{{m.vuelven}}"></span>
+                    <span class="seg" style="{{m.primera}}"></span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+            <span></span>
+            <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; padding: 0 12px; font-size: 13px; color: #4A5F5C; text-align: center;">
+              <sc-for list="{{meses}}" as="m" hint-placeholder-count="6"><span style="{{m.etqStyle}}">{{m.mes}}</span></sc-for>
+            </div>
+          </div>
+          <div class="paso" role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9; font-size: 14px;">
+            <b>{{det.mes}}</b>
+            <span><span style="color: #1D5FB8; font-weight: 800;">{{det.primera}}</span> primera vez ({{det.pct}})</span>
+            <span><span style="color: #00796F; font-weight: 800;">{{det.vuelven}}</span> vuelven</span>
+            <span style="color: #4A5F5C;">{{det.total}} consultas en total</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{verTabla}}" hint-placeholder-val="{{false}}">
+          <div class="paso" role="table" aria-label="Primera vez y pacientes que vuelven, por mes" style="display: flex; flex-direction: column; font-size: 14px;">
+            <div role="row" style="display: grid; grid-template-columns: minmax(0, 1fr) 110px 110px 110px; gap: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; color: #4A5F5C;"><span role="columnheader">Mes</span><span role="columnheader" style="text-align: right;">Primera vez</span><span role="columnheader" style="text-align: right;">Vuelven</span><span role="columnheader" style="text-align: right;">Total</span></div>
+            <sc-for list="{{meses}}" as="m" hint-placeholder-count="6">
+              <div role="row" style="display: grid; grid-template-columns: minmax(0, 1fr) 110px 110px 110px; gap: 8px; padding: 10px 12px; border-top: 1px solid #E9F1F3; font-variant-numeric: tabular-nums;"><span role="cell" style="font-weight: 600;">{{m.mesLargo}}</span><span role="cell" style="text-align: right;">{{m.p}}</span><span role="cell" style="text-align: right;">{{m.v}}</span><span role="cell" style="text-align: right; font-weight: 700;">{{m.total}}</span></div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </section>
+
+      <section class="tarjeta" aria-labelledby="t-cob">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <h3 id="t-cob" class="tit">Coberturas</h3>
+          <span class="ayuda">Consultas según la cobertura del paciente.</span>
+        </div>
+        <sc-for list="{{coberturas}}" as="c" hint-placeholder-count="5">
+          <div class="fila-b" title="{{c.aria}}" style="display: grid; grid-template-columns: 110px minmax(0, 1fr) 70px; gap: 10px; align-items: center; min-height: 36px; padding: 0 6px; border-radius: 10px; font-size: 14px;">
+            <span style="font-weight: 600;">{{c.label}}</span>
+            <span style="height: 14px; border-radius: 0 4px 4px 0; background: #F2F7F9;"><span style="{{c.barra}}"></span></span>
+            <span style="text-align: right; font-variant-numeric: tabular-nums;"><b>{{c.n}}</b> <span style="color: #4A5F5C;">{{c.pct}}</span></span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start;">
+      <section class="tarjeta" aria-labelledby="t-aus">
+        <h3 id="t-aus" class="tit">Ausencias y cancelaciones</h3>
+        <sc-for list="{{faltas}}" as="f" hint-placeholder-count="3">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid #E9F1F3; font-size: 14px;">
+            <span style="display: flex; flex-direction: column; line-height: 1.35;"><span style="font-weight: 600;">{{f.label}}</span><span class="ayuda">{{f.sub}}</span></span>
+            <span style="font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums;">{{f.n}}</span>
+          </div>
+        </sc-for>
+        <a href="Pacientes.dc.html" style="align-self: flex-start; min-height: 40px; display: flex; align-items: center; font-size: 14px; font-weight: 700;">Ver quiénes faltaron</a>
+      </section>
+      <section class="tarjeta" aria-labelledby="t-cons">
+        <h3 id="t-cons" class="tit">Por consultorio</h3>
+        <sc-for list="{{porCons}}" as="c" hint-placeholder-count="3">
+          <div title="{{c.aria}}" style="display: grid; grid-template-columns: 100px minmax(0, 1fr) 36px; gap: 10px; align-items: center; min-height: 36px; font-size: 14px;">
+            <span style="font-weight: 600;">{{c.label}}</span>
+            <span style="height: 14px; background: #F2F7F9; border-radius: 0 4px 4px 0;"><span style="{{c.barra}}"></span></span>
+            <span style="text-align: right; font-weight: 700; font-variant-numeric: tabular-nums;">{{c.n}}</span>
+          </div>
+        </sc-for>
+      </section>
+      <section class="tarjeta" aria-labelledby="t-tipo">
+        <h3 id="t-tipo" class="tit">Tipo de atención</h3>
+        <sc-for list="{{tipos}}" as="c" hint-placeholder-count="3">
+          <div title="{{c.aria}}" style="display: grid; grid-template-columns: 110px minmax(0, 1fr) 36px; gap: 10px; align-items: center; min-height: 36px; font-size: 14px;">
+            <span style="font-weight: 600;">{{c.label}}</span>
+            <span style="height: 14px; background: #F2F7F9; border-radius: 0 4px 4px 0;"><span style="{{c.barra}}"></span></span>
+            <span style="text-align: right; font-weight: 700; font-variant-numeric: tabular-nums;">{{c.n}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin: 8px 0 -6px;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Cobros</h2>
+      <a href="Contadora.dc.html" style="display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #FFFFFF; color: #02261E; font-size: 14px; font-weight: 600; text-decoration: none; box-shadow: 0 1px 2px rgba(2,38,30,0.06);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"></path></svg>Enviar a la contadora</a>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;">
+      <sc-for list="{{tilesCobro}}" as="t" hint-placeholder-count="4">
+        <div style="{{t.caja}}">
+          <span style="font-size: 13px; font-weight: 600; color: #4A5F5C;">{{t.label}}</span>
+          <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2;">{{t.valor}}</span>
+          <span style="font-size: 13px; color: #4A5F5C;">{{t.sub}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 20px; align-items: start;">
+      <section class="tarjeta" aria-labelledby="t-prest">
+        <h3 id="t-prest" class="tit">Por prestación</h3>
+        <div role="table" aria-labelledby="t-prest" style="display: flex; flex-direction: column; font-size: 14px;">
+          <div role="row" style="display: grid; grid-template-columns: minmax(0, 1fr) 90px 130px 120px; gap: 8px; padding: 6px 4px; font-size: 13px; font-weight: 700; color: #4A5F5C;"><span role="columnheader">Prestación</span><span role="columnheader" style="text-align: right;">Consultas</span><span role="columnheader" style="text-align: right;">Cobrado</span><span role="columnheader" style="text-align: right;">Promedio</span></div>
+          <sc-for list="{{prestaciones}}" as="p" hint-placeholder-count="3">
+            <div role="row" style="display: grid; grid-template-columns: minmax(0, 1fr) 90px 130px 120px; gap: 8px; padding: 10px 4px; border-top: 1px solid #E9F1F3; font-variant-numeric: tabular-nums;"><span role="cell" style="font-weight: 600;">{{p.label}}</span><span role="cell" style="text-align: right;">{{p.n}}</span><span role="cell" style="text-align: right; font-weight: 700;">{{p.cobrado}}</span><span role="cell" style="text-align: right; color: #4A5F5C;">{{p.prom}}</span></div>
+          </sc-for>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 6px;">
+          <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Facturado y sin factura</span>
+          <div role="img" aria-label="{{fact.aria}}" style="display: flex; gap: 2px; height: 16px;">
+            <span style="{{fact.a}}"></span><span style="{{fact.b}}"></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px;">
+            <span style="display: flex; align-items: center; gap: 6px;"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 4px; background: #00918C;"></span>Facturas C <b style="font-variant-numeric: tabular-nums;">{{fact.facturado}}</b></span>
+            <span style="display: flex; align-items: center; gap: 6px;"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 4px; background: #1D5FB8;"></span>Comprobante interno <b style="font-variant-numeric: tabular-nums;">{{fact.interno}}</b></span>
+          </div>
+        </div>
+      </section>
+      <section class="tarjeta" aria-labelledby="t-medio">
+        <h3 id="t-medio" class="tit">Por medio de pago</h3>
+        <sc-for list="{{medios}}" as="c" hint-placeholder-count="4">
+          <div title="{{c.aria}}" style="display: grid; grid-template-columns: 110px minmax(0, 1fr) 100px; gap: 10px; align-items: center; min-height: 36px; font-size: 14px;">
+            <span style="font-weight: 600;">{{c.label}}</span>
+            <span style="height: 14px; background: #F2F7F9; border-radius: 0 4px 4px 0;"><span style="{{c.barra}}"></span></span>
+            <span style="text-align: right; font-weight: 700; font-variant-numeric: tabular-nums;">{{c.n}}</span>
+          </div>
+        </sc-for>
+        <span class="ayuda">Cobrado = lo que pagaron los pacientes. Con obra social cuenta solo el copago; la app no concilia con las obras sociales.</span>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ per: 0, cons: 'todos', mes: null, tabla: false }, this.state || {});
+    if (s.mes === null) s.mes = s.per === 1 ? 4 : 5;
+    var set = function (o) { return function () { self.setState(o); }; };
+    var pesos = function (n) { return '$ ' + Math.round(n).toLocaleString('es-AR'); };
+    var navBase = 'display: flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-size: 15px; ';
+    var nav = [['Hoy', 'Main.dc.html'], ['Agenda', 'Agenda.dc.html'], ['Pacientes', 'Pacientes.dc.html'], ['Cobros', 'Comprobante.dc.html'], ['Estadísticas', 'Estadisticas.dc.html']].map(function (n, i) {
+      return { label: n[0], href: n[1], actual: i === 4 ? 'page' : 'false', style: navBase + (i === 4 ? 'background: #DCEFEF; color: #24605F; font-weight: 700;' : 'color: #02261E; font-weight: 500;') };
+    });
+
+    // Período y consultorio escalan los mismos datos de ejemplo (octubre, todos los consultorios).
+    var PER = [['Este mes', 1, 'Octubre 2026', 'vs. septiembre'], ['Mes anterior', 79 / 86, 'Septiembre 2026', 'vs. agosto'], ['Trimestre', 3.05, 'Julio a septiembre 2026', 'vs. el trimestre anterior'], ['Elegir fechas', 0.5, 'Del 1 al 15 de octubre', 'vs. la quincena anterior']];
+    var CONS = [['todos', 'Todos los consultorios', 1], ['centro', 'Centro', 0.51], ['norte', 'Norte', 0.4], ['video', 'Videollamada', 0.09]];
+    var cons = CONS.filter(function (c) { return c[0] === s.cons; })[0] || CONS[0];
+    var f = PER[s.per][1] * cons[2];
+    var n = function (x) { return Math.max(0, Math.round(x * f)); };
+    var chip = 'min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; font-size: 14px; ';
+    var periodos = PER.map(function (p, i) {
+      var o = s.per === i;
+      return { label: p[0], on: o ? 'true' : 'false', elegir: set({ per: i, mes: null }),
+        style: chip + (o ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : 'background: #FFFFFF; color: #02261E; font-weight: 600; box-shadow: 0 1px 2px rgba(2,38,30,0.06);') };
+    });
+
+    var consultas = n(86), primera = n(14), vuelven = consultas - primera, aus = n(6), cobrado = 1284000 * f, pagos = n(71);
+    var caja = function (bg) { return 'padding: 18px; border-radius: 22px; background: ' + bg + '; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 1px 2px rgba(2,38,30,0.05);'; };
+    var tiles = [
+      { label: 'Consultas', valor: String(consultas), sub: '+' + n(7) + ' ' + PER[s.per][3], caja: caja('#FFFFFF') },
+      { label: 'Primera vez', valor: String(primera), sub: Math.round(primera / Math.max(consultas, 1) * 100) + '% de las consultas', caja: caja('#FFFFFF') },
+      { label: 'Pacientes que vuelven', valor: String(vuelven), sub: 'Ya habían venido antes', caja: caja('#FFFFFF') },
+      { label: 'Ausencias', valor: String(aus), sub: Math.round(aus / Math.max(consultas + aus, 1) * 100) + '% de los turnos', caja: caja('#FFFFFF') }
+    ];
+
+    // primera vez y vuelven, últimos 6 meses
+    var M = [['May', 'Mayo', 9, 58], ['Jun', 'Junio', 12, 61], ['Jul', 'Julio', 10, 55], ['Ago', 'Agosto', 11, 64], ['Sep', 'Septiembre', 13, 66], ['Oct', 'Octubre', 14, 72]];
+    var k = cons[2];
+    var MAX = 100;
+    var alto = function (v) { return Math.round(v / MAX * 192); };
+    var meses = M.map(function (m, i) {
+      var p = Math.round(m[2] * k), v = Math.round(m[3] * k), o = s.mes === i;
+      return { mes: m[0], mesLargo: m[1], p: p, v: v, total: p + v, on: o ? 'true' : 'false', elegir: set({ mes: i }),
+        aria: m[1] + ': ' + p + ' primera vez, ' + v + ' vuelven, ' + (p + v) + ' en total',
+        col: 'height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; border: 0; padding: 0 4px; border-radius: 10px 10px 0 0; background: ' + (o ? '#F2F7F9' : 'transparent') + ';',
+        vuelven: 'display: block; width: 100%; max-width: 44px; height: ' + alto(v) + 'px; background: #00918C; border-radius: 4px 4px 0 0;',
+        primera: 'display: block; width: 100%; max-width: 44px; height: ' + alto(p) + 'px; background: #1D5FB8; border-top: 2px solid #FFFFFF; box-sizing: content-box;',
+        etqStyle: o ? 'font-weight: 700; color: #02261E;' : '' };
+    });
+    var dm = meses[s.mes];
+
+    var hbar = function (lista, max, color, fmt) {
+      return lista.map(function (x) {
+        var val = fmt ? x[1] * f : n(x[1]);
+        return { label: x[0], n: fmt ? pesos(val) : val, pct: '', aria: x[0] + ': ' + (fmt ? pesos(val) : val),
+          barra: 'display: block; height: 14px; width: ' + Math.max(2, Math.round(x[1] / max * 100)) + '%; background: ' + color + '; border-radius: 0 4px 4px 0;' };
+      });
+    };
+    var COB = [['Particular', 31], ['OSDE', 24], ['Swiss Medical', 16], ['PAMI', 9], ['Otras', 6]];
+    var coberturas = hbar(COB, 31, '#00918C').map(function (c, i) { c.pct = Math.round(COB[i][1] / 86 * 100) + '%'; return c; });
+    var porCons = s.cons === 'todos'
+      ? hbar([['Centro', 44], ['Norte', 34], ['Videollamada', 8]], 44, '#00918C')
+      : [{ label: cons[1], n: consultas, aria: cons[1] + ': ' + consultas, barra: 'display: block; height: 14px; width: 100%; background: #00918C; border-radius: 0 4px 4px 0;' }];
+    var tipos = hbar([['Presencial', s.cons === 'video' ? 0 : 78], ['Videollamada', s.cons === 'video' ? 86 : 8]], s.cons === 'video' ? 86 : 78, '#00918C');
+    var faltas = [
+      { label: 'No vinieron', sub: 'Sin avisar', n: aus },
+      { label: 'Cancelaron con aviso', sub: 'Avisaron antes del turno', n: n(7) },
+      { label: 'Cancelaste vos', sub: 'Por bloqueos o cambios tuyos', n: n(3) }
+    ];
+
+    var teDeben = 21500 * k;
+    var tilesCobro = [
+      { label: 'Cobrado', valor: pesos(cobrado), sub: pagos + ' pagos', caja: caja('#FFFFFF') },
+      { label: 'Particulares', valor: pesos(868000 * f), sub: 'Pacientes sin cobertura', caja: caja('#FFFFFF') },
+      { label: 'Copagos', valor: pesos(416000 * f), sub: 'De pacientes con obra social', caja: caja('#FFFFFF') },
+      { label: 'Te deben', valor: pesos(teDeben), sub: 'Ticket promedio ' + pesos(cobrado / Math.max(pagos, 1)), caja: caja('#FFF8EA') }
+    ];
+    var prestaciones = [['Control', 52, 712000], ['Evolución', 20, 334000], ['Primera consulta', 14, 238000]].map(function (p) {
+      return { label: p[0], n: n(p[1]), cobrado: pesos(p[2] * f), prom: pesos(p[2] / p[1]) };
+    });
+    var medios = hbar([['Transferencia', 642000], ['Efectivo', 398000], ['Tarjeta', 212000], ['Otro', 32000]], 642000, '#00918C', true);
+    var fa = 846000 * f, fi = 438000 * f, ft = fa + fi;
+    var fact = { facturado: pesos(fa), interno: pesos(fi),
+      aria: 'Facturas C ' + pesos(fa) + ' y comprobante interno ' + pesos(fi),
+      a: 'display: block; height: 16px; width: ' + Math.round(fa / ft * 100) + '%; background: #00918C; border-radius: 4px 0 0 4px;',
+      b: 'display: block; height: 16px; flex: 1; background: #1D5FB8; border-radius: 0 4px 4px 0;' };
+
+    return {
+      nav: nav, periodos: periodos, rango: s.per === 3,
+      consultorios: CONS.map(function (c) { return { v: c[0], label: c[1], sel: c[0] === s.cons ? 'selected' : null }; }),
+      cambiarCons: function (e) { if (e && e.target) self.setState({ cons: e.target.value }); },
+      subtitulo: PER[s.per][2] + ' · ' + (s.cons === 'todos' ? 'todos los consultorios' : s.cons === 'video' ? 'videollamada' : 'consultorio ' + cons[1]),
+      tiles: tiles, meses: meses, ejeY: ['100', '75', '50', '25', '0'],
+      det: { mes: dm.mesLargo, primera: dm.p, vuelven: dm.v, total: dm.total, pct: Math.round(dm.p / Math.max(dm.total, 1) * 100) + '%' },
+      verGrafico: !s.tabla, verTabla: s.tabla, togTabla: set({ tabla: !s.tabla }), tablaAria: s.tabla ? 'true' : 'false', tablaBtn: s.tabla ? 'Ver gráfico' : 'Ver como tabla',
+      coberturas: coberturas, porCons: porCons, tipos: tipos, faltas: faltas,
+      tilesCobro: tilesCobro, prestaciones: prestaciones, medios: medios, fact: fact
+    };
+  }
+}
+</script>
+</body>
+</html>

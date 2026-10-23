@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Agenda</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+.hueco{opacity:0}
+.hueco:hover,.hueco:focus-visible{opacity:1}
+.turno:hover{filter:brightness(0.97)}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; min-height: 1240px; box-sizing: border-box; padding: 24px 40px 56px; background: radial-gradient(520px 260px at 18% 0%, rgba(137,201,201,0.34), transparent 70%), radial-gradient(440px 240px at 72% 4%, rgba(218,252,146,0.50), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; gap: 24px;">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #89C9C9; box-shadow: 8px 0 0 -2px #DAFC92;"></span>
+      <span style="font-size: 18px; font-weight: 800; margin-left: 6px; letter-spacing: -0.01em;">SiroConsultas</span>
+    </div>
+    <nav aria-label="Menú principal" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: rgba(255,255,255,0.85); border-radius: 999px; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 8px 24px rgba(2,38,30,0.06);">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="{{n.href}}" aria-current="{{n.actual}}" style="{{n.style}}">{{n.label}}</a>
+      </sc-for>
+    </nav>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button type="button" aria-label="Avisos: 3 nuevos" title="Avisos" style="position: relative; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #FFFFFF; color: #02261E; display: grid; place-items: center; box-shadow: 0 1px 2px rgba(2,38,30,0.08);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5h4"></path></svg>
+        <span aria-hidden="true" style="position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; border-radius: 50%; background: #24605F; box-shadow: 0 0 0 2px #FFFFFF;"></span>
+      </button>
+      <a href="Configuracion.dc.html" aria-label="Configuración" title="Configuración" style="width: 44px; height: 44px; border-radius: 50%; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800; font-size: 15px; text-decoration: none;">JP</a>
+    </div>
+  </header>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+      <div role="group" aria-label="Vista" style="display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,0.88); box-shadow: 0 1px 2px rgba(2,38,30,0.06);">
+        <sc-for list="{{vistas}}" as="v" hint-placeholder-count="2">
+          <button type="button" onClick="{{v.elegir}}" aria-pressed="{{v.on}}" style="{{v.style}}">{{v.label}}</button>
+        </sc-for>
+      </div>
+      <label style="position: relative; display: flex; align-items: center;">
+        <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Consultorio</span>
+        <select onChange="{{cambiarCons}}" style="appearance: none; -webkit-appearance: none; height: 44px; padding: 0 38px 0 16px; border-radius: 999px; border: 0; background: rgba(255,255,255,0.88); color: #02261E; font: inherit; font-size: 15px; font-weight: 600; box-shadow: 0 1px 2px rgba(2,38,30,0.06); cursor: pointer;">
+          <sc-for list="{{consultorios}}" as="c" hint-placeholder-count="4">
+            <option value="{{c.valor}}" selected="{{c.on}}">{{c.label}}</option>
+          </sc-for>
+        </select>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 14px; pointer-events: none;"><path d="M6 9l6 6 6-6"></path></svg>
+      </label>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" onClick="{{antes}}" aria-label="Anterior" style="width: 44px; height: 44px; border-radius: 999px; border: 0; background: #FFFFFF; color: #02261E; display: grid; place-items: center; box-shadow: 0 1px 2px rgba(2,38,30,0.08);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; min-width: 270px; text-align: center;">{{titulo}}</h1>
+        <button type="button" onClick="{{despues}}" aria-label="Siguiente" style="width: 44px; height: 44px; border-radius: 999px; border: 0; background: #FFFFFF; color: #02261E; display: grid; place-items: center; box-shadow: 0 1px 2px rgba(2,38,30,0.08);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+      </div>
+      <span style="font-size: 14px; color: #4A5F5C;">{{resumenTxt}}<sc-if value="{{noEsEstaSemana}}" hint-placeholder-val="{{false}}"> · <button type="button" onClick="{{irHoy}}" style="border: 0; background: transparent; padding: 0; min-height: 0; color: #24605F; font: inherit; font-weight: 700; text-decoration: underline;">{{volverTxt}}</button></sc-if></span>
+    </div>
+    <div aria-hidden="true"></div>
+  </div>
+
+  <sc-if value="{{moviendo}}" hint-placeholder-val="{{false}}">
+    <div class="paso" role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 20px; border-radius: 999px; background: #02261E; color: #FFFFFF;">
+      <span><b>Moviendo el turno de {{mov.nombre}}</b> · tenía {{mov.cuando}}. Tocá un hueco libre (en verde) de esta semana o de otra.</span>
+      <button type="button" onClick="{{cancelarMover}}" style="height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: rgba(255,255,255,0.14); color: #FFFFFF; font-size: 14px; font-weight: 700;">No mover</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{hayAviso}}" hint-placeholder-val="{{false}}">
+    <div class="paso" role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 20px; border-radius: 999px; background: #E4F4EA; color: #166534; font-weight: 600;">
+      <span>{{aviso}}</span>
+      <button type="button" onClick="{{cerrarAviso}}" style="height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: transparent; color: inherit; font-size: 14px; font-weight: 700; text-decoration: underline;">Listo</button>
+    </div>
+  </sc-if>
+
+
+
+  <div style="{{layout}}">
+
+    <sc-if value="{{esMes}}" hint-placeholder-val="{{false}}">
+    <section aria-label="{{titulo}}" class="paso" style="background: rgba(255,255,255,0.7); border-radius: 28px; padding: 16px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 20px 48px rgba(2,38,30,0.08);">
+      <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;">
+        <sc-for list="{{mesCab}}" as="c" hint-placeholder-count="7">
+          <span style="text-align: center; font-size: 13px; font-weight: 700; color: #4A5F5C; padding: 4px 0;">{{c}}</span>
+        </sc-for>
+        <sc-for list="{{mes}}" as="d" hint-placeholder-count="35">
+          <button type="button" onClick="{{d.ir}}" aria-label="{{d.aria}}" style="{{d.style}}">
+            <span style="display: flex; justify-content: space-between; align-items: center; gap: 4px; width: 100%;">
+              <span style="{{d.numStyle}}">{{d.num}}</span>
+              <sc-if value="{{d.hayPedido}}" hint-placeholder-val="{{false}}"><span title="Pedido online" style="width: 10px; height: 10px; border-radius: 50%; background: #5B3F8C;"></span></sc-if>
+            </span>
+            <span style="font-size: 14px; font-weight: 700;">{{d.texto}}</span>
+            <sc-if value="{{d.hayBarra}}" hint-placeholder-val="{{false}}">
+              <span aria-hidden="true" style="width: 100%; height: 6px; border-radius: 999px; background: #E9F1F3; overflow: hidden;"><span style="{{d.barra}}"></span></span>
+              <span style="font-size: 13px; color: #4A5F5C;">{{d.libres}}</span>
+            </sc-if>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+    <sc-if value="{{esSemana}}" hint-placeholder-val="{{true}}">
+    <section aria-label="{{titulo}}" style="background: rgba(255,255,255,0.7); border-radius: 28px; padding: 16px 16px 20px 8px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 20px 48px rgba(2,38,30,0.08);">
+      <div style="{{gridCols}}">
+        <sc-for list="{{cabeceras}}" as="h" hint-placeholder-count="6">
+          <div style="{{h.style}}">
+            <span style="{{h.diaStyle}}">{{h.dia}}</span>
+            <span style="font-size: 13px; color: #4A5F5C;">{{h.nota}}</span>
+          </div>
+        </sc-for>
+        <sc-for list="{{horas}}" as="h" hint-placeholder-count="12">
+          <span style="{{h.style}}">{{h.label}}</span>
+        </sc-for>
+        <sc-for list="{{fondos}}" as="f" hint-placeholder-count="6">
+          <div aria-hidden="true" style="{{f.style}}"></div>
+        </sc-for>
+        <sc-for list="{{fuera}}" as="f" hint-placeholder-count="1">
+          <div style="{{f.style}}"><span style="font-size: 13px; color: #4A5F5C; font-weight: 600;">{{f.label}}</span></div>
+        </sc-for>
+        <sc-for list="{{bloqueos}}" as="b" hint-placeholder-count="1">
+          <div style="{{b.style}}"><span style="font-weight: 700; color: #02261E;">{{b.titulo}}</span><span style="font-size: 13px; color: #4A5F5C;">{{b.motivo}}</span></div>
+        </sc-for>
+        <sc-for list="{{huecos}}" as="h" hint-placeholder-count="20">
+          <button type="button" class="{{h.clase}}" onClick="{{h.elegir}}" aria-label="{{h.aria}}" style="{{h.style}}">{{h.label}}</button>
+        </sc-for>
+        <sc-for list="{{turnos}}" as="t" hint-placeholder-count="20">
+          <button type="button" class="turno" onClick="{{t.elegir}}" aria-label="{{t.aria}}" aria-pressed="{{t.on}}" style="{{t.style}}">
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">{{t.nombre}}</span>
+            <sc-if value="{{t.video}}" hint-placeholder-val="{{false}}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto;"><rect x="3" y="6" width="13" height="12" rx="2"></rect><path d="M16 10l5-3v10l-5-3"></path></svg>
+            </sc-if>
+          </button>
+        </sc-for>
+        <sc-for list="{{ahora}}" as="a" hint-placeholder-count="1">
+          <div aria-hidden="true" style="{{a.style}}"><span style="position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: #9E2016;"></span></div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <sc-if value="{{esSemana}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px;">
+        <sc-for list="{{leyenda}}" as="l" hint-placeholder-count="7">
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4A5F5C;"><span aria-hidden="true" style="{{l.muestra}}"></span>{{l.label}}</span>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{hayPanel}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 20; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 150px 24px 40px; box-sizing: border-box;">
+    <div role="dialog" aria-modal="true" aria-label="{{modalTitulo}}" style="width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 16px;">
+      <sc-if value="{{panelTurno}}" hint-placeholder-val="{{false}}">
+        <section class="paso" style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <span style="{{sel.chip}}">{{sel.estado}}</span>
+            <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+          </div>
+          <div style="display: flex; flex-direction: column; line-height: 1.3;">
+            <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.01em;">{{sel.nombre}}</span>
+            <span style="font-weight: 600; margin-top: 4px;">{{sel.cuando}}</span>
+            <span style="font-size: 14px; color: #4A5F5C;">{{sel.detalle}}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 16px; background: #E9F1F3; font-size: 14px;">
+            <span>{{sel.cel}}</span>
+            <span style="color: #4A5F5C;">{{sel.historial}}</span>
+          </div>
+          <sc-if value="{{sel.hayNota}}" hint-placeholder-val="{{false}}">
+            <span style="{{sel.notaStyle}}">{{sel.nota}}</span>
+          </sc-if>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <sc-for list="{{sel.acciones}}" as="a" hint-placeholder-count="3">
+              <sc-if value="{{a.esLink}}" hint-placeholder-val="{{false}}">
+                <a href="{{a.href}}" style="{{a.style}}">{{a.label}}</a>
+              </sc-if>
+              <sc-if value="{{a.esBoton}}" hint-placeholder-val="{{true}}">
+                <button type="button" onClick="{{a.hacer}}" style="{{a.style}}">{{a.label}}</button>
+              </sc-if>
+            </sc-for>
+          </div>
+          <a href="Ficha.dc.html" style="align-self: center; font-size: 14px; font-weight: 600; min-height: 44px; display: flex; align-items: center;">Ver ficha</a>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{panelHueco}}" hint-placeholder-val="{{false}}">
+        <section class="paso" style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #E4F4EA; color: #166534;">Libre</span>
+            <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+          </div>
+          <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.3;">{{hueco.cuando}}</span>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Para quién?</span>
+            <label style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border-radius: 14px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #C5D6DA; color: #4A5F5C;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+              <input type="search" placeholder="Nombre, DNI o celular" aria-label="Buscar paciente" style="flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 15px; color: #02261E; outline: none;">
+            </label>
+            <sc-for list="{{hueco.pacientes}}" as="p" hint-placeholder-count="3">
+              <button type="button" onClick="{{p.elegir}}" aria-pressed="{{p.on}}" style="{{p.style}}"><span style="font-weight: 700;">{{p.nombre}}</span><span style="font-size: 13px; opacity: 0.8;">{{p.sub}}</span></button>
+            </sc-for>
+            <button type="button" onClick="{{hueco.nuevo}}" aria-pressed="{{hueco.nuevoOn}}" style="{{hueco.nuevoStyle}}">+ Paciente nuevo</button>
+            <sc-if value="{{hueco.esNuevo}}" hint-placeholder-val="{{false}}">
+              <div class="paso" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+                <input type="text" inputmode="numeric" placeholder="DNI" aria-label="DNI" style="grid-column: 1 / -1; height: 44px; min-width: 0; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font: inherit; font-size: 15px;">
+                <input type="text" placeholder="Nombre" aria-label="Nombre" style="height: 44px; min-width: 0; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font: inherit; font-size: 15px;">
+                <input type="text" placeholder="Apellido" aria-label="Apellido" style="height: 44px; min-width: 0; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font: inherit; font-size: 15px;">
+                <input type="tel" placeholder="Celular" aria-label="Celular" style="grid-column: 1 / -1; height: 44px; min-width: 0; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font: inherit; font-size: 15px;">
+                <input type="email" placeholder="Correo (opcional)" aria-label="Correo, opcional" style="grid-column: 1 / -1; height: 44px; min-width: 0; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font: inherit; font-size: 15px;">
+              </div>
+            </sc-if>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Prestación</span>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+              <sc-for list="{{hueco.prestaciones}}" as="r" hint-placeholder-count="3">
+                <button type="button" onClick="{{r.elegir}}" aria-pressed="{{r.on}}" style="{{r.style}}">{{r.label}}</button>
+              </sc-for>
+            </div>
+          </div>
+          <button type="button" onClick="{{hueco.guardar}}" style="{{hueco.guardarStyle}}">{{hueco.guardarTxt}}</button>
+          <span style="font-size: 13px; color: #4A5F5C; text-align: center;">Le avisamos por WhatsApp para que confirme.</span>
+          <button type="button" onClick="{{bloquearHueco}}" style="align-self: center; min-height: 44px; border: 0; background: transparent; color: #24605F; font-size: 14px; font-weight: 600; text-decoration: underline;">Bloquear este horario</button>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{panelBloqueo}}" hint-placeholder-val="{{false}}">
+        <section class="paso" style="background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Bloquear la agenda</h2>
+            <button type="button" onClick="{{cerrarBloqueo}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #4A5F5C; font-weight: 600;">Desde<input type="date" value="{{bq.fecha}}" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font: inherit; font-size: 15px;"></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #4A5F5C; font-weight: 600;">Hasta<input type="date" value="{{bq.fecha}}" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font: inherit; font-size: 15px;"></label>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <sc-for list="{{bq.alcances}}" as="a" hint-placeholder-count="2">
+              <button type="button" onClick="{{a.elegir}}" aria-pressed="{{a.on}}" style="{{a.style}}">{{a.label}}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{bq.franja}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #4A5F5C; font-weight: 600;">De<input type="time" value="{{bq.desde}}" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font: inherit; font-size: 15px;"></label>
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #4A5F5C; font-weight: 600;">A<input type="time" value="{{bq.hasta}}" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font: inherit; font-size: 15px;"></label>
+            </div>
+          </sc-if>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <sc-for list="{{bq.motivos}}" as="m" hint-placeholder-count="4">
+              <button type="button" onClick="{{m.elegir}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
+            </sc-for>
+          </div>
+          <span style="{{bq.avisoStyle}}">{{bq.avisoTxt}}</span>
+          <button type="button" onClick="{{bq.guardar}}" style="height: 48px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">{{bq.guardarTxt}}</button>
+          <button type="button" onClick="{{cerrarBloqueo}}" style="height: 44px; border-radius: 14px; border: 0; background: transparent; color: #4A5F5C; font-size: 14px; font-weight: 600;">Cancelar</button>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{panelDestino}}" hint-placeholder-val="{{false}}">
+        <section class="paso" style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 14px;">
+          <span style="font-size: 13px; color: #4A5F5C; font-weight: 600;">Mover el turno de {{mov.nombre}}</span>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px; color: #4A5F5C;"><span>Tenía</span><span style="text-decoration: line-through;">{{mov.cuando}}</span></span>
+            <span style="display: flex; justify-content: space-between; gap: 8px; font-size: 16px; font-weight: 800;"><span>Pasa a</span><span>{{destino}}</span></span>
+          </div>
+          <span style="font-size: 13px; color: #4A5F5C;">Le llega el aviso por WhatsApp con el nuevo día y hora.</span>
+          <button type="button" onClick="{{confirmarMover}}" style="height: 48px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Mover y avisar</button>
+          <button type="button" onClick="{{otroHueco}}" style="height: 44px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">Elegir otro hueco</button>
+          <button type="button" onClick="{{cancelarMover}}" style="height: 44px; border-radius: 14px; border: 0; background: transparent; color: #4A5F5C; font-size: 14px; font-weight: 600;">No mover</button>
+        </section>
+      </sc-if>
+    </div>
+    </div>
+    </sc-if>
+  </div>
+  <sc-if value="{{tm.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 120px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="Darle turno" class="paso" style="width: 100%; max-width: 700px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Darle turno a {{tm.nombre}}</h2>
+            <span style="font-size: 14px; color: #4A5F5C;">{{tm.sub}}</span>
+          </div>
+          <button type="button" onClick="{{tm.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; flex: 0 0 auto; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Prestación<select style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"><option selected>Control</option><option>Evolución</option><option>Primera consulta</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Consultorio<select style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"><option selected>Norte</option><option>Centro</option><option>Videollamada</option></select></label>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px; border-radius: 999px; background: #F2F7F9;">
+          <button type="button" onClick="{{tm.antes}}" aria-label="Semana anterior" style="{{tm.antesStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <span style="font-weight: 700;">{{tm.semanaTxt}}</span>
+          <button type="button" onClick="{{tm.despues}}" aria-label="Semana siguiente" style="{{tm.despuesStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: start;">
+          <sc-for list="{{tm.dias}}" as="d" hint-placeholder-count="5">
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C; text-align: center;">{{d.label}}</span>
+              <sc-for list="{{d.slots}}" as="h" hint-placeholder-count="3">
+                <button type="button" onClick="{{h.elegir}}" aria-pressed="{{h.on}}" style="{{h.style}}">{{h.hora}}</button>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Solo ves los horarios libres. Al guardar le mandamos la confirmación por WhatsApp.</span>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" onClick="{{tm.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+          <button type="button" onClick="{{tm.guardar}}" style="{{tm.guardarStyle}}">{{tm.guardarTxt}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ vista: 'semana', dia: 3, fechaX: null, sem: 0, cons: 'Todos', sel: null, hueco: null, mover: null, destino: null, cancelados: {}, movidos: {}, nuevos: [], bloqs: [], bq: null, bqAlc: 'dia', bqMot: 'Personal', quien: null, prest: 'Control', aviso: '' }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    // ---- Piezas comunes: darle turno, cobrar y documentos, sin salir de la pantalla ----
+    var pesosTxt = function (n) { return '$ ' + n.toLocaleString('es-AR'); };
+    var tmAbrir = function (nombre, semana, sug) { return function () { self.setState({ tm: { nombre: nombre, semIni: semana, sem: semana, sug: sug || '', slot: null }, doc: null }); }; };
+    var tmArmar = function (alGuardar) {
+      var t = s.tm || { nombre: '', semIni: 0, sem: 0, sug: '', slot: null };
+      var fch = function (d) { return d.getDate() + '/' + (d.getMonth() + 1); };
+      var NOM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+      var HS = [['9:00', '10:30', '16:00'], ['11:00', '17:30'], ['9:30', '12:00', '15:00', '18:00'], ['10:00', '16:30'], ['9:00', '11:30', '17:00']];
+      var cambia = function (x) { return function () { self.setState({ tm: Object.assign({}, t, x) }); }; };
+      var dias = NOM.map(function (n, i) {
+        var lbl = n + ' ' + fch(new Date(2026, 9, 27 + t.sem * 7 + i));
+        return { label: lbl, slots: HS[(i + t.sem) % 5].map(function (h) {
+          var k = lbl + ' · ' + h, o = t.slot === k;
+          return { hora: h, on: o ? 'true' : 'false', elegir: cambia({ slot: k }), style: 'height: 44px; border-radius: 12px; border: 0; font-size: 14px; font-variant-numeric: tabular-nums; ' + (o ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') };
+        }) };
+      });
+      var flecha = function (ok) { return 'width: 44px; height: 44px; border-radius: 50%; border: 0; display: grid; place-items: center; ' + (ok ? 'background: #FFFFFF; color: #02261E;' : 'background: transparent; color: #C5D6DA; cursor: default;'); };
+      return { on: !!s.tm, nombre: t.nombre,
+        sub: t.sug ? 'Ya está abierta la semana sugerida para el control (' + t.sug + ').' : 'Elegí el día y el horario.',
+        semanaTxt: 'Semana del ' + fch(new Date(2026, 9, 27 + t.sem * 7)) + (t.sug && t.sem === t.semIni ? ' · la sugerida' : ''),
+        dias: dias, antes: t.sem > 0 ? cambia({ sem: t.sem - 1 }) : function () {}, antesStyle: flecha(t.sem > 0), despues: cambia({ sem: t.sem + 1 }), despuesStyle: flecha(true),
+        guardarTxt: t.slot ? 'Guardar turno · ' + t.slot : 'Elegí un horario',
+        guardarStyle: 'height: 48px; padding: 0 22px; border-radius: 16px; border: 0; font-size: 15px; font-weight: 700; ' + (t.slot ? 'background: #02261E; color: #FFFFFF;' : 'background: #E9F1F3; color: #4A5F5C; cursor: default;'),
+        guardar: t.slot ? function () { alGuardar(t.nombre, t.slot); } : function () {},
+        cerrar: function () { self.setState({ tm: null }); } };
+    };
+    var cbArmar = function (o) {
+      var c = Object.assign({ cuanto: 'todo', medio: 'Efectivo', tipo: 'interno' }, s.cb || {});
+      var cambia = function (x) { return function () { self.setState({ cb: Object.assign({}, c, x) }); }; };
+      var chip = 'height: 44px; padding: 0 16px; border-radius: 999px; border: 0; font-size: 14px; ';
+      var on = 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;', off = 'background: #E9F1F3; color: #02261E; font-weight: 600;';
+      var pago = c.cuanto === 'parte' ? Math.round(o.monto / 2) : c.cuanto === 'nada' ? 0 : o.monto;
+      return { on: !!s.cb, nombre: o.nombre, concepto: o.concepto, detalle: o.detalle, importe: pesosTxt(o.monto),
+        cuanto: [['todo', 'Todo'], ['parte', 'Una parte'], ['nada', 'Nada por ahora']].map(function (x) { var k = c.cuanto === x[0]; return { label: x[1], on: k ? 'true' : 'false', elegir: cambia({ cuanto: x[0] }), style: chip + (k ? on : off) }; }),
+        parte: c.cuanto === 'parte', pagaAlgo: c.cuanto !== 'nada', parteNum: pago.toLocaleString('es-AR'), restoTxt: 'Queda debiendo ' + pesosTxt(o.monto - pago),
+        medios: ['Efectivo', 'Transferencia', 'Tarjeta', 'Otro'].map(function (m) { var k = c.medio === m; return { label: m, on: k ? 'true' : 'false', elegir: cambia({ medio: m }), style: 'height: 44px; border-radius: 14px; border: 0; font-size: 14px; ' + (k ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : off) }; }),
+        tipos: [['interno', 'Comprobante interno'], ['arca', 'Factura C'], ['no', 'Ahora no']].map(function (x) { var k = c.tipo === x[0]; return { label: x[1], on: k ? 'true' : 'false', elegir: cambia({ tipo: x[0] }), style: chip + (k ? on : off) }; }),
+        guardarTxt: c.cuanto === 'nada' ? 'Dejar en «Te deben»' : 'Guardar pago de ' + pesosTxt(pago),
+        guardar: function () {
+          var txt = c.cuanto === 'nada' ? 'Quedó en «Te deben»: ' + pesosTxt(o.monto) + '.' : 'Cobraste ' + pesosTxt(pago) + ' en ' + c.medio.toLowerCase() + (c.tipo === 'no' ? '.' : ' y le mandamos ' + (c.tipo === 'arca' ? 'la factura C' : 'el comprobante') + ' por WhatsApp.') + (c.cuanto === 'parte' ? ' Debe ' + pesosTxt(o.monto - pago) + '.' : '');
+          o.alGuardar(txt, c.cuanto);
+        },
+        abrir: function () { self.setState({ cb: { cuanto: 'todo', medio: 'Efectivo', tipo: 'interno' } }); },
+        cerrar: function () { self.setState({ cb: null }); } };
+    };
+    var docArmar = function (o) {
+      var d = s.doc || { tipo: null, listo: false };
+      var abrir = function (t) { return function () { self.setState({ doc: { tipo: t, listo: false }, menuDoc: false }); }; };
+      var nombreDoc = d.tipo === 'cert' ? 'el certificado' : 'el pedido de estudios';
+      var envio = function (txt) { return function () { self.setState({ doc: null }); o.alAviso(txt); }; };
+      return { on: !!d.tipo, nombre: o.nombre, dni: o.dni, edad: o.edad, cobertura: o.cobertura, diag: o.diag, estudios: o.estudios, med: o.med, ind: o.ind,
+        titulo: d.listo ? (d.tipo === 'cert' ? 'Certificado listo' : 'Pedido listo') : { cert: 'Certificado', pedido: 'Pedido de estudios', receta: 'Receta digital (MisRx)' }[d.tipo] || '',
+        verCert: d.tipo === 'cert' && !d.listo, verPedido: d.tipo === 'pedido' && !d.listo, verReceta: d.tipo === 'receta', verListo: !!d.listo,
+        listoTit: (d.tipo === 'cert' ? 'Certificado' : 'Pedido de estudios') + ' guardado en sus documentos',
+        pdf: (d.tipo === 'cert' ? 'Certificado' : 'Pedido') + '_' + o.archivo + '_2026-10-23.pdf',
+        generar: function () { self.setState({ doc: { tipo: d.tipo, listo: true } }); o.alHacer(d.tipo); },
+        guardarReceta: function () { self.setState({ doc: null }); o.alHacer('receta'); },
+        porWa: envio('Se abrió WhatsApp con el mensaje para ' + o.nombre + ': adjuntale ' + nombreDoc + '.'),
+        porMail: envio('Se abrió tu correo con el mensaje para ' + o.nombre + ': adjuntale ' + nombreDoc + '.'),
+        bajar: envio('Descargaste ' + nombreDoc + '.'),
+        cerrar: function () { self.setState({ doc: null }); },
+        abrirCert: abrir('cert'), abrirPedido: abrir('pedido'), abrirReceta: abrir('receta') };
+    };
+
+
+    var navBase = 'display: flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-size: 15px; ';
+    var nav = [['Hoy', 'Main.dc.html'], ['Agenda', 'Agenda.dc.html'], ['Pacientes', 'Pacientes.dc.html'], ['Cobros', 'Comprobante.dc.html'], ['Estadísticas', 'Estadisticas.dc.html']].map(function (n, i) {
+      return { label: n[0], href: n[1], actual: i === 1 ? 'page' : 'false', style: navBase + (i === 1 ? 'background: #DCEFEF; color: #24605F; font-weight: 700;' : 'color: #02261E; font-weight: 500;') };
+    });
+
+    var SEMANAS = [
+      { titulo: 'Semana del 20 al 25/10', dias: ['Lun 20', 'Mar 21', 'Mié 22', 'Jue 23', 'Vie 24', 'Sáb 25'], largos: ['lunes 20/10', 'martes 21/10', 'miércoles 22/10', 'jueves 23/10', 'viernes 24/10', 'sábado 25/10'], hoy: 3, bloqueado: null },
+      { titulo: 'Semana del 27/10 al 1/11', dias: ['Lun 27', 'Mar 28', 'Mié 29', 'Jue 30', 'Vie 31', 'Sáb 1'], largos: ['lunes 27/10', 'martes 28/10', 'miércoles 29/10', 'jueves 30/10', 'viernes 31/10', 'sábado 1/11'], hoy: -1, bloqueado: 0 }
+    ];
+    var W = SEMANAS[s.sem];
+    var HORA0 = 8, FILAS = 24;
+    var hhmm = function (f) { var m = HORA0 * 60 + f * 30; return Math.floor(m / 60) + ':' + (m % 60 ? '30' : '00'); };
+    var fila = function (h) { var p = h.split(':'); return (parseInt(p[0], 10) - HORA0) * 2 + (p[1] === '30' ? 1 : 0); };
+    // Ahora: jueves 23/10, 10:40
+    var AHORA = { sem: 0, dia: 3, fila: 5, frac: 0.33 };
+    var pasado = function (sem, dia, f) { return sem < AHORA.sem || (sem === AHORA.sem && (dia < AHORA.dia || (dia === AHORA.dia && f < AHORA.fila + 1))); };
+
+    // [id, semana, día, hora, nombre, prestación, consultorio, estado, celular, historial]
+    var T = [
+      ['a1', 0, 0, '9:00', 'Elena Castro', 'Evolución', 'Centro', 'Atendido', '11 5555-0123', 'Ya vino 6 veces'],
+      ['a2', 0, 0, '9:30', 'Hugo Ibarra', 'Control', 'Centro', 'Atendido', '11 5555-0145', 'Ya vino 3 veces'],
+      ['a3', 0, 0, '11:00', 'Rosa Medina', 'Control', 'Centro', 'Ausente', '11 5555-0131', 'Ya vino 4 veces · 1 falta'],
+      ['a4', 0, 0, '15:00', 'Pedro Luna', 'Control', 'Norte', 'Atendido', '11 5555-0152', 'Ya vino 8 veces'],
+      ['a5', 0, 0, '17:30', 'Valeria Ruiz', 'Primera consulta', 'Norte', 'Para cobrar', '11 5555-0188', 'Primera consulta'],
+      ['b1', 0, 1, '8:30', 'Ana Quiroga', 'Control', 'Centro', 'Atendido', '11 5555-0110', 'Ya vino 5 veces'],
+      ['b2', 0, 1, '10:00', 'Julián Rey', 'Primera consulta', 'Centro', 'Atendido', '11 5555-0170', 'Primera consulta'],
+      ['b3', 0, 1, '10:30', 'Camila Sosa', 'Evolución', 'Centro', 'Atendido', '11 5555-0161', 'Ya vino 2 veces'],
+      ['b4', 0, 1, '16:00', 'Nicolás Díaz', 'Control', 'Norte', 'Atendido', '11 5555-0193', 'Ya vino 7 veces'],
+      ['c1', 0, 2, '9:00', 'Florencia Ríos', 'Evolución', 'Centro', 'Atendido', '11 5555-0139', 'Ya vino 3 veces'],
+      ['c2', 0, 2, '9:30', 'Martín Acosta', 'Control', 'Centro', 'Atendido', '11 5555-0177', 'Ya vino 9 veces'],
+      ['c3', 0, 2, '17:00', 'Paula Romero', 'Control', 'Norte', 'Atendido', '11 5555-0115', 'Ya vino 4 veces'],
+      ['c4', 0, 2, '18:00', 'Lautaro Gil', 'Evolución · videollamada', 'Videollamada', 'Atendido', '11 5555-0128', 'Ya vino 2 veces'],
+      ['d1', 0, 3, '8:30', 'Ramiro Sánchez', 'Control', 'Centro', 'Atendido', '11 5555-0101', 'Ya vino 5 veces'],
+      ['d2', 0, 3, '9:30', 'Tomás Ferreyra', 'Control', 'Centro', 'Para cobrar', '11 5555-0102', 'Ya vino 3 veces'],
+      ['d3', 0, 3, '10:30', 'Martina Gómez', 'Primera consulta', 'Centro', 'Ahora', '11 5555-0103', 'Primera consulta · ficha incompleta'],
+      ['d4', 0, 3, '11:00', 'Lucas Benítez', 'Control', 'Centro', 'Confirmó', '11 5555-0104', 'Ya vino 6 veces'],
+      ['d5', 0, 3, '11:30', 'Inés Molina', 'Evolución · videollamada', 'Videollamada', 'Confirmó', '11 5555-0105', 'Ya vino 2 veces'],
+      ['d6', 0, 3, '12:30', 'Carlos Vera', 'Control · PAMI', 'Centro', 'Sin respuesta', '11 5555-0106', 'Ya vino 10 veces'],
+      ['e1', 0, 4, '9:00', 'Pedro Luna', 'Evolución', 'Centro', 'Confirmó', '11 5555-0152', 'Ya vino 8 veces'],
+      ['e2', 0, 4, '10:00', 'Sofía Herrera', 'Primera consulta', 'Centro', 'Pedido online', '11 5555-0177', 'Nunca vino: sería su primera consulta'],
+      ['e3', 0, 4, '11:30', 'Hugo Ibarra', 'Control', 'Centro', 'Sin respuesta', '11 5555-0145', 'Ya vino 3 veces'],
+      ['e4', 0, 4, '17:00', 'Diego Paz', 'Control', 'Norte', 'No puede venir', '11 5555-0199', 'Ya vino 4 veces'],
+      ['f1', 0, 5, '9:30', 'Rosa Medina', 'Control', 'Centro', 'Confirmó', '11 5555-0131', 'Ya vino 4 veces · 1 falta'],
+      ['f2', 0, 5, '11:00', 'Valeria Ruiz', 'Evolución', 'Centro', 'Sin respuesta', '11 5555-0188', 'Ya vino 1 vez'],
+      ['g1', 1, 1, '9:00', 'Elena Castro', 'Evolución', 'Centro', 'Pedido online', '11 5555-0123', 'Ya vino 6 veces'],
+      ['g2', 1, 1, '10:30', 'Ana Quiroga', 'Control', 'Centro', 'Confirmó', '11 5555-0110', 'Ya vino 5 veces'],
+      ['g3', 1, 2, '18:00', 'Javier Ortiz', 'Control', 'Norte', 'Pedido online', '11 5555-0166', 'Nunca vino: sería su primera consulta'],
+      ['g4', 1, 3, '9:30', 'Martina Gómez', 'Control', 'Centro', 'Sin respuesta', '11 5555-0103', 'Ya vino 1 vez'],
+      ['g5', 1, 4, '16:00', 'Camila Sosa', 'Evolución', 'Norte', 'Confirmó', '11 5555-0161', 'Ya vino 2 veces']
+    ];
+
+    var EST = {
+      'Atendido': ['background: #F2F7F9; color: #4A5F5C; box-shadow: inset 3px 0 0 #89C9C9;', 'background:#E4F4EA;color:#166534;'],
+      'Para cobrar': ['background: #FFF1D6; color: #8A5300; box-shadow: inset 3px 0 0 #8A5300;', 'background:#FFF1D6;color:#8A5300;'],
+      'Ahora': ['background: #02261E; color: #FFFFFF;', 'background:#02261E;color:#FFFFFF;'],
+      'Confirmó': ['background: #DCEFEF; color: #02261E; box-shadow: inset 3px 0 0 #24605F;', 'background:#DCEFEF;color:#24605F;'],
+      'Sin respuesta': ['background: #ECEFF3; color: #475467; box-shadow: inset 3px 0 0 #475467;', 'background:#ECEFF3;color:#475467;'],
+      'Ausente': ['background: #FDE8E8; color: #9E2016; box-shadow: inset 3px 0 0 #9E2016;', 'background:#FDE8E8;color:#9E2016;'],
+      'No puede venir': ['background: #FFFFFF; color: #9E2016; box-shadow: inset 0 0 0 1.5px #9E2016;', 'background:#FDE8E8;color:#9E2016;'],
+      'Para mover': ['background: #FFFFFF; color: #9E2016; box-shadow: inset 0 0 0 1.5px #9E2016;', 'background:#FDE8E8;color:#9E2016;'],
+      'Pedido online': ['background: #EFEAF6; color: #5B3F8C; box-shadow: inset 0 0 0 1.5px #5B3F8C;', 'background:#EFEAF6;color:#5B3F8C;']
+    };
+
+    // Aplica cancelaciones y movimientos hechos en la pantalla
+    var TT = T.concat(s.nuevos);
+    var enBloq = function (sem, dia, f) { return s.bloqs.some(function (b) { return b.sem === sem && b.dia === dia && f >= b.desde && f < b.hasta; }); };
+    var lista = TT.filter(function (t) { return !s.cancelados[t[0]]; }).map(function (t) {
+      var m = s.movidos[t[0]];
+      if (!m) { if (enBloq(t[1], t[2], fila(t[3])) && ['Confirmó', 'Sin respuesta', 'No puede venir', 'Pedido online'].indexOf(t[7]) >= 0) { var b = t.slice(); b[7] = 'Para mover'; return b; } return t; }
+      var n = t.slice(); n[1] = m.sem; n[2] = m.dia; n[3] = m.hora; n[7] = 'Confirmó'; return n;
+    });
+    var cuandoDe = function (t) { return SEMANAS[t[1]].largos[t[2]] + ' · ' + t[3]; };
+    var ocupado = {};
+    lista.forEach(function (t) { ocupado[t[1] + '-' + t[2] + '-' + fila(t[3])] = true; });
+
+    var cabeceras = W.dias.map(function (d, i) {
+      var cuenta = lista.filter(function (t) { return t[1] === s.sem && t[2] === i; }).length;
+      var hoy = W.hoy === i;
+      return { dia: d, nota: W.bloqueado === i ? 'Bloqueado' : (cuenta ? cuenta + (cuenta === 1 ? ' turno' : ' turnos') : 'Libre'),
+        style: 'grid-column: ' + (i + 2) + '; grid-row: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2;',
+        diaStyle: 'font-size: 16px; font-weight: 800; ' + (hoy ? 'background: #02261E; color: #FFFFFF; padding: 2px 10px; border-radius: 999px;' : '') };
+    });
+    var horas = [];
+    for (var f = 0; f < FILAS; f += 2) horas.push({ label: hhmm(f), style: 'grid-column: 1; grid-row: ' + (f + 2) + '; font-size: 13px; font-weight: 600; color: #4A5F5C; text-align: right; padding-right: 6px; transform: translateY(-10px); font-variant-numeric: tabular-nums;' });
+    var fondos = W.dias.map(function (d, i) {
+      return { style: 'grid-column: ' + (i + 2) + '; grid-row: 2 / span ' + FILAS + '; border-radius: 16px; background-color: ' + (W.hoy === i ? '#FBFEF4' : '#FFFFFF') + '; background-image: repeating-linear-gradient(to bottom, #E9F1F3 0 1px, transparent 1px 80px);' };
+    });
+    // Sábado: atiende de 9 a 13
+    var fuera = [{ dia: 5, desde: 0, hasta: 2 }, { dia: 5, desde: 10, hasta: 24 }].map(function (z) {
+      return { label: z.hasta - z.desde > 4 ? 'No atendés' : '', style: 'grid-column: ' + (z.dia + 2) + '; grid-row: ' + (z.desde + 2) + ' / span ' + (z.hasta - z.desde) + '; border-radius: 12px; background: repeating-linear-gradient(135deg, #F2F7F9 0 8px, #E9F1F3 8px 16px); display: flex; align-items: flex-start; justify-content: center; padding-top: 10px;' };
+    });
+    var esFuera = function (dia, f) { return dia === 5 && (f < 2 || f >= 10); };
+    var bloqueos = s.bloqs.filter(function (b) { return b.sem === s.sem; }).map(function (b) {
+      return { titulo: 'Bloqueado', motivo: b.motivo, style: 'grid-column: ' + (b.dia + 2) + '; grid-row: ' + (b.desde + 2) + ' / span ' + (b.hasta - b.desde) + '; border-radius: 16px; background: repeating-linear-gradient(135deg, #F2F7F9 0 10px, #E9F1F3 10px 20px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 2px;' };
+    }).concat(W.bloqueado === null ? [] : [{ titulo: 'Bloqueado', motivo: 'Congreso · 27/10', style: 'grid-column: ' + (W.bloqueado + 2) + '; grid-row: 2 / span ' + FILAS + '; border-radius: 16px; background: repeating-linear-gradient(135deg, #F2F7F9 0 10px, #E9F1F3 10px 20px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; text-decoration: none; gap: 2px;' }]);
+
+    var moviendo = !!s.mover;
+    var huecos = [];
+    W.dias.forEach(function (d, i) {
+      if (W.bloqueado === i) return;
+      for (var f = 0; f < FILAS; f++) {
+        if (ocupado[s.sem + '-' + i + '-' + f] || esFuera(i, f) || pasado(s.sem, i, f) || enBloq(s.sem, i, f)) continue;
+        (function (i, f) {
+          var v = { sem: s.sem, dia: i, hora: hhmm(f) };
+          var cuando = W.largos[i] + ' · ' + v.hora;
+          var elegido = moviendo ? (s.destino && s.destino.sem === s.sem && s.destino.dia === i && s.destino.hora === v.hora) : (s.hueco && s.hueco.sem === s.sem && s.hueco.dia === i && s.hueco.hora === v.hora);
+          var base = 'grid-column: ' + (i + 2) + '; grid-row: ' + (f + 2) + '; margin: 2px 3px; border: 0; border-radius: 10px; font-size: 14px; font-weight: 700; display: flex; align-items: center; padding: 0 10px; ';
+          huecos.push({
+            clase: (moviendo || elegido) ? '' : 'hueco',
+            label: '+ ' + v.hora,
+            aria: (moviendo ? 'Mover a ' : 'Hueco libre ') + cuando,
+            elegir: moviendo ? set({ destino: v }) : set({ hueco: v, sel: null, quien: null, prest: 'Control' }),
+            style: base + (elegido ? 'background: #02261E; color: #FFFFFF;' : moviendo ? 'background: #F3FDE0; color: #3D6B0A; box-shadow: inset 0 0 0 1px #DAFC92;' : 'background: #E4F4EA; color: #166534;')
+          });
+        })(i, f);
+      }
+    });
+
+    var visibles = lista.filter(function (t) { return t[1] === s.sem && (s.cons === 'Todos' || t[6] === s.cons); });
+    var turnos = visibles.map(function (t) {
+      var on = s.sel === t[0], mov = s.mover === t[0];
+      return { nombre: s.vista === 'dia' ? t[4] + ' · ' + t[5] + ' · ' + t[7].replace('Sin respuesta', 'sin confirmar').toLowerCase() : t[4].split(' ')[0] + ' ' + t[4].split(' ')[1].charAt(0) + '.', video: t[6] === 'Videollamada', on: on ? 'true' : 'false',
+        aria: t[4] + ', ' + cuandoDe(t) + ', ' + t[7],
+        elegir: moviendo ? function () {} : set({ sel: t[0], hueco: null }),
+        style: 'grid-column: ' + (t[2] + 2) + '; grid-row: ' + (fila(t[3]) + 2) + '; margin: 2px 3px; border: 0; border-radius: 10px; padding: 0 10px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; text-align: left; min-width: 0; ' + EST[t[7]][0] + (on ? ' outline: 2px solid #02261E; outline-offset: 1px;' : '') + (mov ? ' opacity: 0.45;' : '') + (moviendo && !mov ? ' cursor: default;' : '') };
+    });
+    var ahora = s.sem === AHORA.sem ? [{ style: 'grid-column: ' + (AHORA.dia + 2) + '; grid-row: ' + (AHORA.fila + 2) + '; align-self: start; margin-top: ' + Math.round(40 * AHORA.frac) + 'px; height: 2px; background: #9E2016; position: relative; z-index: 2; pointer-events: none;' }] : [];
+
+    var consultorios = [['Todos', 'Todos los consultorios'], ['Centro', 'Consultorio Centro'], ['Norte', 'Consultorio Norte'], ['Videollamada', 'Videollamada']].map(function (c) {
+      return { valor: c[0], label: c[1], on: s.cons === c[0] ? 'selected' : null };
+    });
+    var cambiarCons = function (e) { if (e && e.target) self.setState({ cons: e.target.value }); };
+    var deSemana = lista.filter(function (t) { return t[1] === s.sem && (s.vista !== 'dia' || t[2] === s.dia); });
+    var cuenta = function (e) { return deSemana.filter(function (t) { return t[7] === e; }).length; };
+    var plural = function (n, a, b) { return n + ' ' + (n === 1 ? a : b); };
+    var resumenTxt = plural(deSemana.length, 'turno', 'turnos') + ' · ' + cuenta('Sin respuesta') + ' sin confirmar · ' + plural(cuenta('Pedido online'), 'pedido online', 'pedidos online') + ' · ' + (cuenta('No puede venir') + cuenta('Para mover') + cuenta('Para cobrar')) + ' para resolver';
+    var leyenda = ['Confirmó', 'Sin respuesta', 'Pedido online', 'No puede venir', 'Atendido', 'Para cobrar', 'Ausente'].map(function (e) {
+      return { label: e === 'Para cobrar' ? 'Atendido, falta cobrar' : e === 'Sin respuesta' ? 'Sin confirmar' : e, muestra: 'width: 20px; height: 14px; border-radius: 5px; flex: 0 0 auto; ' + EST[e][0] };
+    }).concat([
+      { label: 'Feriado', muestra: 'width: 20px; height: 14px; border-radius: 5px; flex: 0 0 auto; background: repeating-linear-gradient(135deg, #E5F2FF 0 4px, #BFD9F7 4px 6px); box-shadow: inset 0 0 0 1px #1D5FB8;' },
+      { label: 'Bloqueado o no atendés', muestra: 'width: 20px; height: 14px; border-radius: 5px; flex: 0 0 auto; background: repeating-linear-gradient(135deg, #F2F7F9 0 4px, #C5D6DA 4px 6px);' }
+    ]);
+
+    var btnOscuro = 'display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700; text-decoration: none;';
+    var btnSuave = 'display: flex; align-items: center; justify-content: center; height: 44px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600; text-decoration: none;';
+    var link = function (label, href, st) { return { label: label, href: href, esLink: true, esBoton: false, style: st }; };
+    var boton = function (label, fn, st) { return { label: label, hacer: fn, esLink: false, esBoton: true, style: st }; };
+
+    var t = s.sel && !moviendo ? lista.filter(function (x) { return x[0] === s.sel; })[0] : null;
+    var sel = {};
+    if (t) {
+      var e = t[7];
+      var mover = set({ mover: t[0], destino: null, sel: null, hueco: null, aviso: '' });
+      var cancelar = function () { var c = Object.assign({}, s.cancelados); c[t[0]] = true; self.setState({ cancelados: c, sel: null, aviso: 'Cancelaste el turno de ' + t[4] + ' y le avisamos por WhatsApp.' }); };
+      var acciones = {
+        'Atendido': [link('Ver la consulta', '#', btnOscuro)],
+        'Para cobrar': [link('Cobrar', 'Cobrar.dc.html', btnOscuro), link('Ver la consulta', '#', btnSuave)],
+        'Ahora': [link('Atender', 'Main.dc.html', btnOscuro), link('No vino', 'Main.dc.html', btnSuave)],
+        'Confirmó': [boton('Mover', mover, btnOscuro), boton('Cancelar y avisar', cancelar, btnSuave)],
+        'Sin respuesta': [boton('Mandar recordatorio', set({ sel: null, aviso: 'Le mandamos el recordatorio a ' + t[4] + '.' }), btnOscuro), boton('Mover', mover, btnSuave), boton('Cancelar y avisar', cancelar, btnSuave)],
+        'No puede venir': [boton('Mover', mover, btnOscuro), boton('Cancelar y avisar', cancelar, btnSuave)],
+        'Para mover': [boton('Mover', mover, btnOscuro), boton('Cancelar y avisar', cancelar, btnSuave)],
+        'Pedido online': [link('Responder el pedido', 'Pedidos.dc.html', btnOscuro)],
+        'Ausente': [boton('Darle otro turno', function () { self.setState({ sel: null }); tmAbrir(t[4], 0, '')(); }, btnOscuro)]
+      }[e];
+      var notas = {
+        'No puede venir': ['Avisó por WhatsApp que no puede venir.', 'background: #FDE8E8; color: #9E2016;'],
+        'Para mover': ['Quedó dentro de un bloqueo. Movelo o cancelalo; el paciente todavía no sabe nada.', 'background: #FDE8E8; color: #9E2016;'],
+        'Pedido online': ['Lo pidió desde tu página. Está reservado hasta que respondas.', 'background: #EFEAF6; color: #5B3F8C;'],
+        'Sin respuesta': ['Le mandamos el recordatorio ayer y no contestó.', 'background: #ECEFF3; color: #475467;']
+      }[e];
+      sel = { nombre: t[4], cuando: cuandoDe(t), detalle: t[5] + ' · ' + (t[6] === 'Videollamada' ? 'por videollamada' : 'Consultorio ' + t[6]),
+        estado: e === 'Sin respuesta' ? 'Sin confirmar' : e === 'Para cobrar' ? 'Atendido · falta cobrar' : e,
+        chip: 'font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap;' + EST[e][1],
+        cel: t[8], historial: t[9], acciones: acciones,
+        hayNota: !!notas, nota: notas ? notas[0] : '', notaStyle: 'font-size: 13px; line-height: 1.4; padding: 10px 12px; border-radius: 14px; ' + (notas ? notas[1] : '') };
+    }
+
+    var m = moviendo ? lista.filter(function (x) { return x[0] === s.mover; })[0] : null;
+    var destinoTxt = s.destino ? SEMANAS[s.destino.sem].largos[s.destino.dia] + ' · ' + s.destino.hora : '';
+    var confirmarMover = function () {
+      var mv = Object.assign({}, s.movidos); mv[s.mover] = s.destino;
+      self.setState({ movidos: mv, mover: null, destino: null, sel: s.mover, aviso: 'Moviste el turno de ' + m[4] + ' al ' + destinoTxt + ' y le avisamos por WhatsApp.' });
+    };
+
+    var huecoVals = {};
+    if (s.hueco && !moviendo) {
+      var RECIENTES = [['Ana Quiroga', 'Control vencido el 15/10', '11 5555-0110', 'Ya vino 5 veces'], ['Pedro Luna', 'Vino el 20/10', '11 5555-0152', 'Ya vino 8 veces'], ['Rosa Medina', 'Vino el 20/10 · 1 falta', '11 5555-0131', 'Ya vino 4 veces · 1 falta']];
+      var pill = 'display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 48px; padding: 6px 14px; border-radius: 14px; border: 0; text-align: left; line-height: 1.3; font-size: 14px; ';
+      var quien = s.quien;
+      var listo = !!quien;
+      var nombreNuevo = quien === 'nuevo' ? 'paciente nueva' : quien;
+      huecoVals = {
+        cuando: SEMANAS[s.hueco.sem].largos[s.hueco.dia] + ' · ' + s.hueco.hora,
+        pacientes: RECIENTES.map(function (r) { var on = quien === r[0]; return { nombre: r[0], sub: r[1], on: on ? 'true' : 'false', elegir: set({ quien: r[0] }), style: pill + (on ? 'background: #02261E; color: #FFFFFF;' : 'background: #F2F7F9; color: #02261E;') }; }),
+        esNuevo: quien === 'nuevo', nuevoOn: quien === 'nuevo' ? 'true' : 'false', nuevo: set({ quien: 'nuevo', prest: 'Primera consulta' }),
+        nuevoStyle: 'height: 44px; border-radius: 14px; border: 0; font-size: 14px; font-weight: 700; ' + (quien === 'nuevo' ? 'background: #02261E; color: #FFFFFF;' : 'background: #DCEFEF; color: #24605F;'),
+        prestaciones: ['Control', 'Evolución', 'Primera consulta'].map(function (r) { var on = s.prest === r; return { label: r, on: on ? 'true' : 'false', elegir: set({ prest: r }), style: 'min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; font-size: 14px; ' + (on ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') }; }),
+        guardarTxt: listo ? 'Guardar turno' : 'Elegí el paciente',
+        guardarStyle: 'height: 48px; border-radius: 16px; border: 0; font-size: 15px; font-weight: 700; ' + (listo ? 'background: #02261E; color: #FFFFFF;' : 'background: #E9F1F3; color: #4A5F5C; cursor: default;'),
+        guardar: listo ? function () {
+          var r = RECIENTES.filter(function (x) { return x[0] === quien; })[0];
+          var nombre = r ? r[0] : 'Lara Méndez';
+          var id = 'n' + s.nuevos.length;
+          var nt = [id, s.hueco.sem, s.hueco.dia, s.hueco.hora, nombre, s.prest, 'Centro', 'Sin respuesta', r ? r[2] : '11 5555-0140', r ? r[3] : 'Nunca vino: sería su primera consulta'];
+          self.setState({ nuevos: s.nuevos.concat([nt]), hueco: null, quien: null, sel: id, aviso: 'Le diste turno a ' + nombre + ' el ' + SEMANAS[s.hueco.sem].largos[s.hueco.dia] + ' · ' + s.hueco.hora + '. Le avisamos por WhatsApp.' });
+        } : function () {}
+      };
+    }
+    var esMes = s.vista === 'mes';
+    var vistas = [['dia', 'Día'], ['semana', 'Semana'], ['mes', 'Mes']].map(function (v) {
+      var o = s.vista === v[0];
+      return { label: v[1], on: o ? 'true' : 'false', elegir: set({ vista: v[0], sel: null, hueco: null, fechaX: null, dia: v[0] === 'dia' ? (s.sem === 0 ? 3 : 1) : s.dia }), style: 'min-height: 36px; padding: 0 16px; border-radius: 999px; border: 0; font-size: 14px; ' + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: transparent; color: #02261E; font-weight: 600;') };
+    });
+    // Octubre 2026: el 1 cae jueves. Grilla de lunes 28/9 a domingo 1/11.
+    var CARGA = [5, 4, 4, 6, 4, 2];
+    var mes = [];
+    for (var k = 0; k < 35; k++) {
+      var dnum = k - 2, dow = k % 7, delMes = dnum >= 1 && dnum <= 31;
+      var num = delMes ? dnum : (dnum < 1 ? 28 + k : dnum - 31);
+      var esHoy = delMes && dnum === 23, pas = !delMes ? dnum < 1 : dnum < 23;
+      var dom = dow === 6, bloq = delMes && dnum === 27, fer = delMes && dnum === 12;
+      var semIdx = delMes && dnum >= 27 ? 1 : 0;
+      var n = 0;
+      if (delMes && !dom && !bloq && !fer) {
+        if (dnum >= 20 && dnum <= 25) n = lista.filter(function (x) { return x[1] === 0 && x[2] === dow; }).length;
+        else if (dnum >= 28) n = lista.filter(function (x) { return x[1] === 1 && x[2] === dow; }).length;
+        else n = CARGA[dow] + (dnum % 3 === 0 ? 1 : 0);
+      }
+      var cap = dow === 5 ? 8 : 24, libres = cap - n;
+      var texto = !delMes ? '' : dom ? 'No atendés' : bloq ? 'Bloqueado' : fer ? 'Feriado · Diversidad Cultural' : n ? n + (n === 1 ? ' turno' : ' turnos') : 'Sin turnos';
+      mes.push({
+        num: num, texto: texto, aria: (delMes ? num + ' de octubre: ' + texto : ''),
+        hayPedido: delMes && (dnum === 24 || dnum === 28 || dnum === 29),
+        hayBarra: delMes && !dom && !bloq && !fer && !pas,
+        barra: 'display: block; height: 100%; width: ' + Math.round(100 * n / cap) + '%; background: #89C9C9; border-radius: 999px;',
+        libres: libres + ' huecos libres',
+        numStyle: 'font-size: 15px; font-weight: 800; ' + (esHoy ? 'background: #02261E; color: #FFFFFF; padding: 0 9px; border-radius: 999px;' : ''),
+        ir: (delMes && !dom) ? set({ vista: 'dia', sem: semIdx, dia: dow, fechaX: (dnum >= 20 && dnum <= 25) || dnum >= 27 ? null : dnum, sel: null, hueco: null }) : function () {},
+        style: 'display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 104px; padding: 10px 12px; border-radius: 16px; border: 0; text-align: left; color: #02261E; ' +
+          (!delMes ? 'background: transparent; color: #8FA3A0; cursor: default;' : fer ? 'background: repeating-linear-gradient(135deg, #E5F2FF 0 8px, #F2F8FF 8px 16px); color: #1D5FB8;' : (dom || bloq) ? 'background: repeating-linear-gradient(135deg, #F2F7F9 0 8px, #E9F1F3 8px 16px); color: #4A5F5C;' + (dom ? ' cursor: default;' : '') : pas ? 'background: rgba(255,255,255,0.6); color: #4A5F5C;' : 'background: #FFFFFF;') +
+          (esHoy ? ' box-shadow: inset 0 0 0 2px #02261E;' : '')
+      });
+    }
+    var bqVals = {};
+    if (s.bq) {
+      var bsem = s.bq.sem, bdia = s.bq.dia;
+      var franja = s.bqAlc === 'franja';
+      var bdesde = franja ? s.bq.f : 0, bhasta = franja ? Math.min(s.bq.f + 2, FILAS) : FILAS;
+      var afectados = lista.filter(function (x) { var f = fila(x[3]); return x[1] === bsem && x[2] === bdia && f >= bdesde && f < bhasta && ['Confirmó', 'Sin respuesta', 'No puede venir', 'Pedido online'].indexOf(x[7]) >= 0; });
+      var diaTxt = SEMANAS[bsem].largos[bdia];
+      var chipB = 'min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; font-size: 14px; ';
+      bqVals = {
+        fecha: '2026-10-' + SEMANAS[bsem].dias[bdia].split(' ')[1].padStart(2, '0'),
+        franja: franja, desde: hhmm(bdesde).padStart(5, '0'), hasta: hhmm(bhasta).padStart(5, '0'),
+        alcances: [['dia', 'Todo el día'], ['franja', 'Solo unas horas']].map(function (a) { var o = s.bqAlc === a[0]; return { label: a[1], on: o ? 'true' : 'false', elegir: set({ bqAlc: a[0] }), style: chipB + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') }; }),
+        motivos: ['Personal', 'Congreso', 'Vacaciones', 'Otro'].map(function (m) { var o = s.bqMot === m; return { label: m, on: o ? 'true' : 'false', elegir: set({ bqMot: m }), style: chipB + (o ? 'background: #DCEFEF; color: #24605F; font-weight: 700;' : 'background: #F2F7F9; color: #02261E; font-weight: 600;') }; }),
+        avisoTxt: afectados.length ? 'Hay ' + plural(afectados.length, 'turno', 'turnos') + ' en ese horario (' + afectados.map(function (x) { return x[4]; }).join(', ') + '). Van a quedar en rojo en la agenda para que los muevas o los canceles.' : 'No hay turnos en ese horario.',
+        avisoStyle: 'font-size: 13px; line-height: 1.4; padding: 10px 12px; border-radius: 14px; ' + (afectados.length ? 'background: #FFF1D6; color: #8A5300;' : 'background: #E4F4EA; color: #166534;'),
+        guardarTxt: franja ? 'Bloquear el ' + diaTxt + ' de ' + hhmm(bdesde) + ' a ' + hhmm(bhasta) : 'Bloquear el ' + diaTxt,
+        guardar: function () {
+          self.setState({ bloqs: s.bloqs.concat([{ sem: bsem, dia: bdia, desde: bdesde, hasta: bhasta, motivo: s.bqMot }]), bq: null, hueco: null,
+            aviso: 'Bloqueaste el ' + diaTxt + (franja ? ' de ' + hhmm(bdesde) + ' a ' + hhmm(bhasta) : '') + '.' + (afectados.length ? ' Quedaron ' + plural(afectados.length, 'turno', 'turnos') + ' en rojo para mover o cancelar.' : '') });
+        }
+      };
+    }
+    var esDia = s.vista === 'dia';
+    var MESES = ['', '', '', '', '', '', '', '', '', '', 'octubre', 'noviembre'];
+    var NOMBRES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    var fechaNum = s.fechaX || (s.sem === 0 ? 20 : 27) + s.dia;
+    var tituloDia = NOMBRES[s.dia] + ' ' + (fechaNum > 31 ? (fechaNum - 31) + ' de noviembre' : fechaNum + ' de octubre');
+    var paso = function (d) {
+      if (s.fechaX) {
+        var nf = s.fechaX + d; if ((nf + 2) % 7 === 6) nf += d;
+        var dw = (nf + 2) % 7;
+        if (nf >= 20 && nf <= 25) return set({ sem: 0, dia: dw, fechaX: null, sel: null, hueco: null });
+        if (nf >= 27) return set({ sem: 1, dia: dw, fechaX: null, sel: null, hueco: null });
+        return set({ sem: 0, dia: dw, fechaX: Math.max(nf, 1), sel: null, hueco: null });
+      }
+      var nd = s.dia + d, ns = s.sem; if (nd > 5) { nd = 0; ns = 1; } if (nd < 0) { nd = 5; ns = 0; } return set({ dia: nd, sem: ns, fechaX: null, sel: null, hueco: null }); };
+    var soloDia = function (arr) {
+      if (!esDia) return arr;
+      var col = 'grid-column: ' + (s.dia + 2) + ';';
+      return arr.filter(function (x) { return x.style.indexOf(col) >= 0; }).map(function (x) { return Object.assign({}, x, { style: x.style.replace(col, 'grid-column: 2;') }); });
+    };
+    var esFeriado = esDia && fechaNum === 12;
+    var hayPanel = !!s.bq || !esMes && (!!t || (!!s.hueco && !moviendo) || (moviendo && !!s.destino));
+    return {
+      nav: nav, titulo: esMes ? 'Octubre 2026' : esDia ? tituloDia : W.titulo, gridCols: 'display: grid; grid-template-columns: 56px ' + (esDia ? 'minmax(0, 1fr)' : 'repeat(6, minmax(0, 1fr))') + '; grid-template-rows: 60px repeat(24, 40px); column-gap: 6px;', semanaTitulo: W.titulo, esMes: esMes, esSemana: !esMes, vistas: vistas, mes: mes, mesCab: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'], noEsEstaSemana: !esMes && (esDia ? !(s.sem === 0 && s.dia === 3 && !s.fechaX) : s.sem !== 0), volverTxt: esDia ? 'Volver a hoy' : 'Volver a esta semana',
+      antes: esDia ? paso(-1) : set({ sem: 0, hueco: null, sel: null }), despues: esDia ? paso(1) : set({ sem: 1, hueco: null, sel: null }), irHoy: set({ sem: 0, dia: 3, fechaX: null, hueco: null, sel: null }),
+      consultorios: consultorios, cabeceras: soloDia(cabeceras), horas: horas, fondos: soloDia(fondos), fuera: soloDia(fuera), bloqueos: esFeriado ? [{ titulo: 'Feriado', motivo: 'Día del Respeto a la Diversidad Cultural', style: 'grid-column: 2; grid-row: 2 / span ' + FILAS + '; border-radius: 16px; background: repeating-linear-gradient(135deg, #E5F2FF 0 10px, #F2F8FF 10px 20px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 2px;' }] : soloDia(bloqueos), huecos: esFeriado ? [] : soloDia(huecos), turnos: esFeriado ? [] : soloDia(turnos), ahora: soloDia(ahora),
+      moviendo: moviendo, mov: m ? { nombre: m[4], cuando: cuandoDe(m) } : {}, cancelarMover: set({ mover: null, destino: null }),
+      hayAviso: !!s.aviso && !moviendo, aviso: s.aviso, cerrarAviso: set({ aviso: '' }),
+      hayPanel: hayPanel, layout: 'display: flex; flex-direction: column; gap: 16px;',
+      panelTurno: !!t && !s.bq, sel: sel,
+      panelHueco: !!s.hueco && !t && !moviendo && !s.bq, panelBloqueo: !!s.bq, bq: bqVals,
+      abrirBloqueo: set({ bq: { sem: s.sem, dia: s.sem === 0 ? 4 : 2, f: 0 }, bqAlc: 'dia', sel: null, hueco: null }),
+      bloquearHueco: s.hueco ? set({ bq: { sem: s.hueco.sem, dia: s.hueco.dia, f: fila(s.hueco.hora) }, bqAlc: 'franja' }) : function () {},
+      cerrarBloqueo: set({ bq: null }),
+      modalTitulo: s.bq ? 'Bloquear la agenda' : moviendo ? 'Mover turno' : s.hueco ? 'Dar turno' : 'Turno',
+      resumenTxt: resumenTxt, cambiarCons: cambiarCons, hueco: huecoVals,
+      panelDestino: moviendo && !!s.destino, destino: destinoTxt, confirmarMover: confirmarMover, otroHueco: set({ destino: null }),
+      cerrar: set({ sel: null, hueco: null }),
+      leyenda: leyenda,
+      tm: tmArmar(function (nombre, slot) { self.setState({ tm: null, aviso: 'Le diste turno a ' + nombre + ' para el ' + slot + '. Le mandamos la confirmación por WhatsApp.' }); })
+    };
+  }
+}
+</script>
+</body>
+</html>

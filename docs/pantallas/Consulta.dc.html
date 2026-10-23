@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Consulta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+.campo{height:44px;box-sizing:border-box;padding:0 12px;border-radius:12px;border:0;box-shadow:inset 0 0 0 1px #C5D6DA;background:#FFFFFF;color:#02261E;font-size:15px;min-width:0;width:100%}
+.texto{box-sizing:border-box;width:100%;min-height:96px;padding:12px 14px;border-radius:14px;border:0;box-shadow:inset 0 0 0 1px #C5D6DA;background:#FFFFFF;color:#02261E;font-size:15px;line-height:1.5;resize:vertical}
+.etq{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:#4A5F5C;min-width:0}
+.tarjeta{background:#FFFFFF;border-radius:26px;padding:22px;box-shadow:0 1px 2px rgba(2,38,30,0.05),0 16px 40px rgba(2,38,30,0.07);display:flex;flex-direction:column;gap:12px}
+.tit{margin:0;font-size:17px;font-weight:700}
+.ayuda{font-size:13px;color:#4A5F5C}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; min-height: 1300px; box-sizing: border-box; padding: 20px 40px 56px; background: radial-gradient(520px 260px at 18% 0%, rgba(137,201,201,0.34), transparent 70%), radial-gradient(440px 240px at 72% 4%, rgba(218,252,146,0.50), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; gap: 20px;">
+
+  <div role="group" aria-label="Ejemplo del tablero" style="align-self: center; display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,0.6); font-size: 13px; color: #4A5F5C;">
+    <span style="padding: 0 10px;">Ejemplo:</span>
+    <sc-for list="{{ejemplos}}" as="e" hint-placeholder-count="2">
+      <button type="button" onClick="{{e.elegir}}" aria-pressed="{{e.on}}" style="{{e.style}}">{{e.label}}</button>
+    </sc-for>
+  </div>
+
+  <header style="display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 14px 14px 14px 14px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 12px 32px rgba(2,38,30,0.07);">
+    <a href="Main.dc.html" aria-label="Volver a Hoy (el borrador queda guardado)" title="Volver a Hoy (el borrador queda guardado)" style="width: 44px; height: 44px; border-radius: 50%; background: #F2F7F9; color: #02261E; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+      <span aria-hidden="true" style="{{p.avatar}}">{{p.iniciales}}</span>
+      <div style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;">
+        <span style="font-size: 20px; font-weight: 800; letter-spacing: -0.01em;">{{p.nombre}} <span style="font-weight: 600; color: #4A5F5C; font-size: 15px;">· {{p.edad}} · {{p.cobertura}}</span></span>
+        <span style="font-size: 14px; color: #4A5F5C;">{{p.tipoTxt}} · desde las 10:32 · <span style="color: #166534; font-weight: 600;">{{guardadoTxt}}</span></span>
+      </div>
+    </div>
+    <button type="button" onClick="{{abrirTerminar}}" style="{{terminarStyle}}">Terminar consulta</button>
+  </header>
+
+  <sc-if value="{{pideFicha}}" hint-placeholder-val="{{false}}">
+    <section class="tarjeta paso" style="max-width: 900px; width: 100%; box-sizing: border-box; align-self: center; box-shadow: inset 0 0 0 2px #DAFC92, 0 16px 40px rgba(2,38,30,0.07);">
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <span style="font-size: 13px; font-weight: 700; color: #3D6B0A;">Paso 1 de 2 · Primera vez que viene</span>
+        <h2 class="tit" style="font-size: 22px;">Completá la ficha de Martina</h2>
+        <span class="ayuda">Tiene lo del alta rápida (DNI, nombre, celular y correo). Falta esto para poder empezar.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+        <label class="etq">Nacimiento<input class="campo" type="date" value="1996-07-02"></label>
+        <label class="etq">Cobertura<select class="campo"><option>Particular</option><option selected>OSDE</option><option>Swiss Medical</option><option>PAMI</option></select></label>
+        <label class="etq">N.º de afiliado<input class="campo" type="text" value="61234567801"></label>
+        <label class="etq" style="grid-column: span 2;">Domicilio<input class="campo" type="text" value="San Martín 1450, Paraná"></label>
+        <label class="etq">Ocupación<input class="campo" type="text" value="Diseñadora"></label>
+      </div>
+      <div style="display: flex; justify-content: flex-end;">
+        <button type="button" onClick="{{completarFicha}}" style="height: 48px; padding: 0 24px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar y empezar la consulta</button>
+      </div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{enConsulta}}" hint-placeholder-val="{{true}}">
+    <div class="paso" style="display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start;">
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <sc-if value="{{esPrimera}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <section class="tarjeta">
+              <h2 class="tit">1 · ¿Por qué consulta?</h2>
+              <textarea class="texto" aria-label="Motivo de consulta y anamnesis">Dolor cervical de 3 semanas, peor al final del día. Trabaja muchas horas en la computadora. No tuvo golpes.</textarea>
+            </section>
+            <section class="tarjeta">
+              <h2 class="tit">2 · Antecedentes</h2>
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+                <sc-for list="{{antecedentes}}" as="a" hint-placeholder-count="4">
+                  <div class="etq">
+                    <span style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">{{a.label}}<button type="button" onClick="{{a.ninguno}}" aria-pressed="{{a.on}}" style="{{a.style}}">Ninguno</button></span>
+                    <input class="campo" type="text" value="{{a.valor}}" placeholder="{{a.ph}}">
+                  </div>
+                </sc-for>
+              </div>
+              <span class="ayuda">Quedan guardados en la ficha y se ven en todas las consultas siguientes.</span>
+            </section>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{esControl}}" hint-placeholder-val="{{false}}">
+          <section class="tarjeta">
+            <h2 class="tit">1 · ¿Cómo sigue desde la última vez?</h2>
+            <textarea class="texto" aria-label="Evolución">Mejoró el dolor lumbar, ya no lo despierta a la noche. Hizo los ejercicios casi todos los días.</textarea>
+          </section>
+        </sc-if>
+
+        <section class="tarjeta">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <h2 class="tit">{{examenTit}}</h2>
+            <button type="button" onClick="{{toggleSignos}}" aria-expanded="{{signosOn}}" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">{{signosBtn}}</button>
+          </div>
+          <sc-if value="{{conSignos}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px;">
+              <label class="etq">Presión<input class="campo" type="text" value="120/80"></label>
+              <label class="etq">Pulso<input class="campo" type="text" value="72"></label>
+              <label class="etq">Temperatura<input class="campo" type="text" placeholder="°C"></label>
+              <label class="etq">Peso<input class="campo" type="text" value="{{p.peso}}"></label>
+              <label class="etq">Talla<input class="campo" type="text" value="{{p.talla}}"></label>
+            </div>
+          </sc-if>
+          <textarea class="texto" aria-label="Examen">{{examenTxt}}</textarea>
+        </section>
+
+        <section class="tarjeta">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <h2 class="tit">{{planTit}}</h2>
+            <sc-if value="{{esControl}}" hint-placeholder-val="{{false}}">
+              <button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: #E9F1F3; color: #02261E; font-size: 14px; font-weight: 600;">Copiar las de la vez anterior</button>
+            </sc-if>
+          </div>
+          <textarea class="texto" aria-label="Plan e indicaciones">{{planTxt}}</textarea>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Próximo control</span>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+              <sc-for list="{{controles}}" as="c" hint-placeholder-count="5">
+                <button type="button" onClick="{{c.elegir}}" aria-pressed="{{c.on}}" style="{{c.style}}">{{c.label}}</button>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside style="display: flex; flex-direction: column; gap: 16px;">
+        <section class="tarjeta" style="gap: 10px;">
+          <h2 class="tit">Para hacer en la consulta</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+            <sc-for list="{{herramientas}}" as="h" hint-placeholder-count="4">
+              <button type="button" onClick="{{h.hacer}}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 72px; padding: 12px; border-radius: 16px; border: 0; background: #F2F7F9; color: #02261E; font-size: 14px; font-weight: 700; text-align: left;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{h.icono}}"></path></svg>{{h.label}}</button>
+            </sc-for>
+          </div>
+          <sc-for list="{{hechos}}" as="x" hint-placeholder-count="1">
+            <span class="paso" style="display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 8px 12px; border-radius: 12px; background: #E4F4EA; color: #166534; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: 0 0 auto;"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>{{x}}</span>
+          </sc-for>
+        </section>
+
+        <sc-if value="{{esControl}}" hint-placeholder-val="{{false}}">
+          <section class="tarjeta" style="gap: 8px;">
+            <h2 class="tit">La vez anterior · 25/9</h2>
+            <span style="font-size: 14px;"><b>Evolución:</b> dolor lumbar al agacharse, sin irradiación.</span>
+            <span style="font-size: 14px;"><b>Indicaciones:</b> ejercicios de movilidad 3 veces por semana; calor local.</span>
+            <a href="Ficha.dc.html" style="font-size: 14px; font-weight: 700; min-height: 44px; display: flex; align-items: center;">Ver toda la historia</a>
+          </section>
+        </sc-if>
+
+        <section class="tarjeta" style="gap: 8px;">
+          <h2 class="tit">De su ficha</h2>
+          <sc-for list="{{p.datos}}" as="x" hint-placeholder-count="4">
+            <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px;"><span style="color: #4A5F5C;">{{x.k}}</span><span style="font-weight: 600; text-align: right;">{{x.v}}</span></div>
+          </sc-for>
+        </section>
+      </aside>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hayModal}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 20; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 130px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="Terminar consulta" class="paso" style="width: 100%; max-width: 560px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 14px;">
+        <sc-if value="{{confirmando}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 800;">¿Terminás la consulta?</h2>
+            <span style="font-size: 14px; color: #4A5F5C;">Queda firmada con la fecha de hoy y ya no se edita. Si después hace falta corregir algo, le agregás una aclaración.</span>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9; font-size: 14px;">
+              <span><b>{{p.nombre}}</b> · {{p.tipoTxt}}</span>
+              <span style="color: #4A5F5C;">Próximo control: {{controlTxt}}</span>
+            </div>
+            <button type="button" onClick="{{terminar}}" style="height: 48px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Sí, terminar y firmar</button>
+            <button type="button" onClick="{{cerrar}}" style="height: 44px; border-radius: 14px; border: 0; background: transparent; color: #4A5F5C; font-size: 14px; font-weight: 600;">Seguir escribiendo</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{terminada}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <span style="display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800;"><span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: #E4F4EA; color: #166534; display: grid; place-items: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>Consulta terminada</span>
+            <span style="font-size: 14px; color: #4A5F5C;">Quedó guardada en la historia de {{p.nombre}}. ¿Qué sigue?</span>
+            <sc-if value="{{post.cobroPend}}" hint-placeholder-val="{{true}}">
+              <button type="button" onClick="{{cb.abrir}}" style="display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 18px; border-radius: 16px; border: 0; background: #FFF1D6; color: #8A5300; font-size: 15px; font-weight: 800;"><span>Cobrar la consulta</span><span>{{p.importe}}</span></button>
+            </sc-if>
+            <sc-if value="{{cb.on}}" hint-placeholder-val="{{false}}">
+              <div class="paso" style="padding: 16px; border-radius: 18px; box-shadow: inset 0 0 0 1.5px #E9F1F3;">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #F2F7F9;">
+              <span style="display: flex; flex-direction: column; line-height: 1.35; min-width: 0;"><span style="font-weight: 700;">{{cb.concepto}}</span><span style="font-size: 13px; color: #4A5F5C;">{{cb.detalle}}</span></span>
+              <span style="font-size: 26px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap;">{{cb.importe}}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Cuánto pagó?</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                <sc-for list="{{cb.cuanto}}" as="x" hint-placeholder-count="3">
+                  <button type="button" onClick="{{x.elegir}}" aria-pressed="{{x.on}}" style="{{x.style}}">{{x.label}}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{cb.parte}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                  <label style="display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 14px; border-radius: 12px; background: #E9F1F3; font-weight: 700;">$ <input type="text" inputmode="numeric" value="{{cb.parteNum}}" aria-label="Pagó" style="width: 90px; border: 0; background: transparent; font-size: 15px; font-weight: 700; color: #02261E; font-family: inherit;"></label>
+                  <span style="font-size: 14px; color: #8A5300; background: #FFF1D6; padding: 6px 12px; border-radius: 999px; font-weight: 600;">{{cb.restoTxt}}</span>
+                </div>
+              </sc-if>
+            </div>
+            <sc-if value="{{cb.pagaAlgo}}" hint-placeholder-val="{{true}}">
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Cómo pagó?</span>
+                  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;">
+                    <sc-for list="{{cb.medios}}" as="m" hint-placeholder-count="4">
+                      <button type="button" onClick="{{m.elegir}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Le mandás el comprobante por WhatsApp?</span>
+                  <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <sc-for list="{{cb.tipos}}" as="t" hint-placeholder-count="3">
+                      <button type="button" onClick="{{t.elegir}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.label}}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+            <button type="button" onClick="{{cb.guardar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">{{cb.guardarTxt}}</button>
+          </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{post.cobroHecho}}" hint-placeholder-val="{{false}}">
+              <div class="paso" role="status" style="display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 16px; border-radius: 16px; background: #E4F4EA; color: #166534; font-weight: 600; font-size: 14px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>{{post.cobroTxt}}</span></div>
+            </sc-if>
+            <sc-if value="{{post.turnoPend}}" hint-placeholder-val="{{true}}">
+              <button type="button" onClick="{{post.darTurno}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; padding: 0 18px; border-radius: 16px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 700;"><span>Darle el turno del control</span><span style="font-weight: 600; color: #4A5F5C;">{{controlTxt}}</span></button>
+            </sc-if>
+            <sc-if value="{{post.turnoHecho}}" hint-placeholder-val="{{false}}">
+              <div class="paso" role="status" style="display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 16px; border-radius: 16px; background: #E4F4EA; color: #166534; font-weight: 600; font-size: 14px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>{{post.turnoTxt}}</span></div>
+            </sc-if>
+            <a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 16px; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 700; text-decoration: none; margin-top: 4px;">Volver a Hoy</a>
+            <span style="font-size: 13px; color: #4A5F5C; text-align: center;">Sigue Lucas Benítez a las 11:00. Lo que no hagas ahora queda pendiente en Hoy.</span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{tm.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 120px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="Darle turno" class="paso" style="width: 100%; max-width: 700px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Darle turno a {{tm.nombre}}</h2>
+            <span style="font-size: 14px; color: #4A5F5C;">{{tm.sub}}</span>
+          </div>
+          <button type="button" onClick="{{tm.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; flex: 0 0 auto; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Prestación<select style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"><option selected>Control</option><option>Evolución</option><option>Primera consulta</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Consultorio<select style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"><option selected>Norte</option><option>Centro</option><option>Videollamada</option></select></label>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px; border-radius: 999px; background: #F2F7F9;">
+          <button type="button" onClick="{{tm.antes}}" aria-label="Semana anterior" style="{{tm.antesStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <span style="font-weight: 700;">{{tm.semanaTxt}}</span>
+          <button type="button" onClick="{{tm.despues}}" aria-label="Semana siguiente" style="{{tm.despuesStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: start;">
+          <sc-for list="{{tm.dias}}" as="d" hint-placeholder-count="5">
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C; text-align: center;">{{d.label}}</span>
+              <sc-for list="{{d.slots}}" as="h" hint-placeholder-count="3">
+                <button type="button" onClick="{{h.elegir}}" aria-pressed="{{h.on}}" style="{{h.style}}">{{h.hora}}</button>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Solo ves los horarios libres. Al guardar le mandamos la confirmación por WhatsApp.</span>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" onClick="{{tm.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+          <button type="button" onClick="{{tm.guardar}}" style="{{tm.guardarStyle}}">{{tm.guardarTxt}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{doc.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 120px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="{{doc.titulo}}" class="paso" style="width: 100%; max-width: 600px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800;">{{doc.titulo}}</h2>
+          <button type="button" onClick="{{doc.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; flex: 0 0 auto; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+        <sc-if value="{{doc.verCert}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9; font-size: 14px;">
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Paciente</span><b>{{doc.nombre}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">DNI</span><b>{{doc.dni}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Edad</span><b>{{doc.edad}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Cobertura</span><b>{{doc.cobertura}}</b></span>
+            </div>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Diagnóstico<textarea maxlength="300" placeholder="Ej.: Lumbalgia aguda" style="box-sizing: border-box; width: 100%; min-height: 84px; padding: 10px 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; line-height: 1.5; font-family: inherit; resize: vertical;">{{doc.diag}}</textarea></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0; max-width: 200px;">Días de reposo<input type="number" min="1" max="365" value="2" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Se genera un PDF con tu nombre y matrícula, listo para imprimir y firmar a mano. Queda guardado en sus documentos.</span>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" onClick="{{doc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+              <button type="button" onClick="{{doc.generar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Generar certificado</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{doc.verPedido}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 12px 14px; border-radius: 16px; background: #F2F7F9; font-size: 14px;">
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Paciente</span><b>{{doc.nombre}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">DNI</span><b>{{doc.dni}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Edad</span><b>{{doc.edad}}</b></span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0;"><span style="font-size: 12px; color: #4A5F5C;">Cobertura</span><b>{{doc.cobertura}}</b></span>
+            </div>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Estudios o prácticas<textarea maxlength="800" placeholder="Uno por renglón" style="box-sizing: border-box; width: 100%; min-height: 84px; padding: 10px 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; line-height: 1.5; font-family: inherit; resize: vertical;">{{doc.estudios}}</textarea><span style="font-weight: 500;">Uno por renglón.</span></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Diagnóstico presuntivo (opcional)<input type="text" value="{{doc.diag}}" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Se genera un PDF con tu nombre y matrícula, listo para imprimir y firmar a mano. Queda guardado en sus documentos.</span>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" onClick="{{doc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+              <button type="button" onClick="{{doc.generar}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Generar pedido</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{doc.verReceta}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 16px; background: #E5F2FF; color: #1D5FB8;">
+              <span style="font-weight: 700;">La receta digital se hace en MisRx</span>
+              <ol style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6; color: #02261E;">
+                <li>Abrí MisRx en tu celular.</li>
+                <li>Cargá al paciente con su DNI: <b>{{doc.dni}}</b>.</li>
+                <li>Hacé la receta y mandásela desde MisRx.</li>
+              </ol>
+              <a href="#" style="align-self: flex-start; min-height: 32px; display: flex; align-items: center; font-size: 14px; font-weight: 700; color: #1D5FB8;">Ver el instructivo de MisRx (PDF)</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="font-weight: 700;">Anotá acá lo que le recetaste</span>
+              <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Queda en sus documentos y en la consulta, para tenerlo a mano la próxima vez.</span>
+            </div>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Medicamento<input type="text" maxlength="120" value="{{doc.med}}" placeholder="Ej.: Amoxicilina 500 mg" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Indicaciones (opcional)<input type="text" maxlength="300" value="{{doc.ind}}" placeholder="Ej.: 1 comprimido cada 8 h durante 7 días" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0; max-width: 200px;">Fecha<input type="date" value="2026-10-23" max="2026-10-23" style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"></label>
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" onClick="{{doc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+              <button type="button" onClick="{{doc.guardarReceta}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Guardar en la ficha</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{doc.verListo}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div role="status" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #E4F4EA; color: #166534;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+              <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.35; min-width: 0;"><span style="font-weight: 700;">{{doc.listoTit}}</span><span style="font-size: 13px; overflow-wrap: anywhere;">{{doc.pdf}}</span></span>
+              <a href="#" style="flex: 0 0 auto; min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: 700; color: #166534;">Ver PDF</a>
+            </div>
+            <span style="font-weight: 700;">¿Se lo mandás a {{doc.nombre}}?</span>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+              <button type="button" onClick="{{doc.porWa}}" style="height: 48px; padding: 0 22px; border-radius: 16px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700; padding: 0 12px;">Por WhatsApp</button>
+              <button type="button" onClick="{{doc.porMail}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; padding: 0 12px;">Por correo</button>
+              <button type="button" onClick="{{doc.bajar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; padding: 0 12px;">Descargar PDF</button>
+            </div>
+            <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Se abre tu WhatsApp o tu correo con el mensaje escrito; el PDF lo adjuntás desde ahí. Nada sale solo.</span>
+            <button type="button" onClick="{{doc.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Ahora no</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ ej: 'primera', fichaOk: false, signos: false, control: null, modal: null, hechos: [], ninguno: { 2: true }, tm: null, cb: null, doc: null, cobroTxt: '', turnoTxt: '', aviso: '' }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    // ---- Piezas comunes: darle turno, cobrar y documentos, sin salir de la pantalla ----
+    var pesosTxt = function (n) { return '$ ' + n.toLocaleString('es-AR'); };
+    var tmAbrir = function (nombre, semana, sug) { return function () { self.setState({ tm: { nombre: nombre, semIni: semana, sem: semana, sug: sug || '', slot: null }, doc: null }); }; };
+    var tmArmar = function (alGuardar) {
+      var t = s.tm || { nombre: '', semIni: 0, sem: 0, sug: '', slot: null };
+      var fch = function (d) { return d.getDate() + '/' + (d.getMonth() + 1); };
+      var NOM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+      var HS = [['9:00', '10:30', '16:00'], ['11:00', '17:30'], ['9:30', '12:00', '15:00', '18:00'], ['10:00', '16:30'], ['9:00', '11:30', '17:00']];
+      var cambia = function (x) { return function () { self.setState({ tm: Object.assign({}, t, x) }); }; };
+      var dias = NOM.map(function (n, i) {
+        var lbl = n + ' ' + fch(new Date(2026, 9, 27 + t.sem * 7 + i));
+        return { label: lbl, slots: HS[(i + t.sem) % 5].map(function (h) {
+          var k = lbl + ' · ' + h, o = t.slot === k;
+          return { hora: h, on: o ? 'true' : 'false', elegir: cambia({ slot: k }), style: 'height: 44px; border-radius: 12px; border: 0; font-size: 14px; font-variant-numeric: tabular-nums; ' + (o ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') };
+        }) };
+      });
+      var flecha = function (ok) { return 'width: 44px; height: 44px; border-radius: 50%; border: 0; display: grid; place-items: center; ' + (ok ? 'background: #FFFFFF; color: #02261E;' : 'background: transparent; color: #C5D6DA; cursor: default;'); };
+      return { on: !!s.tm, nombre: t.nombre,
+        sub: t.sug ? 'Ya está abierta la semana sugerida para el control (' + t.sug + ').' : 'Elegí el día y el horario.',
+        semanaTxt: 'Semana del ' + fch(new Date(2026, 9, 27 + t.sem * 7)) + (t.sug && t.sem === t.semIni ? ' · la sugerida' : ''),
+        dias: dias, antes: t.sem > 0 ? cambia({ sem: t.sem - 1 }) : function () {}, antesStyle: flecha(t.sem > 0), despues: cambia({ sem: t.sem + 1 }), despuesStyle: flecha(true),
+        guardarTxt: t.slot ? 'Guardar turno · ' + t.slot : 'Elegí un horario',
+        guardarStyle: 'height: 48px; padding: 0 22px; border-radius: 16px; border: 0; font-size: 15px; font-weight: 700; ' + (t.slot ? 'background: #02261E; color: #FFFFFF;' : 'background: #E9F1F3; color: #4A5F5C; cursor: default;'),
+        guardar: t.slot ? function () { alGuardar(t.nombre, t.slot); } : function () {},
+        cerrar: function () { self.setState({ tm: null }); } };
+    };
+    var cbArmar = function (o) {
+      var c = Object.assign({ cuanto: 'todo', medio: 'Efectivo', tipo: 'interno' }, s.cb || {});
+      var cambia = function (x) { return function () { self.setState({ cb: Object.assign({}, c, x) }); }; };
+      var chip = 'height: 44px; padding: 0 16px; border-radius: 999px; border: 0; font-size: 14px; ';
+      var on = 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;', off = 'background: #E9F1F3; color: #02261E; font-weight: 600;';
+      var pago = c.cuanto === 'parte' ? Math.round(o.monto / 2) : c.cuanto === 'nada' ? 0 : o.monto;
+      return { on: !!s.cb, nombre: o.nombre, concepto: o.concepto, detalle: o.detalle, importe: pesosTxt(o.monto),
+        cuanto: [['todo', 'Todo'], ['parte', 'Una parte'], ['nada', 'Nada por ahora']].map(function (x) { var k = c.cuanto === x[0]; return { label: x[1], on: k ? 'true' : 'false', elegir: cambia({ cuanto: x[0] }), style: chip + (k ? on : off) }; }),
+        parte: c.cuanto === 'parte', pagaAlgo: c.cuanto !== 'nada', parteNum: pago.toLocaleString('es-AR'), restoTxt: 'Queda debiendo ' + pesosTxt(o.monto - pago),
+        medios: ['Efectivo', 'Transferencia', 'Tarjeta', 'Otro'].map(function (m) { var k = c.medio === m; return { label: m, on: k ? 'true' : 'false', elegir: cambia({ medio: m }), style: 'height: 44px; border-radius: 14px; border: 0; font-size: 14px; ' + (k ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : off) }; }),
+        tipos: [['interno', 'Comprobante interno'], ['arca', 'Factura C'], ['no', 'Ahora no']].map(function (x) { var k = c.tipo === x[0]; return { label: x[1], on: k ? 'true' : 'false', elegir: cambia({ tipo: x[0] }), style: chip + (k ? on : off) }; }),
+        guardarTxt: c.cuanto === 'nada' ? 'Dejar en «Te deben»' : 'Guardar pago de ' + pesosTxt(pago),
+        guardar: function () {
+          var txt = c.cuanto === 'nada' ? 'Quedó en «Te deben»: ' + pesosTxt(o.monto) + '.' : 'Cobraste ' + pesosTxt(pago) + ' en ' + c.medio.toLowerCase() + (c.tipo === 'no' ? '.' : ' y le mandamos ' + (c.tipo === 'arca' ? 'la factura C' : 'el comprobante') + ' por WhatsApp.') + (c.cuanto === 'parte' ? ' Debe ' + pesosTxt(o.monto - pago) + '.' : '');
+          o.alGuardar(txt, c.cuanto);
+        },
+        abrir: function () { self.setState({ cb: { cuanto: 'todo', medio: 'Efectivo', tipo: 'interno' } }); },
+        cerrar: function () { self.setState({ cb: null }); } };
+    };
+    var docArmar = function (o) {
+      var d = s.doc || { tipo: null, listo: false };
+      var abrir = function (t) { return function () { self.setState({ doc: { tipo: t, listo: false }, menuDoc: false }); }; };
+      var nombreDoc = d.tipo === 'cert' ? 'el certificado' : 'el pedido de estudios';
+      var envio = function (txt) { return function () { self.setState({ doc: null }); o.alAviso(txt); }; };
+      return { on: !!d.tipo, nombre: o.nombre, dni: o.dni, edad: o.edad, cobertura: o.cobertura, diag: o.diag, estudios: o.estudios, med: o.med, ind: o.ind,
+        titulo: d.listo ? (d.tipo === 'cert' ? 'Certificado listo' : 'Pedido listo') : { cert: 'Certificado', pedido: 'Pedido de estudios', receta: 'Receta digital (MisRx)' }[d.tipo] || '',
+        verCert: d.tipo === 'cert' && !d.listo, verPedido: d.tipo === 'pedido' && !d.listo, verReceta: d.tipo === 'receta', verListo: !!d.listo,
+        listoTit: (d.tipo === 'cert' ? 'Certificado' : 'Pedido de estudios') + ' guardado en sus documentos',
+        pdf: (d.tipo === 'cert' ? 'Certificado' : 'Pedido') + '_' + o.archivo + '_2026-10-23.pdf',
+        generar: function () { self.setState({ doc: { tipo: d.tipo, listo: true } }); o.alHacer(d.tipo); },
+        guardarReceta: function () { self.setState({ doc: null }); o.alHacer('receta'); },
+        porWa: envio('Se abrió WhatsApp con el mensaje para ' + o.nombre + ': adjuntale ' + nombreDoc + '.'),
+        porMail: envio('Se abrió tu correo con el mensaje para ' + o.nombre + ': adjuntale ' + nombreDoc + '.'),
+        bajar: envio('Descargaste ' + nombreDoc + '.'),
+        cerrar: function () { self.setState({ doc: null }); },
+        abrirCert: abrir('cert'), abrirPedido: abrir('pedido'), abrirReceta: abrir('receta') };
+    };
+
+    var primera = s.ej === 'primera';
+
+    var P = primera ? {
+      nombre: 'Martina Gómez', iniciales: 'MG', edad: '30 años', cobertura: 'OSDE', tipoTxt: 'Primera consulta', importe: '$ 15.000', peso: '', talla: '',
+      avatar: 'width: 52px; height: 52px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 18px; background: #E5F2FF; color: #1D5FB8;',
+      datos: [['DNI', '45.678.901'], ['Celular', '11 5555-0103'], ['Ocupación', 'Diseñadora'], ['Vino', 'Es la primera vez']]
+    } : {
+      nombre: 'Lucas Benítez', iniciales: 'LB', edad: '41 años', cobertura: 'OSDE', tipoTxt: 'Control', importe: '$ 12.000', peso: '82 kg', talla: '1,80 m',
+      avatar: 'width: 52px; height: 52px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 18px; background: #DCEFEF; color: #24605F;',
+      datos: [['DNI', '36.555.444'], ['Celular', '11 5555-0104'], ['Antecedentes', 'Hipertensión'], ['Alergias', 'Penicilina'], ['Vino', '6 veces · última 25/9']]
+    };
+    P.datos = P.datos.map(function (x) { return { k: x[0], v: x[1] }; });
+    var pideFicha = primera && !s.fichaOk;
+
+    var chip = 'min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; font-size: 14px; ';
+    var ejemplos = [['primera', 'Martina · primera consulta'], ['control', 'Lucas · control']].map(function (e) {
+      var o = s.ej === e[0];
+      return { label: e[1], on: o ? 'true' : 'false', elegir: set({ ej: e[0], control: null, signos: false, modal: null, hechos: [], tm: null, cb: null, doc: null, cobroTxt: '', turnoTxt: '' }), style: 'min-height: 32px; padding: 0 12px; border-radius: 999px; border: 0; font-size: 13px; ' + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: transparent; color: #02261E; font-weight: 600;') };
+    });
+    var ANT = [['Enfermedades', 'Ej.: hipertensión, diabetes', ''], ['Alergias', 'Ej.: penicilina', ''], ['Medicación que toma', 'Ej.: losartán 50 mg', ''], ['Familiares', 'Ej.: madre con artrosis', 'Padre con hernia de disco']];
+    var antecedentes = ANT.map(function (a, i) {
+      var o = !!s.ninguno[i];
+      var cambia = function () { var n = Object.assign({}, s.ninguno); n[i] = !o; self.setState({ ninguno: n }); };
+      return { label: a[0], ph: a[1], valor: o ? 'Ninguno' : a[2], on: o ? 'true' : 'false', ninguno: cambia,
+        style: 'min-height: 32px; padding: 0 10px; border-radius: 999px; border: 0; font-size: 12px; font-weight: 700; ' + (o ? 'background: #02261E; color: #FFFFFF;' : 'background: #E9F1F3; color: #4A5F5C;') };
+    });
+    var defControl = primera ? '2 semanas' : '1 mes';
+    var ctrl = s.control || defControl;
+    var controles = ['2 semanas', '1 mes', '3 meses', 'Sin control'].map(function (c) {
+      var o = ctrl === c;
+      return { label: c, on: o ? 'true' : 'false', elegir: set({ control: c }), style: chip + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') };
+    });
+    var CUANDO = { '2 semanas': 'semana del 3/11', '1 mes': 'semana del 17/11', '3 meses': 'semana del 19/1', 'Sin control': 'sin control' };
+    var agrega = function (t) { return function () { self.setState({ hechos: s.hechos.concat([t]) }); }; };
+    var D = primera
+      ? { nombre: 'Martina Gómez', dni: '45.678.901', edad: '30 años', cobertura: 'OSDE', archivo: 'Gomez_Martina', diag: 'Contractura cervical', estudios: 'Rx de columna cervical, frente y perfil', med: 'Ciclobenzaprina 10 mg', ind: '1 comprimido a la noche durante 7 días' }
+      : { nombre: 'Lucas Benítez', dni: '36.555.444', edad: '41 años', cobertura: 'OSDE', archivo: 'Benitez_Lucas', diag: 'Lumbalgia en mejoría', estudios: 'Laboratorio de rutina', med: 'Ibuprofeno 400 mg', ind: 'Solo si tiene dolor, hasta 3 por día' };
+    var HECHO = { cert: 'Certificado · ' + D.diag, pedido: 'Pedido de estudios · ' + D.estudios, receta: 'Medicación anotada · ' + D.med };
+    var doc = docArmar(Object.assign(D, {
+      alHacer: function (t) { self.setState({ hechos: s.hechos.concat([HECHO[t]]) }); },
+      alAviso: function () {} }));
+    var herramientas = [
+      ['M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6', 'Certificado', doc.abrirCert],
+      ['M10.5 3.5a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7-7l7-7zM7 7l7 7', 'Receta (MisRx)', doc.abrirReceta],
+      ['M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3M7 15h10', 'Pedido de estudios', doc.abrirPedido],
+      ['M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.3 3.3 0 0 1 4.7 4.7L10.2 17.7a1.7 1.7 0 0 1-2.4-2.4L15.5 7.6', 'Adjuntar estudio', agrega('Estudio adjunto · ' + (primera ? 'Rx cervical anterior (PDF)' : 'Laboratorio del 20/10 (PDF)'))]
+    ].map(function (h) { return { icono: h[0], label: h[1], hacer: h[2] }; });
+    var cb = cbArmar({ nombre: P.nombre, concepto: P.tipoTxt + ' de hoy', detalle: P.cobertura === 'OSDE' ? 'Particular · OSDE no cubre esta consulta' : 'Particular', monto: primera ? 15000 : 12000,
+      alGuardar: function (txt) { self.setState({ cb: null, cobroTxt: txt }); } });
+    var SEM = { '2 semanas': 1, '1 mes': 3, '3 meses': 12 };
+
+    return {
+      ejemplos: ejemplos, p: P, pideFicha: pideFicha, enConsulta: !pideFicha,
+      completarFicha: set({ fichaOk: true }),
+      esPrimera: primera, esControl: !primera,
+      guardadoTxt: pideFicha ? 'todavía sin empezar' : 'borrador guardado',
+      antecedentes: antecedentes,
+      examenTit: primera ? '3 · Examen' : '2 · Examen',
+      examenTxt: primera ? 'Contractura en trapecio derecho. Movilidad cervical limitada al girar a la derecha. Sin pérdida de fuerza.' : 'Movilidad lumbar completa. Leve dolor al final de la flexión.',
+      signosOn: s.signos ? 'true' : 'false', conSignos: s.signos, signosBtn: s.signos ? 'Quitar signos vitales' : '+ Signos vitales', toggleSignos: set({ signos: !s.signos }),
+      planTit: primera ? '4 · Plan e indicaciones' : '3 · Plan e indicaciones',
+      planTxt: primera ? 'Calor local 15 minutos 2 veces por día. Pausas activas cada hora. Ejercicios de movilidad cervical (le paso la hoja).' : 'Seguir con los ejercicios 3 veces por semana. Sumar caminatas de 30 minutos.',
+      controles: controles, controlTxt: ctrl === 'Sin control' ? 'sin control' : 'en ' + ctrl + ' (' + CUANDO[ctrl] + ')', hayControl: ctrl !== 'Sin control',
+      herramientas: herramientas, hechos: s.hechos, doc: doc, cb: cb,
+      tm: tmArmar(function (nombre, slot) { self.setState({ tm: null, turnoTxt: 'Turno del control: ' + slot + '. Le mandamos la confirmación por WhatsApp.' }); }),
+      post: { cobroPend: !s.cb && !s.cobroTxt, cobroHecho: !!s.cobroTxt, cobroTxt: s.cobroTxt,
+        turnoPend: ctrl !== 'Sin control' && !s.turnoTxt, turnoHecho: !!s.turnoTxt, turnoTxt: s.turnoTxt,
+        darTurno: tmAbrir(P.nombre, SEM[ctrl] || 0, CUANDO[ctrl]) },
+      terminarStyle: 'height: 48px; padding: 0 22px; border-radius: 999px; border: 0; font-size: 15px; font-weight: 800; ' + (pideFicha ? 'background: #E9F1F3; color: #4A5F5C; cursor: default;' : 'background: #DAFC92; color: #02261E;'),
+      abrirTerminar: pideFicha ? function () {} : set({ modal: 'confirmar' }),
+      hayModal: !!s.modal, confirmando: s.modal === 'confirmar', terminada: s.modal === 'terminada',
+      terminar: set({ modal: 'terminada' }), cerrar: set({ modal: null, cb: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Términos y privacidad</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button,input{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+.ayuda{font-size:13px;line-height:1.45;color:#4A5F5C}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 1000px; box-sizing: border-box; padding: 24px 40px 56px; background: radial-gradient(620px 320px at 18% 0%, rgba(137,201,201,0.40), transparent 70%), radial-gradient(520px 300px at 80% 10%, rgba(218,252,146,0.55), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; align-items: center; gap: 24px;">
+
+  <div role="group" aria-label="Ejemplo del tablero" style="display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,0.6); font-size: 13px; color: #4A5F5C;">
+    <span style="padding: 0 10px;">Ejemplo:</span>
+    <sc-for list="{{ejemplos}}" as="e" hint-placeholder-count="2">
+      <button type="button" onClick="{{e.elegir}}" aria-pressed="{{e.on}}" style="{{e.style}}">{{e.label}}</button>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #89C9C9; box-shadow: 8px 0 0 -2px #DAFC92;"></span>
+    <span style="font-weight: 800; font-size: 18px; margin-left: 6px;">SiroConsultas</span>
+  </div>
+
+  <sc-if value="{{pidiendo}}" hint-placeholder-val="{{true}}">
+    <main class="paso" style="width: 100%; max-width: 720px; box-sizing: border-box; background: #FFFFFF; border-radius: 28px; padding: 32px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 24px 56px rgba(2,38,30,0.10); display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em;">{{titulo}}</h1>
+        <span style="color: #4A5F5C;">{{bajada}}</span>
+      </div>
+
+      <sc-if value="{{cambio}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 16px; background: #E5F2FF; color: #1D5FB8;">
+          <span style="font-weight: 700;">Qué cambió en la versión 1.1</span>
+          <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6; color: #02261E;">
+            <li>Se suma la factura C de ARCA: qué datos fiscales guardamos y para qué.</li>
+            <li>Se aclara cuánto tiempo guardamos los respaldos.</li>
+          </ul>
+        </div>
+      </sc-if>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <sc-for list="{{docs}}" as="d" hint-placeholder-count="2">
+          <div style="display: flex; flex-direction: column; border-radius: 18px; box-shadow: inset 0 0 0 1.5px #E9F1F3;">
+            <button type="button" onClick="{{d.toggle}}" aria-expanded="{{d.abiertoAria}}" style="display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 10px 16px; border: 0; background: transparent; color: #02261E; text-align: left; border-radius: 18px;">
+              <span aria-hidden="true" style="width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: #DCEFEF; color: #24605F; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{d.ico}}"></path></svg></span>
+              <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.35;"><span style="font-weight: 700;">{{d.titulo}}</span><span class="ayuda">{{d.sub}}</span></span>
+              <span style="font-size: 14px; font-weight: 700; color: #24605F;">{{d.accion}}</span>
+            </button>
+            <sc-if value="{{d.abierto}}" hint-placeholder-val="{{false}}">
+              <div class="paso" style="display: flex; flex-direction: column; gap: 10px; padding: 4px 20px 20px 70px; font-size: 14px; line-height: 1.6;">
+                <sc-for list="{{d.puntos}}" as="p" hint-placeholder-count="4">
+                  <span><b>{{p.t}}</b> {{p.x}}</span>
+                </sc-for>
+                <span class="ayuda" style="padding: 8px 12px; border-radius: 12px; background: #FFF1D6; color: #8A5300;">Texto de muestra: el definitivo lo redacta y revisa un abogado antes de cargar datos reales.</span>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <label style="display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #F2F7F9; font-weight: 600; cursor: pointer;">
+        <input type="checkbox" onChange="{{togAcepto}}" checked="{{aceptoAttr}}" style="width: 22px; height: 22px; margin: 1px 0 0; flex: 0 0 auto; accent-color: #02261E;">
+        <span>Leí y acepto los términos de uso y la política de privacidad{{versionTxt}}.</span>
+      </label>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <button type="button" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Salir</button>
+        <button type="button" onClick="{{aceptar}}" style="{{aceptarStyle}}">{{aceptarTxt}}</button>
+      </div>
+      <span class="ayuda" style="text-align: center;">Sin aceptar no se puede entrar. Guardamos la versión y la fecha en que aceptaste; lo ves en Configuración › Cuenta y seguridad.</span>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{listo}}" hint-placeholder-val="{{false}}">
+    <main class="paso" role="status" style="width: 100%; max-width: 520px; box-sizing: border-box; background: #FFFFFF; border-radius: 28px; padding: 32px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 24px 56px rgba(2,38,30,0.10); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;">
+      <span aria-hidden="true" style="width: 64px; height: 64px; border-radius: 50%; background: #E4F4EA; color: #166534; display: grid; place-items: center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+      <h1 style="margin: 0; font-size: 24px; font-weight: 800;">¡Listo, Julieta!</h1>
+      <span style="color: #4A5F5C;">{{listoTxt}}</span>
+      <a href="{{siguienteHref}}" style="margin-top: 8px; display: flex; align-items: center; justify-content: center; width: 100%; height: 52px; border-radius: 16px; background: #DAFC92; color: #02261E; font-size: 16px; font-weight: 800; text-decoration: none;">{{siguienteTxt}}</a>
+    </main>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ ej: 'primera', acepto: false, listo: false, abierto: null }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    var primera = s.ej === 'primera';
+    var ejemplos = [['primera', 'Primera vez'], ['cambio', 'Cambiaron los términos']].map(function (e) {
+      var o = s.ej === e[0];
+      return { label: e[1], on: o ? 'true' : 'false', elegir: set({ ej: e[0], acepto: false, listo: false, abierto: null }),
+        style: 'min-height: 32px; padding: 0 12px; border-radius: 999px; border: 0; font-size: 13px; ' + (o ? 'background: #02261E; color: #FFFFFF; font-weight: 700;' : 'background: transparent; color: #02261E; font-weight: 600;') };
+    });
+    var version = primera ? '1.0' : '1.1';
+    var DOCS = [
+      ['terminos', 'Términos de uso', 'Versión ' + version + ' · qué hace SiroConsultas y qué te toca a vos', 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6', [
+        ['El servicio.', 'Una instalación propia para vos, con tu agenda, tus pacientes, tus cobros y tus documentos.'],
+        ['Tu responsabilidad.', 'Lo que escribís en la historia clínica y los documentos que firmás son tuyos.'],
+        ['Mensajes a pacientes.', 'Salen desde tu WhatsApp o tu correo; los recordatorios no llevan datos clínicos.'],
+        ['Si dejás el servicio.', 'Te entregamos todos tus datos exportados.']
+      ]],
+      ['privacidad', 'Política de privacidad', 'Versión ' + version + ' · qué datos guardamos y cómo los cuidamos', 'M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z', [
+        ['Qué guardamos.', 'Tus datos, los de tus pacientes y su historia clínica, cobros y comprobantes.'],
+        ['Cómo los cuidamos.', 'Ingreso con segundo código, respaldo diario cifrado y registro de cada acceso a datos de salud.'],
+        ['Qué no hacemos.', 'No vendemos ni compartimos datos; nada se borra: se anula con motivo.'],
+        ['Tus pacientes.', 'Dan su consentimiento para recibir mensajes de turno.']
+      ]]
+    ];
+    var docs = DOCS.map(function (d) {
+      var o = s.abierto === d[0];
+      return { titulo: d[1], sub: d[2], ico: d[3], abierto: o, abiertoAria: o ? 'true' : 'false', accion: o ? 'Cerrar' : 'Leer',
+        toggle: set({ abierto: o ? null : d[0] }), puntos: d[4].map(function (p) { return { t: p[0], x: p[1] }; }) };
+    });
+    return {
+      ejemplos: ejemplos, pidiendo: !s.listo, listo: s.listo, cambio: !primera, docs: docs,
+      titulo: primera ? 'Antes de empezar' : 'Actualizamos los términos',
+      bajada: primera ? 'Leé y aceptá los términos de uso y la política de privacidad. Es una sola vez.' : 'Para seguir usando SiroConsultas, aceptá la versión nueva. Tus datos no cambian.',
+      versionTxt: ' (versión ' + version + ')',
+      aceptoAttr: s.acepto ? 'checked' : null, togAcepto: set({ acepto: !s.acepto }),
+      aceptarTxt: s.acepto ? 'Aceptar y entrar' : 'Marcá que leíste y aceptás',
+      aceptarStyle: 'height: 52px; padding: 0 26px; border-radius: 16px; border: 0; font-size: 16px; font-weight: 800; ' + (s.acepto ? 'background: #DAFC92; color: #02261E;' : 'background: #E9F1F3; color: #4A5F5C; cursor: default;'),
+      aceptar: s.acepto ? set({ listo: true }) : function () {},
+      listoTxt: primera ? 'Aceptaste la versión 1.0 el 23/10/2026. Ahora completá tu perfil para poder hacer documentos y comprobantes.' : 'Aceptaste la versión 1.1 el 23/10/2026.',
+      siguienteHref: primera ? 'Configuracion.dc.html' : 'Main.dc.html', siguienteTxt: primera ? 'Completar mi perfil' : 'Ir a Hoy'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-23T18:30:00Z"
+  },
+  "title": "SiroConsultas · Pantallas",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 900,
+      "title": "1 · Hoy",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "DarTurno.dc.html": {
+      "x": 1360,
+      "y": 0,
+      "w": 1280,
+      "h": 900,
+      "title": "2 · Dar turno con ficha mínima",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Cobrar.dc.html": {
+      "x": 2720,
+      "y": 0,
+      "w": 1280,
+      "h": 900,
+      "title": "3 · Cobrar, comprobante y datos de pago",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Comprobante.dc.html": {
+      "x": 0,
+      "y": 1500,
+      "w": 1280,
+      "h": 900,
+      "title": "4 · Comprobante: interno o factura C",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Bloqueo.dc.html": {
+      "x": 1360,
+      "y": 1500,
+      "w": 1280,
+      "h": 900,
+      "title": "5 · Bloquear la agenda",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Pedidos.dc.html": {
+      "x": 2720,
+      "y": 1500,
+      "w": 1280,
+      "h": 900,
+      "title": "6 · Pedidos de turno online",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Contadora.dc.html": {
+      "x": 0,
+      "y": 3000,
+      "w": 1280,
+      "h": 860,
+      "title": "7 · Enviar a la contadora",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Agenda.dc.html": {
+      "x": 1360,
+      "y": 3000,
+      "w": 1280,
+      "h": 1240,
+      "title": "8 · Agenda semanal",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Pacientes.dc.html": {
+      "x": 2720,
+      "y": 3000,
+      "w": 1280,
+      "h": 1000,
+      "title": "9 · Pacientes",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Ficha.dc.html": {
+      "x": 0,
+      "y": 4500,
+      "w": 1280,
+      "h": 1100,
+      "title": "10 · Ficha del paciente",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Consulta.dc.html": {
+      "x": 1360,
+      "y": 4500,
+      "w": 1280,
+      "h": 1300,
+      "title": "11 · Consulta: primera vez o control",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Estadisticas.dc.html": {
+      "x": 2720,
+      "y": 4500,
+      "w": 1280,
+      "h": 1500,
+      "title": "12 · Estadísticas",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Configuracion.dc.html": {
+      "x": 0,
+      "y": 6300,
+      "w": 1280,
+      "h": 1300,
+      "title": "13 · Configuración",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "Terminos.dc.html": {
+      "x": 1360,
+      "y": 6300,
+      "w": 1280,
+      "h": 1000,
+      "title": "14 · Términos y privacidad al entrar",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "HoyCel.dc.html": {
+      "x": 0,
+      "y": 7900,
+      "w": 800,
+      "h": 920,
+      "title": "15 · Hoy en el celular",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "AppPaciente.dc.html": {
+      "x": 880,
+      "y": 7900,
+      "w": 800,
+      "h": 920,
+      "title": "16 · App del paciente",
+      "expand": "fill",
+      "is_interactive": true
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "DarTurno.dc.html",
+    "Cobrar.dc.html",
+    "Comprobante.dc.html",
+    "Bloqueo.dc.html",
+    "Pedidos.dc.html",
+    "Contadora.dc.html",
+    "Agenda.dc.html",
+    "Pacientes.dc.html",
+    "Ficha.dc.html",
+    "Consulta.dc.html",
+    "Estadisticas.dc.html",
+    "Configuracion.dc.html",
+    "Terminos.dc.html",
+    "HoyCel.dc.html",
+    "AppPaciente.dc.html"
+  ],
+  "notes": {
+    "fila1": {
+      "x": 0,
+      "y": -300,
+      "text": "El día de la profesional",
+      "kind": "title1",
+      "maxW": 4000
+    },
+    "fila2": {
+      "x": 0,
+      "y": 1200,
+      "text": "Pantallas nuevas: comprobante, bloqueos y pedidos",
+      "kind": "title1",
+      "maxW": 4000
+    },
+    "fila3": {
+      "x": 0,
+      "y": 2700,
+      "text": "La contadora, la agenda y los pacientes",
+      "kind": "title1",
+      "maxW": 4000
+    },
+    "fila4": {
+      "x": 0,
+      "y": 4200,
+      "text": "El paciente por dentro, la consulta y las estadísticas",
+      "kind": "title1",
+      "maxW": 4000
+    },
+    "fila5": {
+      "x": 0,
+      "y": 6000,
+      "text": "Configuración y entrada",
+      "kind": "title1",
+      "maxW": 4000
+    },
+    "fila6": {
+      "x": 0,
+      "y": 7600,
+      "text": "El celular: la profesional y el paciente",
+      "kind": "title1",
+      "maxW": 4000
+    }
+  },
+  "designSystems": []
+}

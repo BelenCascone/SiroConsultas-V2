@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Hoy · SiroConsultas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F2F7F9}
+a{color:#24605F}a:hover{color:#02261E}
+button,input{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .28s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; min-height: 900px; box-sizing: border-box; padding: 24px 40px 56px; background: radial-gradient(520px 260px at 18% 0%, rgba(137,201,201,0.34), transparent 70%), radial-gradient(440px 240px at 72% 4%, rgba(218,252,146,0.50), transparent 70%), #F2F7F9; color: #02261E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5; display: flex; flex-direction: column; gap: 32px;">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #89C9C9; box-shadow: 8px 0 0 -2px #DAFC92;"></span>
+      <span style="font-size: 18px; font-weight: 800; margin-left: 6px; letter-spacing: -0.01em;">SiroConsultas</span>
+    </div>
+    <nav aria-label="Menú principal" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: rgba(255,255,255,0.85); border-radius: 999px; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 8px 24px rgba(2,38,30,0.06);">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+        <a href="{{n.href}}" style="{{n.style}}">{{n.label}}</a>
+      </sc-for>
+    </nav>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button type="button" aria-label="Avisos: 3 nuevos" title="Avisos" style="position: relative; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #FFFFFF; color: #02261E; display: grid; place-items: center; box-shadow: 0 1px 2px rgba(2,38,30,0.08);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5h4"></path></svg>
+        <span aria-hidden="true" style="position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; border-radius: 50%; background: #24605F; box-shadow: 0 0 0 2px #FFFFFF;"></span>
+      </button>
+      <a href="Configuracion.dc.html" aria-label="Configuración" title="Configuración" style="width: 44px; height: 44px; border-radius: 50%; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800; font-size: 15px; text-decoration: none;">JP</a>
+    </div>
+  </header>
+
+  <section style="display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center;">
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <span style="font-size: 14px; color: #4A5F5C;">Jueves 23 de octubre · Consultorio Centro</span>
+      <h1 style="margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2;">Buen día, Julia</h1>
+    </div>
+    <label for="busca" style="width: 100%; max-width: 560px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 20px; background: #FFFFFF; border-radius: 18px; box-shadow: 0 1px 2px rgba(2,38,30,0.06), 0 12px 32px rgba(2,38,30,0.08); color: #4A5F5C;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input id="busca" type="search" placeholder="Buscar paciente por nombre, DNI o celular" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 16px; color: #02261E; outline: none;">
+    </label>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+      <a href="DarTurno.dc.html" style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 999px; background: #DAFC92; color: #02261E; font-weight: 800; text-decoration: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Dar turno</a>
+      <a href="Cobrar.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 999px; background: #FFFFFF; color: #02261E; font-weight: 600; text-decoration: none; box-shadow: 0 1px 2px rgba(2,38,30,0.08);">Cobrar</a>
+      <a href="Bloqueo.dc.html" style="display: flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 999px; background: #FFFFFF; color: #02261E; font-weight: 600; text-decoration: none; box-shadow: 0 1px 2px rgba(2,38,30,0.08);">Bloquear agenda</a>
+    </div>
+  </section>
+
+  <section aria-label="Para resolver" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+    <sc-for list="{{pendientes}}" as="p" hint-placeholder-count="4">
+      <a href="{{p.href}}" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px; border-radius: 999px; background: rgba(255,255,255,0.88); text-decoration: none; color: #02261E; font-size: 14px; font-weight: 500; box-shadow: 0 1px 2px rgba(2,38,30,0.06);"><span aria-hidden="true" style="{{p.dot}}"></span>{{p.texto}}</a>
+    </sc-for>
+  </section>
+
+  <div style="width: 100%; max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start;">
+
+    <section aria-label="Ahora" style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+        <span style="font-size: 13px; color: #4A5F5C; font-weight: 600;">{{ahoraCuando}}</span>
+        <span style="{{ahoraChip}}">{{ahoraEstado}}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; line-height: 1.3;">
+        <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.01em;">Martina Gómez</span>
+        <span style="color: #4A5F5C;">Primera consulta · 10:30 · OSDE</span>
+      </div>
+      <sc-if value="{{espera}}" hint-placeholder-val="{{true}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-size: 13px; padding: 8px 12px; border-radius: 14px; background: #FFF1D6; color: #8A5300; font-weight: 600;">Ficha incompleta: completala antes de empezar.</span>
+          <a href="Consulta.dc.html" style="display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 16px; background: #02261E; color: #FFFFFF; font-size: 16px; font-weight: 700; text-decoration: none;">Atender</a>
+          <button type="button" onClick="{{noVino}}" style="height: 44px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600;">No vino</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{marcado}}" hint-placeholder-val="{{false}}">
+        <div class="paso" role="status" style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-size: 14px; color: #4A5F5C;">{{marcadoTexto}}</span>
+          <button type="button" onClick="{{deshacer}}" style="height: 44px; border-radius: 14px; border: 0; background: #DCEFEF; color: #24605F; font-size: 15px; font-weight: 700;">{{marcadoBoton}}</button>
+        </div>
+      </sc-if>
+    </section>
+
+    <section aria-labelledby="dia" style="background: #FFFFFF; border-radius: 26px; padding: 20px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px 4px;">
+        <h2 id="dia" style="margin: 0; font-size: 17px; font-weight: 700;">Hoy</h2>
+        <span style="font-size: 13px; color: #4A5F5C;">7 turnos</span>
+      </div>
+      <sc-for list="{{turnos}}" as="r" hint-placeholder-count="6">
+        <div style="{{r.card}}">
+          <span style="font-weight: 700; font-variant-numeric: tabular-nums; width: 44px; flex: 0 0 auto;">{{r.hora}}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3;"><span style="font-weight: 600;">{{r.nombre}}</span><span style="font-size: 13px; color: #4A5F5C;">{{r.detalle}}</span></span>
+          <span style="{{r.chip}}">{{r.estado}}</span>
+        </div>
+      </sc-for>
+    </section>
+
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <section aria-labelledby="cobros-hoy" style="background: #FFFFFF; border-radius: 26px; padding: 22px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 16px 40px rgba(2,38,30,0.07); display: flex; flex-direction: column; gap: 14px;">
+        <h2 id="cobros-hoy" style="margin: 0; font-size: 17px; font-weight: 700;">Cobros de hoy</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+          <div style="padding: 14px 16px; border-radius: 18px; background: #E9F1F3; display: flex; flex-direction: column;">
+            <span style="font-size: 13px; color: #4A5F5C;">Cobrado</span>
+            <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">$ 84.000</span>
+          </div>
+          <a href="#" style="padding: 14px 16px; border-radius: 18px; background: #FFF6E3; display: flex; flex-direction: column; text-decoration: none; color: #02261E;">
+            <span style="font-size: 13px; color: #8A5300;">Te deben</span>
+            <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">$ 21.500</span>
+          </a>
+        </div>
+      </section>
+      <section aria-labelledby="ctrl" style="background: rgba(255,255,255,0.7); border-radius: 26px; padding: 20px 22px; display: flex; flex-direction: column; gap: 4px;">
+        <h2 id="ctrl" style="margin: 0 0 6px; font-size: 17px; font-weight: 700;">Controles por agendar</h2>
+        <sc-for list="{{controles}}" as="c" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 6px 0;">
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3;"><span style="font-weight: 600;">{{c.nombre}}</span><span style="{{c.sub}}">{{c.cuando}}</span></span>
+            <sc-if value="{{c.pendiente}}" hint-placeholder-val="{{true}}">
+              <button type="button" onClick="{{c.agendar}}" style="height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px; border: 0; background: #DCEFEF; color: #24605F; font-size: 14px; font-weight: 700;">Agendar</button>
+            </sc-if>
+            <sc-if value="{{c.hecho}}" hint-placeholder-val="{{false}}">
+              <span class="paso" style="font-size: 13px; font-weight: 700; color: #166534;">✓ {{c.turno}}</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </div>
+
+  <sc-if value="{{tm.on}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 30; background: rgba(2,38,30,0.32); display: flex; justify-content: center; align-items: flex-start; padding: 120px 24px 40px; box-sizing: border-box;">
+      <div role="dialog" aria-modal="true" aria-label="Darle turno" class="paso" style="width: 100%; max-width: 700px; background: #FFFFFF; border-radius: 26px; padding: 24px; box-shadow: 0 24px 64px rgba(2,38,30,0.24); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 800;">Darle turno a {{tm.nombre}}</h2>
+            <span style="font-size: 14px; color: #4A5F5C;">{{tm.sub}}</span>
+          </div>
+          <button type="button" onClick="{{tm.cerrar}}" aria-label="Cerrar" style="width: 44px; height: 44px; margin: -8px -8px -8px 0; flex: 0 0 auto; border-radius: 999px; border: 0; background: transparent; color: #4A5F5C; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Prestación<select style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"><option selected>Control</option><option>Evolución</option><option>Primera consulta</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #4A5F5C; min-width: 0;">Consultorio<select style="height: 44px; box-sizing: border-box; width: 100%; padding: 0 12px; border-radius: 12px; border: 0; box-shadow: inset 0 0 0 1px #C5D6DA; background: #FFFFFF; color: #02261E; font-size: 15px; font-family: inherit;"><option selected>Norte</option><option>Centro</option><option>Videollamada</option></select></label>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px; border-radius: 999px; background: #F2F7F9;">
+          <button type="button" onClick="{{tm.antes}}" aria-label="Semana anterior" style="{{tm.antesStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <span style="font-weight: 700;">{{tm.semanaTxt}}</span>
+          <button type="button" onClick="{{tm.despues}}" aria-label="Semana siguiente" style="{{tm.despuesStyle}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; align-items: start;">
+          <sc-for list="{{tm.dias}}" as="d" hint-placeholder-count="5">
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C; text-align: center;">{{d.label}}</span>
+              <sc-for list="{{d.slots}}" as="h" hint-placeholder-count="3">
+                <button type="button" onClick="{{h.elegir}}" aria-pressed="{{h.on}}" style="{{h.style}}">{{h.hora}}</button>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+        <span style="font-size: 13px; line-height: 1.4; color: #4A5F5C;">Solo ves los horarios libres. Al guardar le mandamos la confirmación por WhatsApp.</span>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" onClick="{{tm.cerrar}}" style="height: 48px; padding: 0 18px; border-radius: 16px; border: 0; background: transparent; color: #4A5F5C; font-size: 15px; font-weight: 600;">Cancelar</button>
+          <button type="button" onClick="{{tm.guardar}}" style="{{tm.guardarStyle}}">{{tm.guardarTxt}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var s = Object.assign({ fase: 'espera', tm: null, agendados: {} }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    // ---- Piezas comunes: darle turno, cobrar y documentos, sin salir de la pantalla ----
+    var pesosTxt = function (n) { return '$ ' + n.toLocaleString('es-AR'); };
+    var tmAbrir = function (nombre, semana, sug) { return function () { self.setState({ tm: { nombre: nombre, semIni: semana, sem: semana, sug: sug || '', slot: null }, doc: null }); }; };
+    var tmArmar = function (alGuardar) {
+      var t = s.tm || { nombre: '', semIni: 0, sem: 0, sug: '', slot: null };
+      var fch = function (d) { return d.getDate() + '/' + (d.getMonth() + 1); };
+      var NOM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+      var HS = [['9:00', '10:30', '16:00'], ['11:00', '17:30'], ['9:30', '12:00', '15:00', '18:00'], ['10:00', '16:30'], ['9:00', '11:30', '17:00']];
+      var cambia = function (x) { return function () { self.setState({ tm: Object.assign({}, t, x) }); }; };
+      var dias = NOM.map(function (n, i) {
+        var lbl = n + ' ' + fch(new Date(2026, 9, 27 + t.sem * 7 + i));
+        return { label: lbl, slots: HS[(i + t.sem) % 5].map(function (h) {
+          var k = lbl + ' · ' + h, o = t.slot === k;
+          return { hora: h, on: o ? 'true' : 'false', elegir: cambia({ slot: k }), style: 'height: 44px; border-radius: 12px; border: 0; font-size: 14px; font-variant-numeric: tabular-nums; ' + (o ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : 'background: #E9F1F3; color: #02261E; font-weight: 600;') };
+        }) };
+      });
+      var flecha = function (ok) { return 'width: 44px; height: 44px; border-radius: 50%; border: 0; display: grid; place-items: center; ' + (ok ? 'background: #FFFFFF; color: #02261E;' : 'background: transparent; color: #C5D6DA; cursor: default;'); };
+      return { on: !!s.tm, nombre: t.nombre,
+        sub: t.sug ? 'Ya está abierta la semana sugerida para el control (' + t.sug + ').' : 'Elegí el día y el horario.',
+        semanaTxt: 'Semana del ' + fch(new Date(2026, 9, 27 + t.sem * 7)) + (t.sug && t.sem === t.semIni ? ' · la sugerida' : ''),
+        dias: dias, antes: t.sem > 0 ? cambia({ sem: t.sem - 1 }) : function () {}, antesStyle: flecha(t.sem > 0), despues: cambia({ sem: t.sem + 1 }), despuesStyle: flecha(true),
+        guardarTxt: t.slot ? 'Guardar turno · ' + t.slot : 'Elegí un horario',
+        guardarStyle: 'height: 48px; padding: 0 22px; border-radius: 16px; border: 0; font-size: 15px; font-weight: 700; ' + (t.slot ? 'background: #02261E; color: #FFFFFF;' : 'background: #E9F1F3; color: #4A5F5C; cursor: default;'),
+        guardar: t.slot ? function () { alGuardar(t.nombre, t.slot); } : function () {},
+        cerrar: function () { self.setState({ tm: null }); } };
+    };
+    var cbArmar = function (o) {
+      var c = Object.assign({ cuanto: 'todo', medio: 'Efectivo', tipo: 'interno' }, s.cb || {});
+      var cambia = function (x) { return function () { self.setState({ cb: Object.assign({}, c, x) }); }; };
+      var chip = 'height: 44px; padding: 0 16px; border-radius: 999px; border: 0; font-size: 14px; ';
+      var on = 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;', off = 'background: #E9F1F3; color: #02261E; font-weight: 600;';
+      var pago = c.cuanto === 'parte' ? Math.round(o.monto / 2) : c.cuanto === 'nada' ? 0 : o.monto;
+      return { on: !!s.cb, nombre: o.nombre, concepto: o.concepto, detalle: o.detalle, importe: pesosTxt(o.monto),
+        cuanto: [['todo', 'Todo'], ['parte', 'Una parte'], ['nada', 'Nada por ahora']].map(function (x) { var k = c.cuanto === x[0]; return { label: x[1], on: k ? 'true' : 'false', elegir: cambia({ cuanto: x[0] }), style: chip + (k ? on : off) }; }),
+        parte: c.cuanto === 'parte', pagaAlgo: c.cuanto !== 'nada', parteNum: pago.toLocaleString('es-AR'), restoTxt: 'Queda debiendo ' + pesosTxt(o.monto - pago),
+        medios: ['Efectivo', 'Transferencia', 'Tarjeta', 'Otro'].map(function (m) { var k = c.medio === m; return { label: m, on: k ? 'true' : 'false', elegir: cambia({ medio: m }), style: 'height: 44px; border-radius: 14px; border: 0; font-size: 14px; ' + (k ? 'background: #DCEFEF; color: #24605F; font-weight: 700; box-shadow: inset 0 0 0 1.5px #24605F;' : off) }; }),
+        tipos: [['interno', 'Comprobante interno'], ['arca', 'Factura C'], ['no', 'Ahora no']].map(function (x) { var k = c.tipo === x[0]; return { label: x[1], on: k ? 'true' : 'false', elegir: cambia({ tipo: x[0] }), style: chip + (k ? on : off) }; }),
+        guardarTxt: c.cuanto === 'nada' ? 'Dejar en «Te deben»' : 'Guardar pago de ' + pesosTxt(pago),
+        guardar: function () {
+          var txt = c.cuanto === 'nada' ? 'Quedó en «Te deben»: ' + pesosTxt(o.monto) + '.' : 'Cobraste ' + pesosTxt(pago) + ' en ' + c.medio.toLowerCase() + (c.tipo === 'no' ? '.' : ' y le mandamos ' + (c.tipo === 'arca' ? 'la factura C' : 'el comprobante') + ' por WhatsApp.') + (c.cuanto === 'parte' ? ' Debe ' + pesosTxt(o.monto - pago) + '.' : '');
+          o.alGuardar(txt, c.cuanto);
+        },
+        abrir: function () { self.setState({ cb: { cuanto: 'todo', medio: 'Efectivo', tipo: 'interno' } }); },
+        cerrar: function () { self.setState({ cb: null }); } };
+    };
+    var docArmar = function (o) {
+      var d = s.doc || { tipo: null, listo: false };
+      var abrir = function (t) { return function () { self.setState({ doc: { tipo: t, listo: false }, menuDoc: false }); }; };
+      var nombreDoc = d.tipo === 'cert' ? 'el certificado' : 'el pedido de estudios';
+      var envio = function (txt) { return function () { self.setState({ doc: null }); o.alAviso(txt); }; };
+      return { on: !!d.tipo, nombre: o.nombre, dni: o.dni, edad: o.edad, cobertura: o.cobertura, diag: o.diag, estudios: o.estudios, med: o.med, ind: o.ind,
+        titulo: d.listo ? (d.tipo === 'cert' ? 'Certificado listo' : 'Pedido listo') : { cert: 'Certificado', pedido: 'Pedido de estudios', receta: 'Receta digital (MisRx)' }[d.tipo] || '',
+        verCert: d.tipo === 'cert' && !d.listo, verPedido: d.tipo === 'pedido' && !d.listo, verReceta: d.tipo === 'receta', verListo: !!d.listo,
+        listoTit: (d.tipo === 'cert' ? 'Certificado' : 'Pedido de estudios') + ' guardado en sus documentos',
+        pdf: (d.tipo === 'cert' ? 'Certificado' : 'Pedido') + '_' + o.archivo + '_2026-10-23.pdf',
+        generar: function () { self.setState({ doc: { tipo: d.tipo, listo: true } }); o.alHacer(d.tipo); },
+        guardarReceta: function () { self.setState({ doc: null }); o.alHacer('receta'); },
+        porWa: envio('Se abrió WhatsApp con el mensaje para ' + o.nombre + ': adjuntale ' + nombreDoc + '.'),
+        porMail: envio('Se abrió tu correo con el mensaje para ' + o.nombre + ': adjuntale ' + nombreDoc + '.'),
+        bajar: envio('Descargaste ' + nombreDoc + '.'),
+        cerrar: function () { self.setState({ doc: null }); },
+        abrirCert: abrir('cert'), abrirPedido: abrir('pedido'), abrirReceta: abrir('receta') };
+    };
+
+    var navBase = 'display: flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; text-decoration: none; font-size: 15px; ';
+    var nav = [['Hoy','Main.dc.html'],['Agenda','Agenda.dc.html'],['Pacientes','Pacientes.dc.html'],['Cobros','Comprobante.dc.html'],['Estadísticas','Estadisticas.dc.html']].map(function (n, i) {
+      return { label: n[0], href: n[1], style: navBase + (i === 0 ? 'background: #DCEFEF; color: #24605F; font-weight: 700;' : 'color: #02261E; font-weight: 500;') };
+    });
+    var dot = 'width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; background: ';
+    var pendientes = [
+      { texto: 'Sofía Herrera pidió turno · vence en 9 h', dot: dot + '#5B3F8C', href: 'Pedidos.dc.html' },
+      { texto: 'Diego Paz no puede ir mañana', dot: dot + '#B42318', href: '#' },
+      { texto: 'Factura pendiente de emitir', dot: dot + '#C2610F', href: 'Comprobante.dc.html' },
+      { texto: 'Lunes 24/11 es feriado: ¿atendés?', dot: dot + '#1D5FB8', href: 'Bloqueo.dc.html' }
+    ];
+    var CHIP = {
+      'Atendido': 'background:#E4F4EA;color:#166534;',
+      'Para cobrar': 'background:#FFF1D6;color:#8A5300;',
+      'En consulta': 'background:#DAFC92;color:#02261E;',
+      'Ausente': 'background:#FDE8E8;color:#9E2016;',
+      'Ahora': 'background:#02261E;color:#FFFFFF;',
+      'Confirmó': 'background:#DCEFEF;color:#24605F;',
+      'Sin respuesta': 'background:#ECEFF3;color:#475467;'
+    };
+    var CARD = { 'Atendido': '#F2F7F9', 'Para cobrar': '#FFF8EA', 'En consulta': '#F3FDE0', 'Ausente': '#FEF4F4', 'Ahora': '#F3FDE0', 'Confirmó': '#FFFFFF', 'Sin respuesta': '#FFFFFF' };
+    var est = s.fase === 'consulta' ? 'En consulta' : s.fase === 'ausente' ? 'Ausente' : 'Ahora';
+    var t = [
+      ['8:30','Ramiro Sánchez','Control','Atendido'],
+      ['9:30','Tomás Ferreyra','Control','Para cobrar'],
+      ['10:30','Martina Gómez','Primera consulta', est],
+      ['11:00','Lucas Benítez','Control','Confirmó'],
+      ['11:30','Inés Molina','Evolución · videollamada','Confirmó'],
+      ['12:30','Carlos Vera','Control · PAMI','Sin respuesta']
+    ];
+    var turnos = t.map(function (r) {
+      var borde = (r[3] === 'Confirmó' || r[3] === 'Sin respuesta') ? 'box-shadow: inset 0 0 0 1.5px #DDE8EB;' : '';
+      return { hora: r[0], nombre: r[1], detalle: r[2], estado: r[3],
+        card: 'display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: ' + CARD[r[3]] + ';' + borde,
+        chip: 'font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap;' + CHIP[r[3]] };
+    });
+    var sub = 'font-size: 13px; ';
+    var controles = [
+      { nombre: 'Ana Quiroga', cuando: 'Venció el 15/10', sub: sub + 'color: #9E2016; font-weight: 600;', sem: 0, sug: 'venció el 15/10, lo antes posible' },
+      { nombre: 'Pedro Luna', cuando: 'Semana del 3/11', sub: sub + 'color: #4A5F5C;', sem: 1, sug: 'semana del 3/11' },
+      { nombre: 'Rosa Medina', cuando: 'Semana del 10/11', sub: sub + 'color: #4A5F5C;', sem: 2, sug: 'semana del 10/11' }
+    ].map(function (c) { var hecho = s.agendados[c.nombre]; return Object.assign(c, { pendiente: !hecho, hecho: !!hecho, turno: hecho || '', agendar: tmAbrir(c.nombre, c.sem, c.sug) }); });
+    var tm = tmArmar(function (nombre, slot) { var a = Object.assign({}, s.agendados); a[nombre] = slot; self.setState({ tm: null, agendados: a }); });
+    return {
+      nav: nav, pendientes: pendientes, turnos: turnos, controles: controles, tm: tm,
+      espera: s.fase === 'espera', marcado: s.fase !== 'espera',
+      ahoraCuando: s.fase === 'espera' ? 'En 12 minutos' : s.fase === 'consulta' ? 'Desde las 10:32' : 'Marcado a las 10:45',
+      ahoraEstado: s.fase === 'consulta' ? 'En consulta' : s.fase === 'ausente' ? 'No vino' : 'Próximo',
+      ahoraChip: 'font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; ' + (s.fase === 'consulta' ? 'background:#DAFC92;color:#02261E;' : s.fase === 'ausente' ? 'background:#FDE8E8;color:#9E2016;' : 'background:#02261E;color:#FFFFFF;'),
+      marcadoTexto: s.fase === 'consulta' ? 'La consulta está abierta y el borrador se guarda solo.' : 'Quedó como ausente. Sigue Lucas Benítez a las 11:00.',
+      marcadoBoton: s.fase === 'consulta' ? 'Ir a la consulta' : 'Ver a Lucas',
+      vino: set({ fase: 'consulta' }), noVino: set({ fase: 'ausente' }), deshacer: set({ fase: 'espera' })
+    };
+  }
+}
+</script>
+</body>
+</html>
