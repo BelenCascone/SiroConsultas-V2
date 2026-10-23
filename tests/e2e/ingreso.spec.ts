@@ -56,11 +56,10 @@ test('componentes: la ventana se abre sobre la pantalla y al cerrarla todo queda
 test('los controles miden al menos 44 px', async ({ page }) => {
   await entrar(page)
   await page.goto('/componentes')
-  const chicos = await page.evaluate(() =>
+  await expect.poll(() => page.evaluate(() =>
     [...document.querySelectorAll('main .boton, main .pastilla, main .entrada, .cabecera .redondo')]
       .map((el) => ({ texto: (el.textContent || el.getAttribute('aria-label') || '').trim(), alto: el.getBoundingClientRect().height }))
-      .filter((x) => x.alto > 0 && x.alto < 44))
-  expect(chicos).toEqual([])
+      .filter((x) => x.alto > 0 && x.alto < 44))).toEqual([])
 })
 
 test('salir cierra la sesión', async ({ page }) => {
