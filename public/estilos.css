@@ -325,3 +325,28 @@ select.entrada { appearance: none; background-image: linear-gradient(45deg, tran
   .avatar-grande { width: 48px; height: 48px; font-size: 17px; }
   .titulo-ficha { font-size: 24px; }
 }
+/* ---------- configuracion ---------- */
+.config-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items: start; }
+.config-layout h1 { font-size: 26px; margin: 0 0 10px 12px; }
+.config-menu { display: flex; flex-direction: column; gap: 4px; }
+.config-menu a { display: flex; flex-direction: column; justify-content: center; min-height: 60px; padding: 10px 14px; border-radius: var(--radio); text-decoration: none; color: var(--texto); }
+.config-menu a:hover { background: var(--superficie-3); }
+.config-menu a[aria-current='page'] { background: var(--superficie); box-shadow: var(--sombra-menu); }
+.config-contenido, .config-campos > *, .config-prestacion > * { min-width: 0; }
+.config-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.config-pie { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.config-foto { width: 80px; height: 80px; border-radius: var(--pastilla); object-fit: cover; display: grid; place-items: center; font-size: 24px; flex-shrink: 0; }
+.config-registro { border-top: 1px solid var(--borde-suave); padding: 16px 0; display: flex; flex-direction: column; gap: 12px; }
+.config-resumen { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
+.config-registro details > .columna { padding-top: 16px; }
+.config-horarios { gap: 12px; }
+.config-dia { margin: 0; border: 1px solid var(--borde-suave); border-radius: var(--radio); padding: 8px 12px; min-width: 0; }
+.config-casilla { display: flex; align-items: center; gap: 10px; min-height: var(--control); font-weight: 600; cursor: pointer; }
+.config-casilla input { width: 24px; height: 24px; accent-color: var(--enlace); }
+.config-franja { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.config-franja label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; min-width: 0; flex: 1 1 100px; }
+.config-franja .entrada { width: 100%; min-width: 0; }
+.config-prestacion { display: grid; grid-template-columns: minmax(140px, 1fr) 125px 150px; gap: 12px; align-items: start; }
+.config-prestacion .interruptor { grid-column: 1 / -1; }
+.config-dia[data-config-apagado] > div, .config-dia[data-config-apagado] > button { display: none; }
+.config-contenido .entrada[type='file'] { max-width: 100%; }
