@@ -1,0 +1,35 @@
+// SiroConsultas v2 · repositorio madre.
+// Esta configuración es la instalación de DEMOSTRACIÓN: datos ficticios y todos los módulos.
+// Cada profesional tiene su propio repositorio y su propio entorno (Worker, base D1, archivos, respaldos y secretos).
+{
+  "name": "siroconsultas-v2",
+  "main": "src/index.tsx",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Estilos, letra y archivos estáticos. El Worker atiende todo lo demás.
+  "assets": { "directory": "./public" },
+  "vars": {
+    // 1 = demo con datos ficticios: habilita el ingreso de prueba y la página de componentes. En producción, 0.
+    "MODO_PRUEBA": "1",
+    // Nombre que ve la profesional: «SiroConsultas · <MARCA>».
+    "MARCA": "Demo",
+    // Módulos contratados, separados por coma. Pacientes e historia clínica están siempre.
+    // Disponibles: agenda, documentos, cobros, estadisticas.
+    "MODULOS": "agenda,documentos,cobros,estadisticas",
+    // Correos que pueden entrar con Google (la profesional). Separados por coma.
+    "CORREOS_PERMITIDOS": "demo@siroconsultas.test"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "siroconsultas-v2-demo",
+      // Base de la demo en Cloudflare (creada el 23/10/2026).
+      "database_id": "79e1cb39-91fb-413c-8ce2-0461314c6661",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    { "binding": "ARCHIVOS", "bucket_name": "siroconsultas-v2-demo-archivos" },
+    { "binding": "RESPALDOS", "bucket_name": "siroconsultas-v2-demo-respaldos" }
+  ]
+}

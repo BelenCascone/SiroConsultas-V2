@@ -1,0 +1,81 @@
+# Despliegue automático de la demo: cada vez que se une algo a main, primero TODAS las pruebas; solo si pasan,
+# migraciones de D1, datos ficticios (si la base está vacía), el Worker y una prueba de humo.
+# Necesita en GitHub (Settings > Secrets and variables > Actions):
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID y los secretos de la demo DEMO_SESION_SECRETO, DEMO_CLAVE_PRUEBA, DEMO_TOTP_CLAVE.
+# Mientras falten, este flujo avisa y no despliega (no queda en rojo). Ver docs/DESPLIEGUE.md.
+name: Desplegar
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: desplegar-demo
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    uses: ./.github/workflows/pruebas.yml
+
+  desplegar:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: ¿Está configurado Cloudflare?
+        id: cf
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::notice::Falta cargar CLOUDFLARE_API_TOKEN y CLOUDFLARE_ACCOUNT_ID en GitHub: no se despliega todavía (ver docs/DESPLIEGUE.md)."
+            echo "listo=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "listo=si" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.cf.outputs.listo == 'si'
+      - uses: actions/setup-node@v4
+        if: steps.cf.outputs.listo == 'si'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: steps.cf.outputs.listo == 'si'
+      # Las migraciones son aditivas y van antes del código que las usa.
+      - name: Migraciones de la base
+        if: steps.cf.outputs.listo == 'si'
+        run: npx wrangler d1 migrations apply DB --remote
+      - name: Datos ficticios (solo si la base está vacía)
+        if: steps.cf.outputs.listo == 'si'
+        run: |
+          N=$(npx wrangler d1 execute DB --remote --json --command "SELECT COUNT(*) n FROM pacientes" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s)[0].results[0].n))")
+          if [ "$N" = "0" ]; then npx wrangler d1 execute DB --remote --file=seed/seed.sql; else echo "La demo ya tiene datos ($N pacientes)"; fi
+      - name: Desplegar el Worker
+        if: steps.cf.outputs.listo == 'si'
+        run: |
+          set -o pipefail
+          npx wrangler deploy 2>&1 | tee deploy.log
+      - name: Secretos de la demo
+        if: steps.cf.outputs.listo == 'si'
+        env:
+          DEMO_SESION_SECRETO: ${{ secrets.DEMO_SESION_SECRETO }}
+          DEMO_CLAVE_PRUEBA: ${{ secrets.DEMO_CLAVE_PRUEBA }}
+          DEMO_TOTP_CLAVE: ${{ secrets.DEMO_TOTP_CLAVE }}
+        run: |
+          test -n "$DEMO_SESION_SECRETO" && test -n "$DEMO_CLAVE_PRUEBA" && test -n "$DEMO_TOTP_CLAVE" || { echo "::error::Faltan los secretos de la demo DEMO_SESION_SECRETO, DEMO_CLAVE_PRUEBA y DEMO_TOTP_CLAVE"; exit 1; }
+          printf '%s' "$DEMO_SESION_SECRETO" | npx wrangler secret put SESION_SECRETO
+          printf '%s' "$DEMO_CLAVE_PRUEBA" | npx wrangler secret put CLAVE_PRUEBA
+          printf '%s' "$DEMO_TOTP_CLAVE" | npx wrangler secret put TOTP_CLAVE
+      # Si la app no arranca o perdió una cabecera de seguridad, el despliegue queda en rojo.
+      - name: Prueba de humo
+        if: steps.cf.outputs.listo == 'si'
+        run: |
+          URL=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          test -n "$URL" || { echo "No se pudo leer la dirección del despliegue"; exit 1; }
+          bash scripts/humo.sh "$URL"

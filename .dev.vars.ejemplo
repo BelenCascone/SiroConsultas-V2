@@ -1,0 +1,6 @@
+# Copiá este archivo como .dev.vars (que NO se sube al repo) y completá los valores.
+# Para generar valores al azar: openssl rand -hex 32
+SESION_SECRETO=
+TOTP_CLAVE=
+CLAVE_PRUEBA=
+# GOOGLE_CLIENT_ID=   (opcional en la compu; sin él se entra solo con la clave de prueba)
