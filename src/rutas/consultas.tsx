@@ -1,3 +1,4 @@
+import { HerramientasDocumentos, DocumentosDeConsulta } from './documentos'
 // X2 · Consulta e historia clínica. P2 entra por /consultas/nueva?turno=<id>.
 import { Hono } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
@@ -103,7 +104,7 @@ async function editor(c: C, p: PacienteConsulta, consulta: Consulta | null, cont
       </Tarjeta>
       <div class="consulta-pie"><Boton type="submit">Guardar borrador</Boton></div>
     </form><aside class="columna">
-      <Tarjeta titulo="Para hacer en la consulta"><Boton abre="consulta-estudio">Adjuntar estudio</Boton><p class="ayuda">Certificado, pedido y receta: próximamente.</p>
+      <Tarjeta titulo="Para hacer en la consulta"><Boton abre="consulta-estudio">Adjuntar estudio</Boton><HerramientasDocumentos c={c} pacienteId={p.id} consultaId={contexto.id} enConsulta />
         <ul class="lista">{archivos.map(a => <li class="apilado"><a href={`/consultas/archivos/${a.id}`}>{a.nombre}</a><span class="ayuda">Huella SHA-256 guardada</span></li>)}</ul>
       </Tarjeta>
       {anterior && <Tarjeta titulo={`La vez anterior · ${fechaTexto(anterior.finalizada_en)}`}><p><strong>Evolución:</strong> {anterior.motivo}</p><p><strong>Indicaciones:</strong> {anterior.plan}</p><a href={`/consultas/${anterior.id}`}>Ver consulta anterior</a></Tarjeta>}
@@ -133,7 +134,7 @@ consultas.get('/pacientes/:id{[0-9]+}', async (c, next) => {
       c.env.DB.prepare('SELECT id, tipo, valor, unidad, fecha FROM mediciones WHERE paciente_id = ? AND anulado_en IS NULL ORDER BY fecha DESC, id DESC').bind(p.id).all<{ id: number; tipo: string; valor: string; unidad: string; fecha: string }>(),
       c.env.DB.prepare('SELECT COALESCE(SUM(saldo), 0) saldo FROM v_cobros WHERE paciente_id = ?').bind(p.id).first<{ saldo: number }>(),
     ])
-    const documentos = (await c.env.DB.prepare('SELECT consulta_id, tipo, anulado_en FROM documentos WHERE paciente_id = ?').bind(p.id).all<{ consulta_id: number; tipo: string; anulado_en: string | null }>()).results
+    const documentos = (await c.env.DB.prepare('SELECT id, consulta_id, tipo, anulado_en FROM documentos WHERE paciente_id = ?').bind(p.id).all<{ id: number; consulta_id: number; tipo: string; anulado_en: string | null }>()).results
     const modulos = leerInstalacion(c.env).modulos
     const tipos: Record<string, string> = { certificado: 'Certificado', pedido: 'Pedido de estudios', medicacion: 'Medicación' }
     return pagina(c, 'Historia clínica', <>
@@ -146,15 +147,16 @@ consultas.get('/pacientes/:id{[0-9]+}', async (c, next) => {
           <Boton href={`/pacientes/${p.id}/editar`}>Editar datos</Boton>
         </div>}
       </section>
+      <HerramientasDocumentos c={c} pacienteId={p.id} />
       <nav class="fila" aria-label="Secciones de la ficha">{[['resumen', 'Resumen'], ['historia', 'Historia clínica'], ['turnos', 'Turnos'], ['pagos', 'Pagos'], ['documentos', 'Documentos']].filter(([id]) => (id !== 'pagos' || modulos.has('cobros')) && (id !== 'turnos' || modulos.has('agenda')) && (id !== 'documentos' || modulos.has('documentos'))).map(([id, nombre]) => <Pastilla href={`/pacientes/${p.id}${id === 'resumen' ? '' : `?tab=${id}`}`} actual={id === 'historia'}>{nombre}</Pastilla>)}</nav>
       <div class="consulta-historia"><Tarjeta titulo="Consultas" accion={!p.baja_en ? <Boton href={rutaNueva(p.id, null)}>Empezar consulta sin turno</Boton> : undefined}>
-        <p class="ayuda">Exportar historia clínica: próximamente.</p>
+        <Boton href={`/pacientes/${p.id}/exportar`}>Exportar historia clínica</Boton>
         {!lista.results.length && <p class="suave">Todavía no tiene consultas.</p>}
         <ul class="lista">{lista.results.map(x => <li class="apilado">
           <a href={`/consultas/${x.id}`}><strong>{fechaTexto(x.finalizada_en ?? x.creado_en)} · {x.tipo === 'primera' ? 'Primera consulta' : 'Control'}</strong></a>
           <span class="fila"><Estado estado={x.estado === 'borrador' ? 'debe' : x.estado === 'descartada' ? 'gris' : 'atendido'} texto={x.estado === 'borrador' ? 'Borrador' : x.estado === 'descartada' ? 'Descartada' : 'Finalizada'} />{x.lugar && <span class="suave chico">{x.lugar}</span>}</span>
           <p class="consulta-texto">{x.estado === 'descartada' ? x.descarte_motivo : (x.plan ?? x.motivo ?? '').slice(0, 240)}</p>
-          {documentos.some(d => d.consulta_id === x.id) && <p class="ayuda">En esta consulta: {documentos.filter(d => d.consulta_id === x.id).map(d => `${tipos[d.tipo] ?? d.tipo}${d.anulado_en ? ' (anulado)' : ''}`).join(' · ')}</p>}
+          {modulos.has('documentos') && documentos.some(d => d.consulta_id === x.id) && <p class="ayuda fila">En esta consulta: {documentos.filter(d => d.consulta_id === x.id).map(d => <a data-modulo="documentos" href={`/documentos/${d.id}`}>{tipos[d.tipo] ?? d.tipo}{d.anulado_en ? ' (anulado)' : ''}</a>)}</p>}
         </li>)}</ul>
       </Tarjeta><div class="columna"><Tarjeta titulo="Mediciones">
         {!mediciones.results.length && <p class="suave">Sin mediciones.</p>}
@@ -337,6 +339,6 @@ consultas.get('/consultas/:id{[0-9]+}', seguro(async c => {
       {consulta.estado === 'finalizada' && !p.baja_en && <form method="post" action="/consultas/aclarar" class="columna"><Identidad contexto={contexto} firma={firma} version={consulta.version} /><Campo etiqueta="Aclaración" nombre="aclaracion" multilinea requerido /><Boton type="submit" variante="oscuro">Agregar aclaración</Boton></form>}
     </Tarjeta></div><aside class="columna"><Tarjeta titulo="Mediciones"><ul class="lista">{mediciones.results.map(m => <li>{MEDICIONES.find(t => t[0] === m.tipo)?.[1] ?? m.tipo}: {m.valor} {m.unidad}</li>)}</ul>
       {consulta.estado === 'borrador' && <dl class="datos">{Object.entries(datos.signos).map(([k, v]) => <><dt>{MEDICIONES.find(t => t[0] === k)?.[1] ?? k}</dt><dd>{v}</dd></>)}</dl>}
-    </Tarjeta><Tarjeta titulo="Estudios adjuntos"><ul class="lista">{archivos.results.map(a => <li class="apilado"><a href={`/consultas/archivos/${a.id}`}>{a.nombre}</a><span class="ayuda consulta-huella">SHA-256: {a.sha256}</span></li>)}</ul></Tarjeta></aside></div>
+    </Tarjeta>{consulta.estado === 'finalizada' && leerInstalacion(c.env).modulos.has('documentos') && <Tarjeta titulo="Documentos de la consulta"><DocumentosDeConsulta c={c} consultaId={consulta.id} /></Tarjeta>}<Tarjeta titulo="Estudios adjuntos"><ul class="lista">{archivos.results.map(a => <li class="apilado"><a href={`/consultas/archivos/${a.id}`}>{a.nombre}</a><span class="ayuda consulta-huella">SHA-256: {a.sha256}</span></li>)}</ul></Tarjeta></aside></div>
   </>)
 }))

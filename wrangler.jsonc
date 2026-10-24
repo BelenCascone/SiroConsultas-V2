@@ -7,7 +7,7 @@
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   // Estilos, letra y archivos estáticos. El Worker atiende todo lo demás.
-  "assets": { "directory": "./public" },
+  "assets": { "directory": "./public", "binding": "ASSETS" },
   "vars": {
     // 1 = demo con datos ficticios: habilita el ingreso de prueba y la página de componentes. En producción, 0.
     "MODO_PRUEBA": "1",

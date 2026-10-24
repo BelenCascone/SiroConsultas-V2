@@ -205,7 +205,10 @@
     for (const form of editor.querySelectorAll('[data-consulta-mutacion]')) form.addEventListener('submit', async (evento) => {
       if (evento.defaultPrevented) return
       evento.preventDefault()
-      if (await guardar(Number(formulario.elements.namedItem('version').value) === 0)) HTMLFormElement.prototype.submit.call(form)
+      if (await guardar(Number(formulario.elements.namedItem('version').value) === 0)) {
+        if (form.hasAttribute('data-documento-form')) form.dispatchEvent(new Event('documento-enviar'))
+        else HTMLFormElement.prototype.submit.call(form)
+      }
       else {
         form.dataset.enviando = '0'
         for (const b of form.querySelectorAll('[aria-disabled]')) b.removeAttribute('aria-disabled')
@@ -217,4 +220,57 @@
     })
   }
 
+  // ---------- documentos ----------
+  for (const form of document.querySelectorAll('[data-documento-form]')) {
+    let enviando = false
+    async function emitir() {
+      if (enviando) return
+      enviando = true
+      const error = form.querySelector('[data-documento-error]')
+      error.hidden = true
+      try {
+        const r = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+        const datos = await r.json().catch(() => ({}))
+        if (!r.ok) throw new Error(datos.error || 'No se pudo guardar el documento. Probá de nuevo.')
+        const resultado = form.parentElement.querySelector('[data-documento-resultado]')
+        resultado.querySelector('h3').textContent = `${datos.titulo} guardado en la ficha`
+        resultado.querySelector('[data-documento-ver]').href = datos.url
+        const archivo = resultado.querySelector('[data-documento-pdf]')
+        archivo.textContent = datos.titulo === 'Estudio' ? 'Descargar estudio' : 'Descargar PDF'
+        archivo.hidden = !datos.pdf
+        if (datos.pdf) archivo.href = datos.pdf
+        resultado.querySelector('[data-documento-wa]').href = datos.whatsapp
+        const correo = resultado.querySelector('[data-documento-correo]')
+        correo.hidden = !datos.correo
+        if (datos.correo) correo.href = datos.correo
+        // MisRx envía su propia receta; acá solo se confirma el registro clínico.
+        for (const e of resultado.querySelectorAll('h3:not(:first-child), p, [data-documento-wa], [data-documento-correo]')) {
+          if (!datos.pdf) e.hidden = true
+        }
+        form.hidden = true
+        resultado.hidden = false
+        const hechos = document.querySelector('[data-documentos-hechos]')
+        if (hechos) {
+          const enlace = document.createElement('a')
+          enlace.dataset.modulo = 'documentos'
+          enlace.href = datos.url
+          enlace.textContent = `${datos.titulo} guardado · ver`
+          enlace.target = '_blank'
+          enlace.rel = 'noopener'
+          hechos.append(enlace)
+        }
+      } catch (e) { error.textContent = e.message; error.hidden = false }
+      finally {
+        enviando = false
+        delete form.dataset.enviando
+        for (const boton of form.querySelectorAll('[type=submit]')) { boton.removeAttribute('aria-disabled'); boton.disabled = false }
+      }
+    }
+    form.addEventListener('documento-enviar', emitir)
+    if (!form.hasAttribute('data-consulta-mutacion')) form.addEventListener('submit', evento => {
+      if (evento.defaultPrevented) return
+      evento.preventDefault()
+      emitir()
+    })
+  }
 })()
