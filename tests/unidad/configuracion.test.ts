@@ -27,7 +27,7 @@ describe('Configuración: acceso y perfil', () => {
     expect((await navegador.pedir('/configuracion')).headers.get('location')).toBe('/configuracion/perfil')
     const html = await (await navegador.pedir('/configuracion/perfil')).text()
     for (const seccion of ['Tu perfil', 'Consultorios y horarios', 'Prestaciones', 'Obras sociales', 'Cobros y comprobantes', 'Recordatorios', 'Cuenta y seguridad']) expect(html).toContain(seccion)
-    for (const seccion of ['cobros', 'recordatorios', 'cuenta']) expect(await (await navegador.pedir(`/configuracion/${seccion}`)).text()).toContain('Próximamente')
+    for (const seccion of ['recordatorios', 'cuenta']) expect(await (await navegador.pedir(`/configuracion/${seccion}`)).text()).toContain('Próximamente')
     expect((await navegador.pedir('/configuracion/otra')).status).toBe(404)
   })
   it('guarda solo los campos de perfil y escapa lo ingresado, sin tocar permisos ni datos fiscales', async () => {

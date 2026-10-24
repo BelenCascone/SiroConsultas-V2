@@ -49,6 +49,8 @@ test('mover un turno a un hueco libre y avisarle', async ({ page }) => {
   await page.getByRole('dialog').getByRole('link', { name: 'Mover' }).click()
   await expect(page.getByText('Moviendo el turno de Tomás Ferreyra')).toBeVisible()
   // Hoy ya puede no quedar nada: se avanza de a un día hasta encontrar un hueco libre.
+  // El destino es otro día: el recorrido no depende de los huecos que todavía queden hoy.
+  await page.getByRole('link', { name: 'Siguiente' }).click()
   const hueco = page.locator('a.ag-hueco.verde').first()
   for (let i = 0; i < 7 && !(await hueco.isVisible()); i++) await page.getByRole('link', { name: 'Siguiente' }).click()
   await hueco.click()

@@ -12,12 +12,12 @@ type Perfil = { nombre: string | null; especialidad: string | null; matricula: s
 type Consultorio = { id: number; nombre: string; modalidad: string; direccion: string | null; como_llegar: string | null; activo: number }
 type Prestacion = { id: number; nombre: string; duracion_min: number; importe: number; activa: number }
 type Obra = { id: number; nombre: string; en_uso: number; pacientes: number }
-const SECCIONES = [
+export const SECCIONES = [
   ['perfil', 'Tu perfil', 'Nombre, matrícula, foto'],
   ['consultorios', 'Consultorios y horarios', 'Lugares y días de atención'],
   ['prestaciones', 'Prestaciones', 'Duración e importe'],
   ['obras', 'Obras sociales', 'Las que usás'],
-  ['cobros', 'Cobros y comprobantes', 'Próximamente'],
+  ['cobros', 'Cobros y comprobantes', 'Datos fiscales, transferencias y diseño'],
   ['recordatorios', 'Recordatorios', 'Próximamente'],
   ['cuenta', 'Cuenta y seguridad', 'Próximamente'],
 ]
@@ -140,7 +140,7 @@ async function pantalla(c: C, seccion: string, error?: string, form?: FormData, 
     contenido = <Tarjeta titulo={SECCIONES.find(s => s[0] === seccion)![1]}><p>Próximamente</p></Tarjeta>
   }
   return c.html(<Pagina titulo="Configuración" seccion="configuracion" inst={leerInstalacion(c.env)} email={c.get('email')!} nombre={prof.nombre} avisos={avisos}>
-    <div class="config-layout"><aside class="columna"><h1>Configuración</h1><nav class="config-menu" aria-label="Secciones de configuración">{SECCIONES.map(([id, titulo, sub]) => <a href={ruta(id)} aria-current={id === seccion ? 'page' : undefined}><strong>{titulo}</strong><span class="ayuda">{sub}</span></a>)}</nav></aside>
+    <div class="config-layout"><aside class="columna"><h1>Configuración</h1><nav class="config-menu" aria-label="Secciones de configuración">{SECCIONES.filter(([id]) => id !== 'cobros' || leerInstalacion(c.env).modulos.has('cobros')).map(([id, titulo, sub]) => <a data-modulo={id === 'cobros' ? 'cobros' : undefined} href={ruta(id)} aria-current={id === seccion ? 'page' : undefined}><strong>{titulo}</strong><span class="ayuda">{sub}</span></a>)}</nav></aside>
       <div class="columna config-contenido">{error && <Aviso tipo="error">{error}</Aviso>}{!error && c.req.query('guardado') === '1' && <Aviso tipo="ok">Guardaste los cambios.</Aviso>}{contenido}</div>
     </div>
   </Pagina>, error ? 400 : 200)

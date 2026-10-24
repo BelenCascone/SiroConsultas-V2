@@ -66,7 +66,9 @@ function leerFuente(bytes: Uint8Array) {
   const escalar = (p: number) => Math.round(v.getInt16(p) * 1000 / unidades)
   return { glifo, ancho, bbox: [36, 38, 40, 42].map(i => escalar(tablas.head + i)), ascenso: escalar(tablas.hhea + 4), descenso: escalar(tablas.hhea + 6) }
 }
-export function pdf(lineas: string[], fuente: Uint8Array): Uint8Array {
+export type ImagenPdf = { ancho: number; alto: number; canales: 1 | 3; datos: Uint8Array; filtro: 'DCTDecode' | 'FlateDecode' }
+export type DisenoPdf = { color?: string; logo?: ImagenPdf }
+export function pdf(lineas: string[], fuente: Uint8Array, diseno: DisenoPdf = {}): Uint8Array {
   const f = leerFuente(fuente), caracteres = new Map<string, { cid: number; glifo: number; ancho: number }>()
   const caracter = (c: string) => {
     if (!caracteres.has(c)) {
@@ -86,13 +88,16 @@ export function pdf(lineas: string[], fuente: Uint8Array): Uint8Array {
     }
     renglones.push(renglon)
   }
-  const paginas = Array.from({ length: Math.max(1, Math.ceil(renglones.length / 44)) }, (_, i) => renglones.slice(i * 44, (i + 1) * 44))
+  const porPagina = diseno.logo ? 39 : 44
+  const paginas = Array.from({ length: Math.max(1, Math.ceil(renglones.length / porPagina)) }, (_, i) => renglones.slice(i * porPagina, (i + 1) * porPagina))
+  const primeraPagina = diseno.logo ? 10 : 9
+  if (diseno.color && !/^#[0-9a-f]{6}$/i.test(diseno.color)) throw new ErrorDocumento('Revisá el color del PDF.')
   const hex = (n: number) => n.toString(16).padStart(4, '0')
   const unicode = (s: string) => Array.from({ length: s.length }, (_, i) => hex(s.charCodeAt(i))).join('')
   const objetos: Uint8Array[] = [], agregar = (s: string | Uint8Array) => objetos.push(typeof s === 'string' ? bytesTexto(s) : s)
   const stream = (b: Uint8Array, extra = '') => unir([bytesTexto(`<< /Length ${b.length} ${extra} >>\nstream\n`), b, bytesTexto('\nendstream')])
   agregar('<< /Type /Catalog /Pages 2 0 R >>')
-  agregar(`<< /Type /Pages /Count ${paginas.length} /Kids [${paginas.map((_, i) => `${9 + i * 2} 0 R`).join(' ')}] >>`)
+  agregar(`<< /Type /Pages /Count ${paginas.length} /Kids [${paginas.map((_, i) => `${primeraPagina + i * 2} 0 R`).join(' ')}] >>`)
   agregar('<< /Type /Font /Subtype /Type0 /BaseFont /DejaVuSans /Encoding /Identity-H /DescendantFonts [4 0 R] /ToUnicode 5 0 R >>')
   agregar(`<< /Type /Font /Subtype /CIDFontType2 /BaseFont /DejaVuSans /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor 6 0 R /CIDToGIDMap 7 0 R /W [1 [${[...caracteres.values()].map(c => c.ancho).join(' ')}]] >>`)
   const pares = [...caracteres].map(([c, m]) => `<${hex(m.cid)}> <${unicode(c)}>`)
@@ -103,10 +108,17 @@ export function pdf(lineas: string[], fuente: Uint8Array): Uint8Array {
   const gids = new Uint8Array((caracteres.size + 1) * 2), vista = new DataView(gids.buffer)
   for (const m of caracteres.values()) vista.setUint16(m.cid * 2, m.glifo)
   agregar(stream(gids)); agregar(stream(fuente, `/Length1 ${fuente.length}`))
+  if (diseno.logo) {
+    const im = diseno.logo
+    agregar(stream(im.datos, `/Type /XObject /Subtype /Image /Width ${im.ancho} /Height ${im.alto} /ColorSpace /Device${im.canales === 1 ? 'Gray' : 'RGB'} /BitsPerComponent 8 /Filter /${im.filtro}`))
+  }
   for (const pagina of paginas) {
     const idContenido = objetos.length + 2
-    agregar(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents ${idContenido} 0 R >>`)
-    const contenido = `BT /F1 11 Tf 16 TL 52 786 Td\n${pagina.map(l => `<${[...l].map(c => hex(caracter(c).cid)).join('')}> Tj T*`).join('\n')}\nET`
+    agregar(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> ${diseno.logo ? '/XObject << /Logo 9 0 R >>' : ''} >> /Contents ${idContenido} 0 R >>`)
+    const rgb = (diseno.color ?? '#02261e').slice(1).match(/../g)!.map(c => (parseInt(c,16)/255).toFixed(4)).join(' ')
+    const cabecera = diseno.color ? `q ${rgb} RG 2 w 52 800 m 543 800 l S Q\n` : ''
+    const logo = diseno.logo ? `q ${Math.min(100,60*diseno.logo.ancho/diseno.logo.alto)} 0 0 ${Math.min(60,100*diseno.logo.alto/diseno.logo.ancho)} 52 720 cm /Logo Do Q\n` : ''
+    const contenido = `${cabecera}${logo}BT /F1 11 Tf 16 TL 52 ${diseno.logo ? 696 : 786} Td\n${pagina.map(l => `<${[...l].map(c => hex(caracter(c).cid)).join('')}> Tj T*`).join('\n')}\nET`
     agregar(stream(bytesTexto(contenido)))
   }
   const partes = [bytesTexto('%PDF-1.7\n')], offsets = [0]
