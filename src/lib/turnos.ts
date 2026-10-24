@@ -18,7 +18,7 @@ type Intervalo = Franja & { quien?: string }
 export type DatosAgenda = {
   horarios: { consultorio_id: number; dia: number; desde: string; hasta: string }[]
   turnos: { id: number; fecha: string; hora: string; duracion_min: number; paciente: string }[]
-  propuestas: { fecha: string; hora: string; duracion_min: number }[]
+  propuestas: { id?: number; turno_id?: number | null; fecha: string; hora: string; duracion_min: number }[]
   bloqueos: { desde: string; hasta: string; hora_desde: string | null; hora_hasta: string | null; consultorio_id: number | null; motivo: string | null; detalle: string | null }[]
   feriados: { fecha: string; nombre: string; atiende: number | null }[]
 }
@@ -30,7 +30,7 @@ export async function cargarAgenda(db: D1Database, desde: string, hasta: string,
     db.prepare(
       `SELECT t.id, t.fecha, t.hora, t.duracion_min, p.nombre || ' ' || p.apellido paciente FROM turnos t JOIN pacientes p ON p.id = t.paciente_id
         WHERE t.fecha BETWEEN ?1 AND ?2 AND t.estado IN ('confirmado', 'solicitado', 'atendido')`).bind(desde, hasta).all(),
-    db.prepare("SELECT fecha, hora, duracion_min FROM propuestas WHERE estado = 'reservada' AND vence_en > ?3 AND fecha BETWEEN ?1 AND ?2").bind(desde, hasta, ahoraISO).all(),
+    db.prepare("SELECT id, turno_id, fecha, hora, duracion_min FROM propuestas WHERE estado = 'reservada' AND vence_en > ?3 AND fecha BETWEEN ?1 AND ?2").bind(desde, hasta, ahoraISO).all(),
     db.prepare('SELECT desde, hasta, hora_desde, hora_hasta, consultorio_id, motivo, detalle FROM bloqueos WHERE quitado_en IS NULL AND desde <= ?2 AND hasta >= ?1').bind(desde, hasta).all(),
     db.prepare('SELECT fecha, nombre, atiende FROM feriados WHERE fecha BETWEEN ?1 AND ?2').bind(desde, hasta).all(),
   ])

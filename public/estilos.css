@@ -463,6 +463,37 @@ a.e-ahora:hover { color: var(--sobre-oscuro); }
 [data-consulta-editor] textarea.entrada { min-height: 110px; }
 [data-consulta-editor] .campo { min-width: 0; }
 
+/* ---------- bloqueos y hoy ---------- */
+.centrado { text-align: center; align-items: center; }
+.fuerte { font-weight: 600; }
+.aviso.franja.ambar { background: var(--debe-fondo); color: var(--debe); }
+.boton.inactivo { background: var(--superficie-2); color: var(--texto-2); box-shadow: none; cursor: default; }
+.segmento { display: inline-flex; gap: 4px; padding: 4px; border-radius: var(--pastilla); background: var(--superficie-2); }
+.segmento .pastilla { box-shadow: none; background: transparent; cursor: pointer; font-weight: 600; min-width: 52px; justify-content: center; color: var(--texto-2); }
+.segmento .pastilla[aria-pressed='true'] { background: var(--oscuro); color: var(--sobre-oscuro); }
+.feriado-fila { flex-wrap: wrap; }
+.resolver-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.resolver { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 14px; border-radius: var(--radio-grande); background: var(--debe-fondo); }
+.resolver.hecho { background: var(--superficie-3); box-shadow: inset 0 0 0 1px var(--borde-suave); }
+.resolver-quien { flex: 1 1 220px; min-width: 0; }
+.resolver-panel { flex: 1 1 100%; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: var(--radio-grande); background: var(--superficie); }
+.resolver-panel .pastilla { cursor: pointer; font-variant-numeric: tabular-nums; font-weight: 600; background: var(--destacado-suave); box-shadow: inset 0 0 0 1px var(--destacado); }
+.resolver-panel .pastilla[aria-pressed='true'] { background: var(--oscuro); color: var(--sobre-oscuro); box-shadow: none; }
+.hoy-grilla { align-items: start; }
+.ahora-nombre { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; }
+.para-resolver .pastilla { text-align: left; }
+.punto-tono { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--gris); }
+.punto-tono.pedido { background: var(--pedido); }
+.punto-tono.ausente { background: var(--ausente); }
+.punto-tono.debe { background: var(--debe); }
+.punto-tono.primera { background: var(--primera); }
+.lista li.en-curso { background: var(--destacado-suave); border-radius: var(--radio); padding-left: 8px; padding-right: 8px; }
+.control-vencido { color: var(--ausente); font-weight: 600; }
+@media (max-width: 720px) {
+  .resolver-panel { padding: 12px; }
+  .feriado-fila form { width: 100%; justify-content: space-between; }
+}
+
 /* ---------- documentos ---------- */
 .documentos-herramientas { gap: 12px; }
 .documentos-herramientas > .fila { flex-wrap: wrap; }

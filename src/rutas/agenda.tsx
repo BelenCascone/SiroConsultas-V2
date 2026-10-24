@@ -9,7 +9,7 @@ import { registrar } from '../lib/sesion'
 import { enlaceWhatsapp } from '../lib/pacientes'
 import { PASO_MIN, aHora, aMinutos, cargarAgenda, controlar, diaDe, huecos, type DatosAgenda, type Dia } from '../lib/turnos'
 import {
-  VISTAS, estadoMostrado, lunesDe, limitesDelTablero, nombreCorto, rangoDe, turnosDelRango, vecina, type TurnoAgenda, type Vista,
+  CLAVE_ESTADO, VISTAS, estadoMostrado, lunesDe, limitesDelTablero, moverTurno, nombreCorto, rangoDe, turnosDelRango, vecina, type TurnoAgenda, type Vista,
 } from '../lib/agenda'
 import { Pagina } from '../ui/pagina'
 import { Aviso, Boton, Estado, Tarjeta } from '../ui/componentes'
@@ -27,12 +27,15 @@ async function pagina(c: C, titulo: string, hijos: Child, status: 200 | 404 | 40
 }
 
 // ---------- Enlaces ----------
-type Q = { vista: Vista; fecha: string; consultorio: string; turno?: string; mover?: string; destino?: string }
+type Q = { vista: Vista; fecha: string; consultorio: string; turno?: string; mover?: string; destino?: string; volver?: string }
 const url = (q: Partial<Q>) => {
   const p = new URLSearchParams()
   for (const [k, v] of Object.entries(q)) if (v) p.set(k, v)
   return `/agenda?${p}`
 }
+/** A dónde se puede volver después de una acción: la agenda, Hoy o la lista de un bloqueo (nunca un sitio de afuera). */
+export const volverValido = (v: unknown, otro = '/agenda') =>
+  typeof v === 'string' && (v === '/' || v.startsWith('/agenda') || /^\/bloqueos\/\d+(\?[\w=&%,.:-]*)?$/.test(v)) ? v : otro
 const entero = (v: unknown) => (typeof v === 'string' && /^\d{1,9}$/.test(v) ? Number(v) : 0)
 
 type Consultorio = { id: number; nombre: string; modalidad: string }
@@ -79,7 +82,8 @@ agenda.get('/agenda', async (c) => {
   const filtro = consultorios.find((x) => x.id === entero(q.consultorio))
   const elegidos = filtro ? [filtro] : consultorios
   const consultorio = filtro ? String(filtro.id) : 'todos'
-  const base: Q = { vista, fecha, consultorio }
+  const volver = q.volver ? volverValido(q.volver, '') : ''
+  const base: Q = { vista, fecha, consultorio, volver }
 
   const { desde, hasta } = rangoDe(vista, fecha)
   const [datos, todosLosTurnos] = await Promise.all([cargarAgenda(db, desde, hasta, ahoraISO()), turnosDelRango(db, desde, hasta)])
@@ -134,7 +138,7 @@ agenda.get('/agenda', async (c) => {
       {mueve && (
         <div class="aviso franja">
           <span>Moviendo el turno de {mueve.nombre} {mueve.apellido} · tenía {cuandoDe(mueve.fecha, mueve.hora)}. Tocá un hueco libre (en verde) de esta semana o de otra.</span>
-          <a class="boton borde" href={url({ ...base })}>No mover</a>
+          <a class="boton borde" href={volver || url({ ...base })}>No mover</a>
         </div>
       )}
       {moviendo && !mueve && <Aviso tipo="ambar">Ese turno ya no se puede mover.</Aviso>}
@@ -343,8 +347,6 @@ function VentanaAbierta({ id, titulo, sub, volver, children }: { id: string; tit
   )
 }
 
-const CLAVE_ESTADO: Record<string, string> = { atendido: 'atendido', ausente: 'ausente', cancelado: 'cancelado', solicitado: 'solicitado', ahora: 'primera', confirmo: 'confirmado', no_puede: 'debe', pendiente: 'debe', sin_respuesta: 'sin_respuesta' }
-
 function VentanaTurno({ t, hoy, ahoraMin, base }: { t: Detalle; hoy: string; ahoraMin: number; base: Q }) {
   const e = estadoMostrado(t, hoy, ahoraMin)
   const volver = url(base)
@@ -404,7 +406,7 @@ function VentanaMover({ t, destino, consultorios, base, datos, hoy, ahoraMin }: 
       {[...control.errores, ...control.avisos.map((a) => a.texto)].map((m) => <Aviso tipo="error">{m}</Aviso>)}
       <p class="suave chico">Después te dejamos el mensaje listo para avisarle por WhatsApp con el nuevo día y hora.</p>
       <div class="ventana-pie entre">
-        <a class="boton texto" href={url(base)}>No mover</a>
+        <a class="boton texto" href={base.volver || url(base)}>No mover</a>
         <div class="fila">
           <Boton href={seguir} variante="borde">Elegir otro hueco</Boton>
           {libre && (
@@ -412,6 +414,7 @@ function VentanaMover({ t, destino, consultorios, base, datos, hoy, ahoraMin }: 
               <input type="hidden" name="consultorio" value={destino.consultorio_id} />
               <input type="hidden" name="fecha" value={destino.fecha} />
               <input type="hidden" name="hora" value={destino.hora} />
+              {base.volver && <input type="hidden" name="volver" value={base.volver} />}
               <Boton type="submit" variante="oscuro">Mover y avisar</Boton>
             </form>
           )}
@@ -422,8 +425,6 @@ function VentanaMover({ t, destino, consultorios, base, datos, hoy, ahoraMin }: 
 }
 
 // ---------- Acciones sobre un turno ----------
-const volverA = (v: unknown) => (typeof v === 'string' && v.startsWith('/agenda') ? v : '/agenda')
-
 agenda.post('/turnos/:id{[0-9]+}/atender', async (c) => {
   const id = Number(c.req.param('id'))
   const { fecha: hoy } = ahoraAR()
@@ -441,16 +442,19 @@ agenda.post('/turnos/:id{[0-9]+}/ausente', async (c) => {
   const r = await c.env.DB.prepare("UPDATE turnos SET estado = 'ausente', cerrado_en = ?, actualizado_en = ? WHERE id = ? AND estado = 'confirmado' AND fecha <= ?")
     .bind(ahoraISO(), ahoraISO(), id, hoy).run()
   if (r.meta.changes) await registrar(c, 'turno_ausente', `turno:${id}`, c.get('email'))
-  return c.redirect(volverA(f.volver))
+  const volver = volverValido(f.volver)
+  return c.redirect(volver === '/' ? `/?ausente=${id}` : volver)
 })
 
 agenda.post('/turnos/:id{[0-9]+}/cancelar', async (c) => {
   const id = Number(c.req.param('id'))
+  const volver = volverValido((await c.req.parseBody()).volver, '')
   const r = await c.env.DB.prepare("UPDATE turnos SET estado = 'cancelado', cancelado_por = 'profesional', cerrado_en = ?, actualizado_en = ? WHERE id = ? AND estado = 'confirmado'")
     .bind(ahoraISO(), ahoraISO(), id).run()
   if (!r.meta.changes) return c.redirect('/agenda')
+  await c.env.DB.prepare("UPDATE propuestas SET estado = 'liberada' WHERE turno_id = ? AND estado = 'reservada'").bind(id).run()
   await registrar(c, 'turno_cancelado', `turno:${id}`, c.get('email'))
-  return c.redirect(`/turnos/${id}/aviso?que=cancelado`)
+  return c.redirect(`/turnos/${id}/aviso?${new URLSearchParams({ que: 'cancelado', ...(volver && { volver }) })}`)
 })
 
 agenda.post('/turnos/:id{[0-9]+}/mover', async (c) => {
@@ -459,25 +463,13 @@ agenda.post('/turnos/:id{[0-9]+}/mover', async (c) => {
   const t = await leerDetalle(c.env.DB, id)
   const cid = entero(f.consultorio), fecha = typeof f.fecha === 'string' ? f.fecha : '', hora = typeof f.hora === 'string' ? f.hora : ''
   const { fecha: hoy, hora: ahora } = ahoraAR()
-  const volver = (mensaje: string) => c.redirect(`/agenda?${new URLSearchParams({ mover: String(id), error: mensaje })}`)
-  if (!t || t.estado !== 'confirmado' || !cid || !esFecha(fecha) || !esHora(hora)) return volver('No se pudo mover el turno.')
-  const lugar = await c.env.DB.prepare('SELECT id, modalidad FROM consultorios WHERE id = ? AND activo = 1').bind(cid).first<{ id: number; modalidad: string }>()
-  if (!lugar) return volver('Ese consultorio ya no está disponible.')
-  const datos = await cargarAgenda(c.env.DB, fecha, fecha, ahoraISO())
-  const control = controlar(diaDe({ ...datos, turnos: datos.turnos.filter((x) => x.id !== id) }, cid, fecha), hora, t.duracion_min, hoy, aMinutos(ahora))
-  if (control.errores.length || control.avisos.length) return volver([...control.errores, ...control.avisos.map((a) => a.texto)].join(' '))
-  // Si alguien ocupó el hueco en el medio, la base no deja pisarlo.
-  const minutos = '(CAST(substr(x.hora, 1, 2) AS INTEGER) * 60 + CAST(substr(x.hora, 4, 2) AS INTEGER))'
-  const ini = aMinutos(hora)
-  const r = await c.env.DB.prepare(
-    `UPDATE turnos SET consultorio_id = ?, fecha = ?, hora = ?, modalidad = ?, confirmacion = NULL, confirmacion_cambios = 0, confirmacion_en = NULL,
-            recordatorio_whatsapp_en = NULL, recordatorio_correo_en = NULL, actualizado_en = ?
-      WHERE id = ? AND estado = 'confirmado' AND NOT EXISTS (SELECT 1 FROM turnos x WHERE x.id <> turnos.id AND x.fecha = ? AND x.estado IN ('confirmado', 'solicitado', 'atendido')
-        AND ${minutos} < ? AND ? < ${minutos} + x.duracion_min)`)
-    .bind(cid, fecha, hora, lugar.modalidad, ahoraISO(), id, fecha, ini + t.duracion_min, ini).run()
-  if (!r.meta.changes) return volver('Ese horario se ocupó recién. Elegí otro.')
+  const volver = volverValido(f.volver, '')
+  const fallo = (mensaje: string) => c.redirect(`/agenda?${new URLSearchParams({ mover: String(id), error: mensaje, ...(volver && { volver }) })}`)
+  if (!t || t.estado !== 'confirmado' || !cid || !esFecha(fecha) || !esHora(hora)) return fallo('No se pudo mover el turno.')
+  const r = await moverTurno(c.env.DB, t, { consultorio_id: cid, fecha, hora }, hoy, aMinutos(ahora))
+  if (r.error) return fallo(r.error)
   await registrar(c, 'turno_movido', `turno:${id} · ${t.fecha} ${t.hora} → ${fecha} ${hora}`, c.get('email'))
-  return c.redirect(`/turnos/${id}/aviso?${new URLSearchParams({ que: 'movido', antes: `${t.fecha} ${t.hora}` })}`)
+  return c.redirect(`/turnos/${id}/aviso?${new URLSearchParams({ que: 'movido', antes: `${t.fecha} ${t.hora}`, ...(volver && { volver }) })}`)
 })
 
 // ---------- Listo: el mensaje para avisarle ----------
@@ -485,17 +477,19 @@ agenda.get('/turnos/:id{[0-9]+}/aviso', async (c) => {
   const t = await leerDetalle(c.env.DB, Number(c.req.param('id')))
   if (!t) return c.notFound()
   const movido = c.req.query('que') === 'movido'
-  if (!movido && t.estado !== 'cancelado') return c.redirect('/agenda')
+  if (!movido && t.estado !== 'cancelado') return c.redirect(volverValido(c.req.query('volver')))
   const antes = (c.req.query('antes') ?? '').split(' ')
   const viejo = esFecha(antes[0]) && esHora(antes[1] ?? '') ? cuandoDe(antes[0], antes[1]) : null
   const prof = await datosProfesional(c)
   const firma = prof.nombre ? ` ${prof.nombre}.` : ''
+  const vuelta = volverValido(c.req.query('volver'))
+  const aBloqueo = vuelta.startsWith('/bloqueos/')
   const mensaje = movido
     ? `Hola ${t.nombre}, ${viejo ? `tu turno del ${viejo} ` : 'tu turno '}pasó al ${cuandoDe(t.fecha, t.hora)} en ${t.consultorio}${t.direccion ? ` (${t.direccion})` : ''}.${firma} ¡Te esperamos!`
     : `Hola ${t.nombre}, tuvimos que cancelar tu turno del ${cuandoDe(t.fecha, t.hora)}.${firma} Escribinos y buscamos otro horario.`
   return pagina(c, movido ? 'Turno movido' : 'Turno cancelado', (
     <div class="angosto columna">
-      <a class="volver" href="/agenda"><Volver />Agenda</a>
+      <a class="volver" href={vuelta}><Volver />{aBloqueo ? 'Bloqueo' : vuelta === '/' ? 'Hoy' : 'Agenda'}</a>
       <h1>{movido ? 'Turno movido' : 'Turno cancelado'}</h1>
       <Tarjeta titulo={`${t.nombre} ${t.apellido}`}>
         <p>{movido ? <>Ahora es el <strong>{cuandoDe(t.fecha, t.hora)}</strong> · {t.consultorio}.</> : <>Se canceló el turno del {cuandoDe(t.fecha, t.hora)}.</>}</p>
@@ -503,7 +497,7 @@ agenda.get('/turnos/:id{[0-9]+}/aviso', async (c) => {
         <div class="ventana-pie entre">
           <Boton href={`/turnos/nuevo?paciente=${t.paciente_id}`} variante="borde">{movido ? 'Darle otro turno' : 'Darle un turno nuevo'}</Boton>
           <div class="fila">
-            <Boton href="/agenda" variante="borde">Volver a la agenda</Boton>
+            <Boton href={vuelta} variante="borde">{aBloqueo ? 'Seguir con los turnos' : vuelta === '/' ? 'Volver a Hoy' : 'Volver a la agenda'}</Boton>
             <Boton href={enlaceWhatsapp(t.celular, mensaje)} variante="destacado">Avisarle por WhatsApp</Boton>
           </div>
         </div>

@@ -15,7 +15,7 @@ export function ahoraAR(ms = Date.now()) {
 /** Marca de tiempo UTC en ISO sin milisegundos, igual que la base. */
 export const ahoraISO = (ms = Date.now()) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z')
 
-export const esFecha = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && isoDe(aUTC(s)) === s
+export const esFecha = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(aUTC(s).getTime()) && isoDe(aUTC(s)) === s
 export const esHora = (s: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(s)
 export const sumarDias = (iso: string, n: number) => { const d = aUTC(iso); d.setUTCDate(d.getUTCDate() + n); return isoDe(d) }
 
