@@ -359,6 +359,9 @@ describe('Hoy', () => {
 
   it('muestra el turno que sigue con Atender y No vino, y la lista del día', async () => {
     const e = await conSesion()
+    // Los turnos de hoy de los datos ficticios (9:30, 10:30, 11:30) se cierran como ausentes para que el resultado
+    // no dependa de la hora en que corre la prueba: el único abierto es el de las 23:30.
+    e.db.prepare("UPDATE turnos SET estado = 'ausente', cerrado_en = '2026-01-01T00:00:00Z' WHERE fecha = ? AND estado = 'confirmado'").run(HOY)
     const t = turno(e.db, 2, HOY, '23:30')
     const html = await (await e.navegador.pedir('/')).text()
     expect(html).toContain('aria-label="Ahora"')
