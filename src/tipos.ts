@@ -2,6 +2,7 @@ import type { Context } from 'hono'
 
 /** Lo que la instalación le da al Worker: base, archivos, variables y secretos. */
 export type Bindings = {
+  ASSETS?: Fetcher
   DB: D1Database
   ARCHIVOS: R2Bucket
   RESPALDOS: R2Bucket

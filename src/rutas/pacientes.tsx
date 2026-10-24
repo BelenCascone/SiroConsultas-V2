@@ -1,3 +1,4 @@
+import { HerramientasDocumentos } from './documentos'
 // P1 · Pacientes: lista con buscador, filtros y orden; alta rápida con DNI; ficha con sus pestañas; editar; dar de baja y reactivar.
 // Maquetas: docs/pantallas/Pacientes.dc.html y Ficha.dc.html · docs/DISENO_APROBADO.md, secciones 9 y 10.
 import { Hono } from 'hono'
@@ -355,6 +356,8 @@ pacientes.get('/pacientes/:id{[0-9]+}', async (c) => {
         </div>
       )}
     </section>
+
+    {activo && <HerramientasDocumentos c={c} pacienteId={id} />}
 
     <nav class="fila" aria-label="Secciones de la ficha">
       {pestanas.map((t) => <Pastilla href={`/pacientes/${id}${t.id === 'resumen' ? '' : `?tab=${t.id}`}`} actual={t.id === tab}>{t.texto}</Pastilla>)}

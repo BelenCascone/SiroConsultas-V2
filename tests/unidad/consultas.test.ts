@@ -240,7 +240,7 @@ describe('Estudios privados en R2 e historia clínica', () => {
     const html = await (await t.navegador.pedir('/pacientes/1?tab=historia')).text()
     expect(html).toContain('href="/consultas/10001"')
     expect(html).toContain('Empezar consulta sin turno')
-    expect(html).toContain('En esta consulta: Pedido de estudios')
+    expect(html.replace(/<[^>]*>/g, '')).toContain('En esta consulta: Pedido de estudios')
     expect(html).toContain('Registrar medición')
     expect(await (await t.navegador.pedir('/pacientes/1')).text()).toContain('Últimas consultas')
     expect(await (await t.navegador.pedir('/consultas/10001')).text()).toContain(f.plan)

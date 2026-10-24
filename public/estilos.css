@@ -462,3 +462,12 @@ a.e-ahora:hover { color: var(--sobre-oscuro); }
 [data-consulta-error][hidden], [data-consulta-plan-anterior][hidden] { display: none; }
 [data-consulta-editor] textarea.entrada { min-height: 110px; }
 [data-consulta-editor] .campo { min-width: 0; }
+
+/* ---------- documentos ---------- */
+.documentos-herramientas { gap: 12px; }
+.documentos-herramientas > .fila { flex-wrap: wrap; }
+.documentos-pie { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+.documentos-texto { white-space: pre-wrap; overflow-wrap: anywhere; }
+[data-documento-form][hidden], [data-documento-resultado][hidden], [data-documento-resultado] [hidden], [data-documento-error][hidden] { display: none; }
+[data-documento-form] textarea { width: 100%; resize: vertical; }
+[data-documento-resultado] { gap: 16px; }
