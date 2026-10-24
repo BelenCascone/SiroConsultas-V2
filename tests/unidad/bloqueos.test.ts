@@ -1,5 +1,5 @@
 // P3 · Bloqueos de agenda, feriados con «¿Atendés?» y Hoy completo, contra la app real.
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { entorno, CLAVE_PRUEBA } from './ayuda'
 import { baseNueva } from '../base/base'
 import { ahoraAR, sumarDias } from '../../src/lib/fechas'
@@ -29,6 +29,8 @@ describe('Armar el bloqueo', () => {
     expect(leerBloqueo({ ...f, hasta: '2030-01-06' }, '2030-01-01').error).toContain('antes')
     expect(leerBloqueo(f, '2030-02-01').error).toContain('ya pasaron')
     expect(leerBloqueo({ ...f, desde: 'x' }, '2030-01-01').error).toContain('Elegí')
+    expect(leerBloqueo({ ...f, desde: '2030-99-99' }, '2030-01-01').error).toContain('Elegí')
+    expect(leerBloqueo({ ...f, motivo: '__proto__' }, '2030-01-01').error).toContain('motivo')
     expect(leerBloqueo({ ...f, hasta: '2032-01-01' }, '2030-01-01').error).toContain('un año')
     expect(leerBloqueo({ ...f, motivo: 'viaje' }, '2030-01-01').error).toContain('motivo')
     expect(leerBloqueo({ ...f, alcance: 'franja', hora_desde: '15:00', hora_hasta: '13:00' }, '2030-01-01').error).toContain('después')
@@ -209,6 +211,25 @@ describe('Bloquear y resolver turno por turno', () => {
     const props=todos(e.db,'SELECT fecha,hora FROM propuestas WHERE turno_id=? ORDER BY fecha',tid)
     expect(props).toHaveLength(3)
     expect(props[0]).toEqual({fecha:lunes,hora:'11:00'})
+  })
+
+  it('permite resolver una propuesta cuando el paciente contesta después de la fecha bloqueada',async()=>{
+    const e=await conSesion(),lunes=proximo(1),tid=turno(e.db,2,lunes,'17:00')
+    const {id}=await bloquear(e)
+    await e.navegador.pedir(`/bloqueos/${id}/proponer`,{form:{turno:String(tid)}})
+    const propuesta=todos(e.db,'SELECT id,fecha FROM propuestas WHERE turno_id=? ORDER BY fecha',tid)[0]
+    vi.useFakeTimers({toFake:['Date']})
+    try {
+      vi.setSystemTime(new Date(`${sumarDias(lunes,1)}T12:00:00-03:00`))
+      await e.navegador.pedir('/ingresar/prueba',{form:{clave:CLAVE_PRUEBA}})
+      const lista=await(await e.navegador.pedir(`/bloqueos/${id}`)).text()
+      expect(lista).toContain('Eligió el')
+      expect(await(await e.navegador.pedir('/')).text()).toContain(`href="/bloqueos/${id}"`)
+      expect(await(await e.navegador.pedir('/bloqueos/nuevo')).text()).toContain(`action="/bloqueos/${id}/quitar"`)
+      const r=await e.navegador.pedir(`/bloqueos/${id}/elegir`,{form:{turno:String(tid),propuesta:String(propuesta.id)}})
+      expect(r.headers.get('location')).toContain(`/turnos/${tid}/aviso?que=movido`)
+      expect(todos(e.db,'SELECT fecha FROM turnos WHERE id=?',tid)[0].fecha).toBe(propuesta.fecha)
+    } finally {vi.useRealTimers()}
   })
 
   it('si los horarios vencen, el turno vuelve a quedar por resolver', async () => {

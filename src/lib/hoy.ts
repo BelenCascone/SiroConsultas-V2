@@ -2,7 +2,7 @@
 import { DIAS, sumarDias } from './fechas'
 import { lunesDe } from './agenda'
 import { aMinutos } from './turnos'
-import { turnosEnBloqueo, cuandoCorto, diaCorto, rangoCorto } from './bloqueos'
+import { TURNOS_PENDIENTES_EN_BLOQUEO, turnosEnBloqueo, cuandoCorto, diaCorto, rangoCorto } from './bloqueos'
 
 export type TurnoHoy = {
   id: number; fecha: string; hora: string; duracion_min: number; estado: string; confirmacion: string | null; paciente_id: number
@@ -68,7 +68,7 @@ export async function paraResolver(db: D1Database, hoy: string, ahoraMin: number
                  WHERE t.estado = 'confirmado' AND t.confirmacion = 'no_puedo' AND t.fecha >= ? ORDER BY t.fecha, t.hora LIMIT 3`).bind(hoy).all<T>(),
     db.prepare(`SELECT t.id, t.fecha, t.hora, t.duracion_min FROM turnos t WHERE t.estado = 'confirmado' AND t.fecha <= ? ORDER BY t.fecha, t.hora`).bind(hoy)
       .all<{ id: number; fecha: string; hora: string; duracion_min: number }>(),
-    db.prepare('SELECT id, desde, hasta, hora_desde, hora_hasta, consultorio_id, motivo FROM bloqueos WHERE quitado_en IS NULL AND hasta >= ? ORDER BY desde LIMIT 10').bind(hoy)
+    db.prepare(`SELECT id, desde, hasta, hora_desde, hora_hasta, consultorio_id, motivo FROM bloqueos b WHERE quitado_en IS NULL AND (hasta >= ? OR ${TURNOS_PENDIENTES_EN_BLOQUEO}) ORDER BY desde LIMIT 10`).bind(hoy)
       .all<{ id: number; desde: string; hasta: string; hora_desde: string | null; hora_hasta: string | null; consultorio_id: number | null; motivo: string | null }>(),
     db.prepare('SELECT fecha FROM feriados WHERE atiende IS NULL AND fecha BETWEEN ? AND ? ORDER BY fecha LIMIT 2').bind(hoy, sumarDias(hoy, 30)).all<{ fecha: string }>(),
   ])
@@ -79,7 +79,7 @@ export async function paraResolver(db: D1Database, hoy: string, ahoraMin: number
   const pasados = (sinResolver.results ?? []).filter((t) => t.fecha < hoy || aMinutos(t.hora) + t.duracion_min <= ahoraMin)
   if (pasados.length) salida.push({ texto: pasados.length === 1 ? '1 turno sin resolver' : `${pasados.length} turnos sin resolver`, href: `/agenda?vista=dia&fecha=${pasados[0].fecha}`, tono: 'debe' })
   for (const b of bloqueos.results ?? []) {
-    const n = (await turnosEnBloqueo(db, b, hoy, ahoraMin)).length
+    const n = (await turnosEnBloqueo(db, b)).length
     if (n) salida.push({ texto: `Bloqueo del ${rangoCorto(b.desde, b.hasta)}: ${n === 1 ? 'falta resolver 1 turno' : `faltan resolver ${n} turnos`}`, href: `/bloqueos/${b.id}`, tono: 'debe' })
   }
   for (const f of feriados.results ?? []) {

@@ -10,7 +10,7 @@ import { enlaceWhatsapp } from '../lib/pacientes'
 import { aMinutos, cargarAgenda, MOTIVOS_BLOQUEO } from '../lib/turnos'
 import { moverTurno } from '../lib/agenda'
 import {
-  MOTIVO_TEXTO, cuandoCorto, leerBloqueo, mensajeParaElegir, rangoCorto, sugerirHorarios, turnosEnBloqueo,
+  MOTIVO_TEXTO, TURNOS_PENDIENTES_EN_BLOQUEO, cuandoCorto, leerBloqueo, mensajeParaElegir, rangoCorto, sugerirHorarios, turnosEnBloqueo,
   type DatosBloqueo, type Horario, type TurnoEnBloqueo,
 } from '../lib/bloqueos'
 import { Pagina } from '../ui/pagina'
@@ -51,26 +51,26 @@ async function descripcion(db: D1Database, b: DatosBloqueo) {
 // ---------- Armar el bloqueo ----------
 bloqueos.get('/bloqueos/nuevo', async (c) => {
   const q = c.req.query()
-  const { fecha: hoy, hora: ahora } = ahoraAR()
+  const { fecha: hoy } = ahoraAR()
   const db = c.env.DB
   const desde = esFecha(q.desde ?? '') ? q.desde! : hoy
   const hasta = esFecha(q.hasta ?? '') && q.hasta! >= desde ? q.hasta! : desde
   const alcance = q.alcance === 'franja' ? 'franja' : 'dia'
   const hora_desde = esHora(q.hora_desde ?? '') ? q.hora_desde! : '13:00'
   const hora_hasta = esHora(q.hora_hasta ?? '') ? q.hora_hasta! : '15:00'
-  const motivo = q.motivo && q.motivo in MOTIVOS_BLOQUEO ? q.motivo : ''
+  const motivo = q.motivo && Object.hasOwn(MOTIVOS_BLOQUEO,q.motivo) ? q.motivo : ''
   const consultorios = (await db.prepare('SELECT id, nombre FROM consultorios WHERE activo = 1 ORDER BY orden, nombre').all<{ id: number; nombre: string }>()).results ?? []
   const consultorio = consultorios.some((x) => String(x.id) === q.consultorio) ? q.consultorio! : 'todos'
 
   const armado = leerBloqueo({ desde, hasta, alcance, hora_desde, hora_hasta, consultorio, motivo }, hoy)
-  const adentro = armado.datos ? (await turnosEnBloqueo(db, armado.datos, hoy, aMinutos(ahora))).length : 0
+  const adentro = armado.datos ? (await turnosEnBloqueo(db, armado.datos)).length : 0
   const donde = alcance === 'franja' ? 'en esas horas' : 'en esos días'
 
   const vigentes = (await db.prepare(
     `SELECT b.id, b.desde, b.hasta, b.hora_desde, b.hora_hasta, b.consultorio_id, b.motivo, b.quitado_en FROM bloqueos b
-      WHERE b.quitado_en IS NULL AND b.hasta >= ? ORDER BY b.desde, b.id LIMIT 30`).bind(hoy).all<Fila>()).results ?? []
+      WHERE b.quitado_en IS NULL AND (b.hasta >= ? OR ${TURNOS_PENDIENTES_EN_BLOQUEO}) ORDER BY b.desde, b.id LIMIT 30`).bind(hoy).all<Fila>()).results ?? []
   const vigentesConDatos = await Promise.all(vigentes.map(async (b) => ({
-    ...b, texto: await descripcion(db, b), faltan: (await turnosEnBloqueo(db, b, hoy, aMinutos(ahora))).length,
+    ...b, texto: await descripcion(db, b), faltan: (await turnosEnBloqueo(db, b)).length,
   })))
 
   const feriados = (await db.prepare(
@@ -218,7 +218,7 @@ bloqueos.get('/bloqueos/:id{[0-9]+}', async (c) => {
   const ahoraMin = aMinutos(ahora)
   const volver = `/bloqueos/${id}`
 
-  const turnos = b.quitado_en ? [] : await turnosEnBloqueo(db, b, hoy, ahoraMin)
+  const turnos = b.quitado_en ? [] : await turnosEnBloqueo(db, b)
   const propuestas = turnos.length
     ? ((await db.prepare("SELECT id, turno_id, fecha, hora FROM propuestas WHERE estado = 'reservada' AND vence_en > ? AND turno_id IS NOT NULL ORDER BY fecha, hora").bind(ahoraISO()).all<Propuesta>()).results ?? [])
     : []
@@ -343,8 +343,7 @@ bloqueos.get('/bloqueos/:id{[0-9]+}', async (c) => {
 async function turnoDelBloqueo(c: C, bloqueoId: number, turnoId: number) {
   const b = await leerFila(c.env.DB, bloqueoId)
   if (!b || b.quitado_en) return null
-  const { fecha: hoy, hora } = ahoraAR()
-  return (await turnosEnBloqueo(c.env.DB, b, hoy, aMinutos(hora))).find((t) => t.id === turnoId) ?? null
+  return (await turnosEnBloqueo(c.env.DB, b)).find((t) => t.id === turnoId) ?? null
 }
 
 bloqueos.post('/bloqueos/:id{[0-9]+}/mover', async (c) => {

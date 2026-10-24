@@ -29,7 +29,7 @@ export function leerBloqueo(f: Record<string, unknown>, hoy: string): { datos?: 
   const consultorio_id = texto('consultorio') === 'todos' || !texto('consultorio') ? null : numero(f.consultorio)
   if (consultorio_id === 0) return { error: 'Ese consultorio no existe.' }
   const motivo = texto('motivo')
-  if (motivo && !(motivo in MOTIVOS_BLOQUEO)) return { error: 'Ese motivo no existe.' }
+  if (motivo && !(Object.hasOwn(MOTIVOS_BLOQUEO,motivo))) return { error: 'Ese motivo no existe.' }
   return { datos: { desde, hasta, hora_desde, hora_hasta, consultorio_id, motivo: motivo || null } }
 }
 
@@ -38,17 +38,23 @@ export type TurnoEnBloqueo = {
   nombre: string; apellido: string; celular: string; prestacion: string | null; atencion: string
 }
 
-/** Turnos confirmados que quedan dentro de un bloqueo y todavía no pasaron. */
-export async function turnosEnBloqueo(db: D1Database, b: DatosBloqueo, hoy: string, ahoraMin: number): Promise<TurnoEnBloqueo[]> {
+/** Se conservan los pendientes aunque pase el bloqueo: el paciente puede contestar después. */
+export const TURNOS_PENDIENTES_EN_BLOQUEO = `EXISTS (SELECT 1 FROM turnos t WHERE t.estado='confirmado'
+  AND t.fecha BETWEEN b.desde AND b.hasta AND (b.consultorio_id IS NULL OR t.consultorio_id=b.consultorio_id)
+  AND (b.hora_desde IS NULL OR b.hora_hasta IS NULL OR (t.hora<b.hora_hasta
+    AND CAST(substr(t.hora,1,2) AS INTEGER)*60+CAST(substr(t.hora,4,2) AS INTEGER)+t.duracion_min>
+        CAST(substr(b.hora_desde,1,2) AS INTEGER)*60+CAST(substr(b.hora_desde,4,2) AS INTEGER))))`
+
+/** Turnos confirmados que siguen pendientes dentro del bloqueo. */
+export async function turnosEnBloqueo(db: D1Database, b: DatosBloqueo): Promise<TurnoEnBloqueo[]> {
   const r = await db.prepare(
     `SELECT t.id, t.fecha, t.hora, t.duracion_min, t.consultorio_id, co.nombre consultorio, p.nombre, p.apellido, p.celular, pr.nombre prestacion, t.atencion
        FROM turnos t JOIN pacientes p ON p.id = t.paciente_id JOIN consultorios co ON co.id = t.consultorio_id
        LEFT JOIN prestaciones pr ON pr.id = t.prestacion_id
-      WHERE t.estado = 'confirmado' AND t.fecha BETWEEN ? AND ? AND t.fecha >= ? AND (? IS NULL OR t.consultorio_id = ?)
-      ORDER BY t.fecha, t.hora`).bind(b.desde, b.hasta, hoy, b.consultorio_id, b.consultorio_id).all<TurnoEnBloqueo>()
+      WHERE t.estado = 'confirmado' AND t.fecha BETWEEN ? AND ? AND (? IS NULL OR t.consultorio_id = ?)
+      ORDER BY t.fecha, t.hora`).bind(b.desde, b.hasta, b.consultorio_id, b.consultorio_id).all<TurnoEnBloqueo>()
   return (r.results ?? []).filter((t) => {
     const ini = aMinutos(t.hora), fin = ini + t.duracion_min
-    if (t.fecha === hoy && fin <= ahoraMin) return false
     return !b.hora_desde || !b.hora_hasta || (ini < aMinutos(b.hora_hasta) && aMinutos(b.hora_desde) < fin)
   })
 }
