@@ -11,6 +11,7 @@ import { ingreso } from './rutas/ingreso'
 import { configuracion } from './rutas/configuracion'
 import { inicio, datosProfesional, avisosSinLeer } from './rutas/inicio'
 import { componentes } from './rutas/componentes'
+import { comprobantes } from './rutas/comprobantes'
 import { documentos } from './rutas/documentos'
 import { consultas } from './rutas/consultas'
 import { pacientes } from './rutas/pacientes'
@@ -85,6 +86,7 @@ app.route('/', pacientes)
 app.route('/', turnos)
 app.route('/', agenda)
 app.route('/', bloqueos)
+app.route('/', comprobantes)
 app.route('/', configuracion)
 
 // ---------- Secciones que se arman en las próximas etapas ----------

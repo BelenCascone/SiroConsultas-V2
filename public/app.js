@@ -273,4 +273,37 @@
       emitir()
     })
   }
+  // ---------- comprobantes ----------
+  for (const form of document.querySelectorAll('[data-comp-emitir]')) {
+    const otra = form.querySelector('[data-comp-otra]')
+    const actualizar = () => {
+      const mostrar = form.querySelector('[name=receptor]:checked')?.value === 'otra'
+      otra.hidden = !mostrar
+      for (const campo of otra.querySelectorAll('input,select')) { campo.disabled = !mostrar; campo.required = mostrar }
+    }
+    form.addEventListener('change', actualizar)
+    actualizar()
+  }
+  for (const form of document.querySelectorAll('[data-comp-config]')) {
+    const previa = form.querySelector('[data-comp-previa]'), logo = previa.querySelector('[data-comp-logo]')
+    const logoOriginal = logo.getAttribute('src')
+    const actualizar = () => {
+      const color = form.querySelector('[name=comprobante_color]:checked')?.dataset.compColor || 'teal'
+      for (const nombre of ['holly','teal','azul','violeta']) previa.classList.toggle(`comp-${nombre}`, nombre === color)
+      previa.querySelector('[data-comp-pie]').textContent = form.elements.namedItem('comprobante_pie').value
+      if (form.elements.namedItem('quitar_logo')?.checked) logo.hidden = true
+    }
+    form.addEventListener('input', actualizar)
+    const entrada = form.querySelector('[data-comp-logo-input]')
+    entrada.addEventListener('change', () => {
+      const archivo = entrada.files[0]
+      if (form.elements.namedItem('quitar_logo')) form.elements.namedItem('quitar_logo').checked = false
+      if (!archivo) { if (logoOriginal) logo.src = logoOriginal; logo.hidden = !logoOriginal; return }
+      if (archivo.size > 2*1024*1024 || !['image/jpeg','image/png'].includes(archivo.type)) return
+      const lector = new FileReader()
+      lector.addEventListener('load', () => { if (entrada.files[0] === archivo) { logo.src = lector.result; logo.hidden = false } })
+      lector.readAsDataURL(archivo)
+    })
+    form.elements.namedItem('quitar_logo')?.addEventListener('change', () => { logo.hidden = form.elements.namedItem('quitar_logo').checked || !logo.getAttribute('src') })
+  }
 })()
