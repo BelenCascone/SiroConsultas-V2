@@ -8,7 +8,7 @@ export type Modulo = (typeof MODULOS)[number]
 export const PREFIJOS: Record<Modulo, string[]> = {
   agenda: ['/agenda', '/turnos', '/bloqueos', '/pedidos'],
   documentos: ['/documentos'],
-  cobros: ['/cobros', '/pagos', '/comprobantes', '/contadora'],
+  cobros: ['/cobros', '/pagos', '/comprobantes', '/contadora', '/configuracion/cobros'],
   estadisticas: ['/estadisticas'],
 }
 
