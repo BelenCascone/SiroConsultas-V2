@@ -1,6 +1,6 @@
 // Hoy: saludo, buscador y acciones; lo que hay que resolver; «Ahora» con el turno que sigue (Atender y No vino), la lista del día
 // y los controles por agendar. Maqueta: docs/pantallas/Main.dc.html · docs/DISENO_APROBADO.md, sección 2.
-// «Plata de hoy» (cobrado y te deben) se suma con los cobros (etapa 2).
+// «Plata de hoy»: cobrado hoy y lo que te deben (P4).
 import { Hono } from 'hono'
 import type { C, Env } from '../tipos'
 import { leerInstalacion } from '../lib/instalacion'
@@ -9,8 +9,9 @@ import { aMinutos } from '../lib/turnos'
 import { CLAVE_ESTADO, estadoMostrado } from '../lib/agenda'
 import { controlesPorAgendar, cuandoControl, elegirAhora, paraResolver, turnosDeHoy, type TurnoHoy } from '../lib/hoy'
 import { Pagina } from '../ui/pagina'
-import { Boton, Estado, Tarjeta } from '../ui/componentes'
+import { Boton, Estado, Tarjeta, pesos } from '../ui/componentes'
 import { Lupa, Mas } from '../ui/iconos'
+import { plataDeHoy } from '../lib/cobros'
 
 export async function datosProfesional(c: C) {
   return (await c.env.DB.prepare('SELECT nombre FROM profesional WHERE id = 1').first<{ nombre: string | null }>()) ?? { nombre: null }
@@ -30,8 +31,10 @@ inicio.get('/', async (c) => {
   const db = c.env.DB
   const { fecha, hora, horaNum } = ahoraAR()
   const ahoraMin = aMinutos(hora)
-  const [prof, avisos, lista, pendientes, controles] = await Promise.all([
+  const conCobros = inst.modulos.has('cobros')
+  const [prof, avisos, lista, pendientes, controles, plata] = await Promise.all([
     datosProfesional(c), avisosSinLeer(c), turnosDeHoy(db, fecha), paraResolver(db, fecha, ahoraMin), controlesPorAgendar(db, fecha),
+    conCobros ? plataDeHoy(db, fecha) : null,
   ])
   const primerNombre = (prof.nombre ?? '').trim().split(/\s+/)[0]
   const ahora = elegirAhora(lista, ahoraMin)
@@ -132,6 +135,15 @@ inicio.get('/', async (c) => {
             </ul>
           )}
         </Tarjeta>
+
+        {plata && (
+          <Tarjeta titulo="Plata de hoy" accion={<a href="/cobros" data-modulo="cobros">Ver cobros</a>}>
+            <div class="resumen-turno" data-modulo="cobros">
+              <div class="dato-tarjeta"><span class="chico suave">Cobrado</span><strong class="dato-grande">{pesos(plata.cobrado)}</strong></div>
+              <a class="dato-tarjeta enlace-tarjeta" href="/cobros?filtro=deben"><span class="chico suave">Te deben</span><strong class="dato-grande debe-texto">{pesos(plata.teDeben)}</strong></a>
+            </div>
+          </Tarjeta>
+        )}
 
         <Tarjeta titulo="Controles por agendar" tono="suave">
           {controles.length === 0 ? <p class="suave">No hay controles pendientes.</p> : (

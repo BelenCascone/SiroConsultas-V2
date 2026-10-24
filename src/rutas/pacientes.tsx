@@ -534,10 +534,11 @@ async function Pagos({ c, id }: { c: C; id: number }) {
     c.env.DB.prepare('SELECT id, fecha, concepto, importe, saldo, estado FROM v_cobros WHERE paciente_id = ? ORDER BY fecha DESC, id DESC').bind(id)
       .all<{ id: number; fecha: string; concepto: string; importe: number; saldo: number; estado: string }>(),
     c.env.DB.prepare(
-      `SELECT pa.cobro_id, pa.fecha, pa.importe, pa.medio, pa.anulado_en, pa.anulado_motivo,
+      `SELECT pa.id, pa.cobro_id, pa.fecha, pa.importe, pa.medio, pa.anulado_en, pa.anulado_motivo,
+         (SELECT co.id FROM comprobantes co WHERE co.pago_id = pa.id AND co.tipo IN ('interno', 'factura_c')) comprobante_id,
          (SELECT co.tipo || ':' || COALESCE(co.numero, '') || ':' || co.estado FROM comprobantes co WHERE co.pago_id = pa.id AND co.tipo IN ('interno', 'factura_c')) comprobante
        FROM pagos pa JOIN cobros cb ON cb.id = pa.cobro_id WHERE cb.paciente_id = ? ORDER BY pa.fecha, pa.id`
-    ).bind(id).all<{ cobro_id: number; fecha: string; importe: number; medio: string; anulado_en: string | null; anulado_motivo: string | null; comprobante: string | null }>(),
+    ).bind(id).all<{ id: number; cobro_id: number; fecha: string; importe: number; medio: string; anulado_en: string | null; anulado_motivo: string | null; comprobante_id: number | null; comprobante: string | null }>(),
   ])
   const lista = cobros.results ?? []
   const textoComprobante = (s: string | null) => {
@@ -554,12 +555,14 @@ async function Pagos({ c, id }: { c: C; id: number }) {
           return (
             <li class="apilado">
               <span class="fila entre-todo">
-                <span><strong>{fechaNumeros(cb.fecha)} · {cb.concepto}</strong></span>
+                <a href={`/cobros/${cb.id}`} data-modulo="cobros"><strong>{fechaNumeros(cb.fecha)} · {cb.concepto}</strong></a>
                 <span class="fila"><span class="importe">{pesos(cb.importe)}</span><Estado estado={e.estado} texto={cb.estado === 'parcial' ? `Debe ${pesos(cb.saldo)}` : e.texto} /></span>
               </span>
               {(pagos.results ?? []).filter((x) => x.cobro_id === cb.id).map((x) => (
                 <span class={x.anulado_en ? 'chico suave tachado' : 'chico suave'}>
-                  Pagó {pesos(x.importe)} el {fechaNumeros(x.fecha)} · {MEDIOS[x.medio]} · {textoComprobante(x.comprobante)}
+                  Pagó {pesos(x.importe)} el {fechaNumeros(x.fecha)} · {MEDIOS[x.medio]} · {x.comprobante_id
+                    ? <a href={`/comprobantes/${x.comprobante_id}`} data-modulo="cobros">{textoComprobante(x.comprobante)}</a>
+                    : x.anulado_en ? textoComprobante(null) : <a href={`/comprobantes/nuevo?pago=${x.id}`} data-modulo="cobros">Hacer el comprobante</a>}
                   {x.anulado_en && <span class="no-tachado"> · Anulado: {x.anulado_motivo}</span>}
                 </span>
               ))}
