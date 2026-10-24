@@ -216,6 +216,8 @@ function Tablero(d: VistaDatos) {
     // Huecos libres: se tocan para dar un turno (o para mover uno)
     if (!dia.cerrado) {
       for (const [hora, cid] of dia.libres) {
+        // Al mover, no se ofrece el lugar que ocupa el propio turno: queda tapado por él y no se puede tocar.
+        if (mueve && mueve.fecha === dia.fecha && aMinutos(hora) < aMinutos(mueve.hora) + mueve.duracion_min && aMinutos(mueve.hora) < aMinutos(hora) + PASO_MIN) continue
         const href = mueve ? url({ ...base, mover: String(mueve.id), destino: `${cid},${dia.fecha},${hora}` })
           : `/turnos/nuevo?${new URLSearchParams({ consultorio: String(cid), fecha: dia.fecha, hora })}`
         celdas.push(<a class={`ag-hueco${mueve ? ' verde' : ''} ag-r${fila(aMinutos(hora))} ag-c${col}`} href={href} aria-label={`Hueco libre ${etiquetaDia(dia.fecha)} a las ${hora}`}><span aria-hidden="true">{hora}</span></a>)
@@ -378,6 +380,7 @@ function VentanaTurno({ t, hoy, ahoraMin, base }: { t: Detalle; hoy: string; aho
         <div class="fila">
           <Boton href={`/pacientes/${t.paciente_id}`} variante="borde">Ver ficha</Boton>
           <Boton href={`/turnos/nuevo?paciente=${t.paciente_id}`} variante="borde">Darle otro turno</Boton>
+          {t.estado === 'atendido' && <Boton href={`/cobros/nuevo?turno=${t.id}`} variante="borde" data-modulo="cobros">Cobrar</Boton>}
         </div>
         {abierto && (
           <div class="fila">

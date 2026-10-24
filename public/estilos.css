@@ -522,3 +522,18 @@ a.e-ahora:hover { color: var(--sobre-oscuro); }
 .comp-pie { white-space: pre-wrap; }
 .comp-muestra { color: var(--comp-tinta); box-shadow: inset 0 0 0 1px var(--comp-tinta); }
 [data-comp-otra][hidden], [data-comp-logo][hidden] { display: none; }
+
+/* ---------- P4 · cobros ---------- */
+.enlace-tarjeta { color: var(--texto); text-decoration: none; }
+.enlace-tarjeta:hover { background: var(--superficie-2); color: var(--texto); }
+.importe-campo { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mensaje-previa { margin: 0; padding: 14px 16px; border-radius: var(--radio); background: var(--superficie-2); font-family: var(--letra); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.qr-imagen { width: 180px; height: 180px; object-fit: contain; }
+.aviso.entre-todo { flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.fila-elegir { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 8px; border-radius: var(--radio); color: var(--texto); text-decoration: none; }
+.fila-elegir:hover { background: var(--superficie-3); color: var(--texto); }
+.fila-elegir > .columna-chica { flex: 1; }
+.fila-elegir .importe { white-space: nowrap; }
+.lista li:has(> .fila-elegir) { padding: 0; }
+.dato-tarjeta { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: var(--radio); background: var(--superficie-3); box-shadow: inset 0 0 0 1px var(--borde-suave); }
+.chico-buscador { max-width: none; height: var(--control); box-shadow: inset 0 0 0 1px var(--borde); border-radius: var(--pastilla); }
