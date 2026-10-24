@@ -12,6 +12,8 @@ export const ORIGEN = 'http://localhost'
 
 export function entorno(cambios: Partial<Bindings> = {}) {
   const db = baseNueva({ conDatos: true })
+  // Los feriados cargados por la migración dependen del día en que se corre la prueba: cada prueba pone los suyos.
+  db.exec('DELETE FROM feriados')
   const env: Bindings = {
     DB: d1(db), ARCHIVOS: {} as R2Bucket, RESPALDOS: {} as R2Bucket,
     MODO_PRUEBA: '1', MARCA: 'Demo', MODULOS: 'agenda,documentos,cobros,estadisticas', CORREOS_PERMITIDOS: EMAIL,

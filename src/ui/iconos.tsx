@@ -14,3 +14,4 @@ export const Tilde = (p: P) => <Svg grosor={2} {...p}><path d="m5 12.5 4.5 4.5L1
 export const Flecha = (p: P) => <Svg {...p}><path d="M5 12h14M13 6l6 6-6 6" /></Svg>
 export const Volver = (p: P) => <Svg {...p}><path d="M19 12H5M11 6l-6 6 6 6" /></Svg>
 export const Escudo = (p: P) => <Svg {...p}><path d="M12 3 5 6v6c0 4.2 3 7.6 7 9 4-1.4 7-4.8 7-9V6z" /><path d="m9 12 2 2 4-4" /></Svg>
+export const Calendario = (p: P) => <Svg tam={16} grosor={1.8} {...p}><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 10h18M8 3v4M16 3v4" /></Svg>

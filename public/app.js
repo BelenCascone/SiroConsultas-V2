@@ -49,6 +49,16 @@
     d.addEventListener('close', () => { window.location.href = d.dataset.volver })
   }
 
+  // Bloquear la agenda: al cambiar un dato se vuelve a armar la pantalla con lo elegido (el aviso de cuántos turnos caen adentro).
+  for (const f of document.querySelectorAll('form[data-recalcular]')) {
+    for (const b of f.querySelectorAll('[data-sin-js]')) b.hidden = true
+    f.addEventListener('change', () => {
+      const p = new URLSearchParams()
+      for (const [k, v] of new FormData(f)) if (typeof v === 'string' && v) p.set(k, v)
+      window.location.assign(`${f.dataset.recalcular}?${p}`)
+    })
+  }
+
   for (const aviso of document.querySelectorAll('[data-config-abrir]')) {
     const ventana = document.getElementById(aviso.dataset.configAbrir)
     if (ventana instanceof HTMLDialogElement) ventana.showModal()

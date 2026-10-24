@@ -8,7 +8,7 @@ import { DIAS, ahoraAR, ahoraISO, esFecha, esHora, fechaLarga, sumarDias } from 
 import { registrar } from '../lib/sesion'
 import { buscarPacientes, dniConPuntos, enlaceWhatsapp, fechaCorta, iniciales, validarAlta, type Errores } from '../lib/pacientes'
 import {
-  aMinutos, cargarAgenda, controlar, crearTurno, diaDe, fechasDeSerie, huecos, leerTurno,
+  aHora, aMinutos, cargarAgenda, controlar, crearTurno, diaDe, diaDeSemana, fechasDeSerie, huecos, leerTurno,
   type Control, type DatosAgenda, type Dia,
 } from '../lib/turnos'
 import { Pagina } from '../ui/pagina'
@@ -177,7 +177,9 @@ export async function vistaNuevo(c: C, q: Q, estado: Estado = {}) {
   const cambiarPaciente = url({})
 
   const eligio = q.fecha && q.hora && esFecha(q.fecha) && esHora(q.hora)
-  const primera = eligio ? q.fecha! : hoy
+  // Si viene una fecha sugerida (p. ej. el control de un paciente), los días que se ofrecen arrancan en esa semana.
+  const sugerida = !eligio && q.fecha && esFecha(q.fecha) && q.fecha > hoy ? sumarDias(q.fecha, 1 - diaDeSemana(q.fecha)) : hoy
+  const primera = eligio ? q.fecha! : sugerida > hoy ? sugerida : hoy
   const agenda = await cargarAgenda(c.env.DB, primera, sumarDias(primera, eligio ? 0 : DIAS_A_OFRECER), ahoraISO())
 
   // ----- Paso 3: revisar y guardar -----
@@ -193,7 +195,7 @@ export async function vistaNuevo(c: C, q: Q, estado: Estado = {}) {
   // ----- Paso 2: día y hora -----
   const dias: Dia[] = []
   for (let i = 0; i <= DIAS_A_OFRECER && dias.length < MAX_PASTILLAS; i++) {
-    const d = diaDe(agenda, consultorio.id, sumarDias(hoy, i))
+    const d = diaDe(agenda, consultorio.id, sumarDias(primera, i))
     if (d.franjas.length) dias.push(d)
   }
   const libres = (d: Dia) => huecos(d, prestacion.duracion_min, hoy, ahoraMin)
@@ -242,7 +244,12 @@ export async function vistaNuevo(c: C, q: Q, estado: Estado = {}) {
                 </form>
               </div>
             )}
-            {elegido?.cerrado?.tipo === 'bloqueo' && <Aviso tipo="ambar">Esta fecha está bloqueada ({elegido.cerrado.texto}). Se libera desde «Bloquear la agenda».</Aviso>}
+            {elegido?.cerrado?.tipo === 'bloqueo' && (
+              <div class="aviso franja ambar">
+                <span>Esta fecha está bloqueada ({elegido.cerrado.texto}).</span>
+                <Boton href="/bloqueos/nuevo" variante="borde">Ver o quitar bloqueos</Boton>
+              </div>
+            )}
             {elegido && !elegido.cerrado && (lista.length ? <Huecos lista={lista} fecha={elegido.fecha} base={base} /> : <p class="suave">No quedan huecos libres este día para {prestacion.nombre.toLowerCase()}.</p>)}
             {elegido && !elegido.cerrado && (
               <form method="get" action="/turnos/nuevo" class="fila otra-hora">
@@ -314,6 +321,7 @@ function PasoGuardar(p: {
           </div>
           <Interruptor etiqueta="Avisarle" nombre="avisar" marcado ayuda="Al guardar, te dejamos el mensaje listo para mandarle por WhatsApp." />
           <div class="ventana-pie">
+            <a class="boton texto" href={`/bloqueos/nuevo?${new URLSearchParams({ desde: fecha, hasta: fecha, alcance: 'franja', hora_desde: hora, hora_hasta: aHora(Math.min(aMinutos(hora) + prestacion.duracion_min, 23 * 60 + 59)), consultorio: base.consultorio ?? '' })}`}>Bloquear este horario</a>
             {control.errores.length
               ? <Boton href={url({ ...base, fecha })} variante="oscuro">Elegir otra hora</Boton>
               : <Boton type="submit" variante="destacado">{forzar ? 'Guardar igual' : 'Guardar turno'}</Boton>}

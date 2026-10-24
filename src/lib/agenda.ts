@@ -1,6 +1,6 @@
 // Agenda: rangos de cada vista, turnos del rango, estado que se muestra y límites del tablero.
-import { sumarDias } from './fechas'
-import { aMinutos, diaDeSemana, PASO_MIN } from './turnos'
+import { ahoraISO, sumarDias } from './fechas'
+import { aMinutos, cargarAgenda, controlar, diaDe, diaDeSemana, PASO_MIN } from './turnos'
 
 export const VISTAS = ['dia', 'semana', 'mes'] as const
 export type Vista = (typeof VISTAS)[number]
@@ -72,4 +72,38 @@ export function limitesDelTablero(franjas: { desde: number; hasta: number }[], t
   ini = Math.floor(ini / 60) * 60
   fin = Math.min(24 * 60, Math.ceil(fin / 60) * 60)
   return { ini, fin, filas: (fin - ini) / PASO_MIN }
+}
+
+/** Cómo se pinta cada estado mostrado (componente Estado). */
+export const CLAVE_ESTADO: Record<string, string> = {
+  atendido: 'atendido', ausente: 'ausente', cancelado: 'cancelado', solicitado: 'solicitado', ahora: 'primera', confirmo: 'confirmado',
+  no_puede: 'debe', pendiente: 'debe', sin_respuesta: 'sin_respuesta',
+}
+
+/**
+ * Mueve un turno confirmado a otro hueco. Mira el día de destino y, si alguien lo ocupó en el medio, la base no deja pisarlo.
+ * Devuelve el mensaje de lo que impide el movimiento (o `{}` si se movió).
+ */
+export async function moverTurno(
+  db: D1Database, t: { id: number; fecha: string; hora: string; duracion_min: number; estado: string },
+  destino: { consultorio_id: number; fecha: string; hora: string }, hoy: string, ahoraMin: number,
+): Promise<{ error?: string }> {
+  if (t.estado !== 'confirmado') return { error: 'No se pudo mover el turno.' }
+  const lugar = await db.prepare('SELECT id, modalidad FROM consultorios WHERE id = ? AND activo = 1').bind(destino.consultorio_id).first<{ id: number; modalidad: string }>()
+  if (!lugar) return { error: 'Ese consultorio ya no está disponible.' }
+  const datos = await cargarAgenda(db, destino.fecha, destino.fecha, ahoraISO())
+  const control = controlar(diaDe({ ...datos, turnos: datos.turnos.filter((x) => x.id !== t.id) }, destino.consultorio_id, destino.fecha), destino.hora, t.duracion_min, hoy, ahoraMin)
+  if (control.errores.length || control.avisos.length) return { error: [...control.errores, ...control.avisos.map((a) => a.texto)].join(' ') }
+  const minutos = '(CAST(substr(x.hora, 1, 2) AS INTEGER) * 60 + CAST(substr(x.hora, 4, 2) AS INTEGER))'
+  const ini = aMinutos(destino.hora)
+  const r = await db.prepare(
+    `UPDATE turnos SET consultorio_id = ?, fecha = ?, hora = ?, modalidad = ?, confirmacion = NULL, confirmacion_cambios = 0, confirmacion_en = NULL,
+            recordatorio_whatsapp_en = NULL, recordatorio_correo_en = NULL, actualizado_en = ?
+      WHERE id = ? AND estado = 'confirmado' AND NOT EXISTS (SELECT 1 FROM turnos x WHERE x.id <> turnos.id AND x.fecha = ? AND x.estado IN ('confirmado', 'solicitado', 'atendido')
+        AND ${minutos} < ? AND ? < ${minutos} + x.duracion_min)`)
+    .bind(destino.consultorio_id, destino.fecha, destino.hora, lugar.modalidad, ahoraISO(), t.id, destino.fecha, ini + t.duracion_min, ini).run()
+  if (!r.meta.changes) return { error: 'Ese horario se ocupó recién. Elegí otro.' }
+  // Si le habían ofrecido horarios para elegir, ya no hace falta tenerlos reservados.
+  await db.prepare("UPDATE propuestas SET estado = 'liberada' WHERE turno_id = ? AND estado = 'reservada'").bind(t.id).run()
+  return {}
 }
