@@ -10,6 +10,7 @@ import { leerPaciente, idNuevo, fechaValida, fechaTexto, datosDeConsulta, ANTECE
 import { ErrorDocumento, numero, texto, pdf, zip, sha256, bytesTexto, nombreSeguro, type EntradaZip } from '../lib/documentos'
 import { Pagina } from '../ui/pagina'
 import { Aviso, Boton, Campo, Pastilla, Tarjeta, Ventana } from '../ui/componentes'
+import { PorCorreo } from './envios'
 
 export const documentos = new Hono<Env>()
 const TIPOS = { certificado: 'Certificado', pedido: 'Pedido de estudios', medicacion: 'Receta (MisRx)', estudio: 'Estudio' } as const
@@ -51,7 +52,7 @@ async function identidad(c: C, form: FormData): Promise<Identidad> {
   return i
 }
 function Resultado() {
-  return <div class="columna" data-documento-resultado="" hidden><h3>Guardado en sus documentos</h3><div class="fila"><a class="boton borde" data-documento-ver="">Ver documento</a><a class="boton borde" data-documento-pdf="" download>Descargar PDF</a></div><h3>¿Se lo mandás?</h3><p class="ayuda">Descargá el archivo y adjuntalo en tu WhatsApp o correo. Nada sale solo.</p><div class="fila"><a class="boton claro" data-documento-wa="" target="_blank" rel="noopener">Por WhatsApp</a><a class="boton claro" data-documento-correo="">Por correo</a><Boton cierra>Ahora no</Boton></div></div>
+  return <div class="columna" data-documento-resultado="" hidden><h3>Guardado en sus documentos</h3><div class="fila"><a class="boton borde" data-documento-ver="">Ver documento</a><a class="boton borde" data-documento-pdf="" download>Descargar PDF</a></div><h3>¿Se lo mandás?</h3><p class="ayuda">Por WhatsApp, descargá el archivo y adjuntalo. «Por correo» abre el documento para mandárselo con el archivo. Nada sale solo.</p><div class="fila"><a class="boton claro" data-documento-wa="" target="_blank" rel="noopener">Por WhatsApp</a><a class="boton claro" data-documento-correo="">Por correo</a><Boton cierra>Ahora no</Boton></div></div>
 }
 export async function HerramientasDocumentos({ c, pacienteId, consultaId, enConsulta = false }: { c: C; pacienteId: number; consultaId?: number; enConsulta?: boolean }) {
   if (!leerInstalacion(c.env).modulos.has('documentos')) return <></>
@@ -82,14 +83,15 @@ async function Formulario({ c, p, tipo, consultaId, enConsulta }: { c: C; p: Pac
     <div role="alert" class="aviso error" data-documento-error="" hidden /><div class="documentos-pie"><Boton cierra>Cancelar</Boton><Boton type="submit" variante="oscuro">{tipo === 'medicacion' ? 'Guardar en la ficha' : tipo === 'estudio' ? 'Guardar estudio' : `Generar ${tipo === 'certificado' ? 'certificado' : 'pedido'}`}</Boton></div>
   </form>
 }
-function enlaces(p: PacienteConsulta, titulo: string) {
+function enlaces(p: PacienteConsulta, titulo: string, url: string) {
   const mensaje = `Hola ${p.nombre}, te adjunto ${titulo.toLowerCase()}.`
   const numero = p.celular.replace(/\D/g, '')
-  return { whatsapp: `https://wa.me/${numero.length === 10 ? '549' + numero : numero}?text=${encodeURIComponent(mensaje)}`, correo: p.correo ? `mailto:${encodeURIComponent(p.correo)}?subject=${encodeURIComponent(titulo)}&body=${encodeURIComponent(mensaje)}` : null }
+  // «Por correo» (P5) lleva a la pantalla del documento, que lo manda con el archivo adjunto.
+  return { whatsapp: `https://wa.me/${numero.length === 10 ? '549' + numero : numero}?text=${encodeURIComponent(mensaje)}`, correo: p.correo ? url : null }
 }
 async function respuesta(c: C, i: Identidad, p: PacienteConsulta) {
   const url = i.tipo === 'estudio' ? `/documentos/estudios/${i.id}` : `/documentos/${i.id}`
-  const json = { id: i.id, titulo: TIPOS[i.tipo], url, pdf: i.tipo === 'medicacion' ? null : `${url}/archivo`, ...enlaces(p, TIPOS[i.tipo]) }
+  const json = { id: i.id, titulo: TIPOS[i.tipo], url, pdf: i.tipo === 'medicacion' ? null : `${url}/archivo`, ...enlaces(p, TIPOS[i.tipo], url) }
   return c.req.header('accept')?.includes('application/json') ? c.json(json) : c.redirect(url, 303)
 }
 const CONDICION = `p.baja_en IS NULL AND (? IS NULL OR EXISTS (SELECT 1 FROM consultas c WHERE c.id = ? AND c.paciente_id = p.id AND c.estado <> 'descartada'))`
@@ -205,13 +207,13 @@ for (const estudio of [false, true]) {
     if (!r) return c.notFound()
     const p = await paciente(c,r.paciente_id), datos = estudio ? {} : JSON.parse((r as Documento).datos), titulo = estudio ? (r as Archivo).nombre : TIPOS[r.tipo as Tipo]
     const historico = !estudio && datos.paciente ? datos.paciente as PacienteConsulta : p
-    const e = enlaces(p,titulo), tieneArchivo = estudio || !!(r as Documento).pdf_clave
+    const e = enlaces(p,titulo,`${base}/${id}`), tieneArchivo = estudio || !!(r as Documento).pdf_clave
     return pagina(c,titulo,<><Boton href={ficha(p.id)}>Volver a la ficha</Boton><Tarjeta titulo={titulo}>
       {r.anulado_en && <Aviso tipo="error">Anulado el {fechaTexto(r.anulado_en)}: {r.anulado_motivo}</Aviso>}
       <p>{historico.nombre} {historico.apellido} · DNI {historico.dni}</p>{datos.dias && <p>{datos.dias} días de reposo</p>}{datos.profesional && <p>{datos.profesional.nombre} · {datos.profesional.matricula}</p>}<p class="documentos-texto">{datos.diagnostico ?? datos.medicamento ?? ''}</p><p class="documentos-texto">{Array.isArray(datos.estudios) ? datos.estudios.join('\n') : datos.indicaciones ?? ''}</p>
       <p>{r.consulta_id ? `De la consulta ${r.consulta_id}` : 'Desde la ficha'} · {fechaTexto(estudio ? (r as Archivo).creado_en : (r as Documento).fecha)}</p>
       {tieneArchivo && <Boton href={`${base}/${id}/archivo`} variante="borde">Descargar {estudio ? 'estudio' : 'PDF'}</Boton>}
-      {!r.anulado_en && !p.baja_en && tieneArchivo && <><h3>¿Se lo mandás?</h3><div class="fila"><a class="boton claro" href={e.whatsapp} target="_blank" rel="noopener">Por WhatsApp</a>{e.correo && <a class="boton claro" href={e.correo}>Por correo</a>}</div><p class="ayuda">Descargá el archivo y adjuntalo manualmente. Nada sale solo.</p></>}
+      {!r.anulado_en && !p.baja_en && tieneArchivo && <><h3>¿Se lo mandás?</h3><div class="fila"><a class="boton claro" href={e.whatsapp} target="_blank" rel="noopener">Por WhatsApp</a><PorCorreo env={c.env} accion={`${base}/${id}/correo`} correo={p.correo} volver={`${base}/${id}`} /></div><p class="ayuda">Por WhatsApp, descargá el archivo y adjuntalo. Nada sale solo.</p></>}
       {!r.anulado_en && !p.baja_en && <details><summary class="boton texto">Anular con motivo</summary><form class="columna" method="post" action={`${base}/${id}/anular`}><Campo etiqueta="Motivo de anulación" nombre="motivo" requerido /><Boton type="submit" variante="peligro">Anular</Boton></form></details>}
     </Tarjeta></>)
   }))

@@ -18,7 +18,7 @@ export const SECCIONES = [
   ['prestaciones', 'Prestaciones', 'Duración e importe'],
   ['obras', 'Obras sociales', 'Las que usás'],
   ['cobros', 'Cobros y comprobantes', 'Datos fiscales, transferencias y diseño'],
-  ['recordatorios', 'Recordatorios', 'Próximamente'],
+  ['recordatorios', 'Recordatorios', 'Mensaje y correo automático'],
   ['cuenta', 'Cuenta y seguridad', 'Próximamente'],
 ]
 const ruta = (seccion: string) => `/configuracion/${seccion}`
@@ -140,7 +140,7 @@ async function pantalla(c: C, seccion: string, error?: string, form?: FormData, 
     contenido = <Tarjeta titulo={SECCIONES.find(s => s[0] === seccion)![1]}><p>Próximamente</p></Tarjeta>
   }
   return c.html(<Pagina titulo="Configuración" seccion="configuracion" inst={leerInstalacion(c.env)} email={c.get('email')!} nombre={prof.nombre} avisos={avisos}>
-    <div class="config-layout"><aside class="columna"><h1>Configuración</h1><nav class="config-menu" aria-label="Secciones de configuración">{SECCIONES.filter(([id]) => id !== 'cobros' || leerInstalacion(c.env).modulos.has('cobros')).map(([id, titulo, sub]) => <a data-modulo={id === 'cobros' ? 'cobros' : undefined} href={ruta(id)} aria-current={id === seccion ? 'page' : undefined}><strong>{titulo}</strong><span class="ayuda">{sub}</span></a>)}</nav></aside>
+    <div class="config-layout"><aside class="columna"><h1>Configuración</h1><nav class="config-menu" aria-label="Secciones de configuración">{SECCIONES.filter(([id]) => (id !== 'cobros' || leerInstalacion(c.env).modulos.has('cobros')) && (id !== 'recordatorios' || leerInstalacion(c.env).modulos.has('agenda'))).map(([id, titulo, sub]) => <a data-modulo={id === 'cobros' ? 'cobros' : id === 'recordatorios' ? 'agenda' : undefined} href={ruta(id)} aria-current={id === seccion ? 'page' : undefined}><strong>{titulo}</strong><span class="ayuda">{sub}</span></a>)}</nav></aside>
       <div class="columna config-contenido">{error && <Aviso tipo="error">{error}</Aviso>}{!error && c.req.query('guardado') === '1' && <Aviso tipo="ok">Guardaste los cambios.</Aviso>}{contenido}</div>
     </div>
   </Pagina>, error ? 400 : 200)

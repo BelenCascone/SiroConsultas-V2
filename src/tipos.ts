@@ -16,6 +16,12 @@ export type Bindings = {
   SESION_SECRETO: string
   TOTP_CLAVE?: string
   CLAVE_PRUEBA?: string
+  // Correo saliente (P5). Sin SMTP_HOST, la demo simula los envíos y producción avisa que falta configurarlo.
+  SMTP_HOST?: string
+  SMTP_PUERTO?: string
+  SMTP_USUARIO?: string
+  SMTP_CLAVE?: string
+  SMTP_REMITENTE?: string
 }
 
 export type Variables = {

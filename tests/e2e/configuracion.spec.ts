@@ -116,7 +116,7 @@ test('obras sociales: busca el catálogo, usa y deja de usar', async ({ page }) 
 
 test('navegación, foco, tamaños y secciones pendientes', async ({ page }) => {
   await expect(page.getByRole('navigation', { name: 'Secciones de configuración' }).getByRole('link')).toHaveCount(7)
-  for (const seccion of ['Recordatorios', 'Cuenta y seguridad']) {
+  for (const seccion of ['Cuenta y seguridad']) {
     await page.getByRole('link', { name: seccion, exact: false }).click()
     await expect(page.getByRole('heading', { name: seccion, exact: true })).toBeVisible()
     await expect(page.locator('.config-contenido')).toContainText('Próximamente')
