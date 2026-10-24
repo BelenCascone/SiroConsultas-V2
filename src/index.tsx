@@ -11,6 +11,7 @@ import { ingreso } from './rutas/ingreso'
 import { configuracion } from './rutas/configuracion'
 import { inicio, datosProfesional, avisosSinLeer } from './rutas/inicio'
 import { componentes } from './rutas/componentes'
+import { estadisticas } from './rutas/estadisticas'
 import { cobros } from './rutas/cobros'
 import { comprobantes } from './rutas/comprobantes'
 import { documentos } from './rutas/documentos'
@@ -79,6 +80,7 @@ app.use('*', async (c, next) => {
   await next()
 })
 
+app.route('/', estadisticas)
 app.route('/', inicio)
 app.route('/', componentes)
 app.route('/', cobros)
@@ -95,7 +97,6 @@ app.route('/', configuracion)
 const PROXIMAS: { ruta: string; seccion: Seccion; titulo: string }[] = [
   // La contadora (P5): hasta que llegue, «Próximamente».
   { ruta: '/contadora', seccion: 'cobros', titulo: 'Enviar a la contadora' },
-  { ruta: '/estadisticas', seccion: 'estadisticas', titulo: 'Estadísticas' },
   { ruta: '/avisos', seccion: 'otra', titulo: 'Avisos' },
 ]
 for (const p of PROXIMAS) {
