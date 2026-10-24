@@ -537,3 +537,10 @@ a.e-ahora:hover { color: var(--sobre-oscuro); }
 .lista li:has(> .fila-elegir) { padding: 0; }
 .dato-tarjeta { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: var(--radio); background: var(--superficie-3); box-shadow: inset 0 0 0 1px var(--borde-suave); }
 .chico-buscador { max-width: none; height: var(--control); box-shadow: inset 0 0 0 1px var(--borde); border-radius: var(--pastilla); }
+
+/* ---------- correo y contadora ---------- */
+.contadora-fechas { align-items: flex-end; }
+.contadora-fechas .campo { flex: 1 1 160px; }
+.contadora-hojas { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.contadora-acciones { align-items: flex-start; }
+.contadora-acciones form { display: contents; }

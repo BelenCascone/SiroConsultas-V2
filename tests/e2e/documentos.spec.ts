@@ -30,7 +30,8 @@ test('certificado desde la ficha: emisión, re-descarga idéntica, anulación y 
   await ventana.getByRole('button',{name:'Generar certificado'}).click()
   await expect(ventana.getByRole('heading',{name:'¿Se lo mandás?'})).toBeVisible()
   await expect(ventana.getByRole('link',{name:'Por WhatsApp'})).toHaveAttribute('href',/^https:\/\/wa.me\//)
-  await expect(ventana.getByRole('link',{name:'Por correo'})).toHaveAttribute('href',/^mailto:/)
+  // P5: «Por correo» abre el documento, que lo manda con el PDF adjunto.
+  await expect(ventana.getByRole('link',{name:'Por correo'})).toHaveAttribute('href',/^\/documentos\/\d+$/)
   const descarga=page.waitForEvent('download');await ventana.getByRole('link',{name:'Descargar PDF'}).click()
   const archivo=await descarga,original=await readFile((await archivo.path())!)
   expect(original.subarray(0,8).toString()).toBe('%PDF-1.7')

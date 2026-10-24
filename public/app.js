@@ -306,4 +306,12 @@
     })
     form.elements.namedItem('quitar_logo')?.addEventListener('change', () => { logo.hidden = form.elements.namedItem('quitar_logo').checked || !logo.getAttribute('src') })
   }
+  // ---------- recordatorios: vista previa mientras se escribe ----------
+  for (const texto of document.querySelectorAll('textarea[data-recordatorio]')) {
+    const previa = document.getElementById(texto.dataset.recordatorio)
+    if (!previa) continue
+    texto.addEventListener('input', () => {
+      previa.textContent = texto.value.replace(/\{(nombre|dia|hora|lugar)\}/g, (_, k) => previa.dataset[k] ?? '')
+    })
+  }
 })()

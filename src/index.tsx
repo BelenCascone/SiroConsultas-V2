@@ -19,6 +19,10 @@ import { pacientes } from './rutas/pacientes'
 import { turnos } from './rutas/turnos'
 import { agenda } from './rutas/agenda'
 import { bloqueos } from './rutas/bloqueos'
+import { contadora } from './rutas/contadora'
+import { recordatorios } from './rutas/recordatorios'
+import { envios } from './rutas/envios'
+import { mandarRecordatorios } from './lib/recordatorios'
 import { Documento, Pagina, type Seccion } from './ui/pagina'
 import { Boton, Tarjeta } from './ui/componentes'
 
@@ -89,12 +93,14 @@ app.route('/', turnos)
 app.route('/', agenda)
 app.route('/', bloqueos)
 app.route('/', comprobantes)
+app.route('/', contadora)
+app.route('/', envios)
+// Antes que Configuración: su ruta «/configuracion/:seccion» mostraría «Próximamente».
+app.route('/', recordatorios)
 app.route('/', configuracion)
 
 // ---------- Secciones que se arman en las próximas etapas ----------
 const PROXIMAS: { ruta: string; seccion: Seccion; titulo: string }[] = [
-  // La contadora (P5): hasta que llegue, «Próximamente».
-  { ruta: '/contadora', seccion: 'cobros', titulo: 'Enviar a la contadora' },
   { ruta: '/estadisticas', seccion: 'estadisticas', titulo: 'Estadísticas' },
   { ruta: '/avisos', seccion: 'otra', titulo: 'Avisos' },
 ]
@@ -136,4 +142,9 @@ app.onError((err, c) => {
     </Documento>, 500)
 })
 
-export default app
+// Tarea programada (cada hora, ver wrangler.jsonc): recordatorios por correo de los turnos de las próximas 48 h.
+async function scheduled(_evento: ScheduledController, env: Env['Bindings'], ctx: ExecutionContext) {
+  ctx.waitUntil(mandarRecordatorios(env).then((r) => { if (r.enviados || r.fallidos) console.log(`Recordatorios: ${r.enviados} enviados, ${r.fallidos} fallidos`) }))
+}
+
+export default Object.assign(app, { scheduled })

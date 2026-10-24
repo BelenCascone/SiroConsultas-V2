@@ -6,7 +6,7 @@ export type Modulo = (typeof MODULOS)[number]
 
 /** Rutas de cada módulo. Toda ruta nueva de un módulo se registra acá. */
 export const PREFIJOS: Record<Modulo, string[]> = {
-  agenda: ['/agenda', '/turnos', '/bloqueos', '/pedidos'],
+  agenda: ['/agenda', '/turnos', '/bloqueos', '/pedidos', '/configuracion/recordatorios'],
   documentos: ['/documentos'],
   cobros: ['/cobros', '/pagos', '/comprobantes', '/contadora', '/configuracion/cobros'],
   estadisticas: ['/estadisticas'],

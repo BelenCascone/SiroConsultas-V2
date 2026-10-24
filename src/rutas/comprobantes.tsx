@@ -10,6 +10,7 @@ import { COLORES, CAMPOS, MEDIOS, imagen, archivoImagen, claseColor, configurar,
 import { SECCIONES } from './configuracion'
 import { Pagina } from '../ui/pagina'
 import { Aviso, Boton, Campo, Interruptor, Opciones, Tarjeta } from '../ui/componentes'
+import { PorCorreo } from './envios'
 
 export const comprobantes=new Hono<Env>()
 const CFG='/configuracion/cobros'
@@ -36,7 +37,7 @@ async function configuracion(c:C,error?:string,form?:FormData) {
   const p=(await leerPerfil(c.env.DB))!,v=(k:keyof PerfilCobros)=>form&&typeof form.get(k)==='string'?String(form.get(k)):String(p[k]??'')
   const color=v('comprobante_color')||COLORES[0][2],preview=ejemplo({...p,comprobante_color:color,comprobante_pie:v('comprobante_pie')})
   const campo=(k:keyof PerfilCobros,etiqueta:string,tipo:'text'|'number'|'email'='text')=><Campo nombre={k} etiqueta={etiqueta} valor={v(k)} tipo={tipo} />
-  return pagina(c,'Configuración',<div class="config-layout"><aside class="columna"><h1>Configuración</h1><nav class="config-menu" aria-label="Secciones de configuración">{SECCIONES.map(([id,titulo,sub])=><a href={`/configuracion/${id}`} aria-current={id==='cobros'?'page':undefined} data-modulo={id==='cobros'?'cobros':undefined}><strong>{titulo}</strong><span class="ayuda">{sub}</span></a>)}</nav></aside><div class="config-contenido columna">
+  return pagina(c,'Configuración',<div class="config-layout"><aside class="columna"><h1>Configuración</h1><nav class="config-menu" aria-label="Secciones de configuración">{SECCIONES.map(([id,titulo,sub])=><a href={`/configuracion/${id}`} aria-current={id==='cobros'?'page':undefined} data-modulo={id==='cobros'?'cobros':id==='recordatorios'?'agenda':undefined}><strong>{titulo}</strong><span class="ayuda">{sub}</span></a>)}</nav></aside><div class="config-contenido columna">
     {error&&<Aviso tipo="error">{error}</Aviso>}{!error&&c.req.query('guardado')==='1'&&<Aviso tipo="ok">Guardaste los cambios.</Aviso>}
     <form class="columna" method="post" action={CFG} enctype="multipart/form-data" data-comp-config="">
       <Tarjeta titulo="Datos fiscales"><p class="ayuda">Se usarán para factura C en la etapa 4. Podés emitir el comprobante interno sin datos fiscales.</p><div class="config-campos">{campo('cuit','CUIT')}<label class="campo">Condición frente al IVA<select class="entrada" name="condicion_iva"><option value="" selected={!v('condicion_iva')}>Sin completar</option><option value="monotributo" selected={v('condicion_iva')==='monotributo'}>Monotributista</option><option value="exento" selected={v('condicion_iva')==='exento'}>Exento</option></select></label>{campo('domicilio_fiscal','Domicilio fiscal')}{campo('punto_venta','Punto de venta','number')}</div><Aviso>Estado de ARCA: {({sin_configurar:'sin configurar',homologacion:'homologación',produccion:'producción'} as Record<string,string>)[p.arca_estado]??'sin configurar'}. El certificado lo carga BC Informática. La factura C llega en la etapa 4.</Aviso></Tarjeta>
@@ -119,12 +120,13 @@ comprobantes.get('/comprobantes/:id{[0-9]+}',seguro(async c=>{
   const r=await leerComprobante(c.env.DB,numero(c.req.param('id')));if(!r)return c.notFound()
   const p=await leerPago(c.env.DB,r.pago_id);if(!p)return c.notFound()
   const foto=JSON.parse(r.foto) as FotoComprobante
+  const correo=(await c.env.DB.prepare('SELECT correo FROM pacientes WHERE id=?').bind(p.paciente_id).first<{correo:string|null}>())?.correo??null
   const mensaje=`Hola ${p.nombre}, te adjunto el comprobante interno N.º ${numeroTexto(r.numero)} por ${importeTexto(r.importe)}.`,cel=p.celular.replace(/\D/g,'')
   return pagina(c,'Comprobante interno',<><a class="volver" href="/cobros">← Volver a Cobros</a><div class="comp-armado"><Tarjeta titulo={`Comprobante interno N.º ${numeroTexto(r.numero)}`}>
     {r.estado==='anulado'?<Aviso tipo="error">Anulado el {r.anulado_en}: {r.anulado_motivo}. El PDF original se conserva.</Aviso>:<Aviso tipo="ok">Comprobante emitido</Aviso>}
     <p>{r.receptor_nombre} · {r.receptor_doc_tipo.toUpperCase()} {r.receptor_doc}</p><p>Importe recibido: {importeTexto(r.importe)}</p>
     <div class="fila"><Boton href={`/comprobantes/${r.id}/pdf`}>Descargar PDF</Boton><a class="boton borde" href={`/comprobantes/${r.id}/pdf?ver=1`} target="_blank" rel="noopener">Ver PDF original</a></div>
-    {r.estado==='emitido'&&!p.anulado_en&&<><h3>¿Se lo mandás?</h3><a class="boton oscuro" href={`https://wa.me/${cel.length===10?'549'+cel:cel}?text=${encodeURIComponent(mensaje)}`} target="_blank" rel="noopener">Por WhatsApp</a><p class="ayuda">Descargá el PDF y adjuntalo manualmente. Nada sale solo.</p>
+    {r.estado==='emitido'&&!p.anulado_en&&<><h3>¿Se lo mandás?</h3><div class="fila"><a class="boton oscuro" href={`https://wa.me/${cel.length===10?'549'+cel:cel}?text=${encodeURIComponent(mensaje)}`} target="_blank" rel="noopener">Por WhatsApp</a><PorCorreo env={c.env} accion={`/comprobantes/${r.id}/correo`} correo={correo} volver={`/comprobantes/${r.id}`} /></div><p class="ayuda">Por WhatsApp, descargá el PDF y adjuntalo. Nada sale solo.</p>
       {!p.baja_en&&<details><summary class="boton texto">Anular el pago</summary><p>Se anula el pago y el comprobante queda anulado con el mismo motivo.</p><form class="columna" method="post" action={`/pagos/${p.id}/anular`}><Campo etiqueta="Motivo de anulación" nombre="motivo" requerido /><Boton type="submit" variante="peligro">Anular pago y comprobante</Boton></form></details>}</>}
   </Tarjeta>{foto.profesional?<Vista foto={foto} numero={r.numero} fecha={r.fecha} importe={r.importe} logo={foto.profesional.comprobante_logo_clave?`/comprobantes/${r.id}/logo`:undefined} />:<Aviso>La vista histórica está en el PDF original.</Aviso>}</div></>)
 }))

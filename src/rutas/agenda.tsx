@@ -44,10 +44,11 @@ type Consultorio = { id: number; nombre: string; modalidad: string }
 type Detalle = TurnoAgenda & {
   celular: string; dni: string; cobertura: string; obra_social: string | null; veces: number; faltas: number; incompleta: number
   direccion: string | null; enlace_video: string | null
+  correo: string | null; recordatorios_baja: number; recordatorio_whatsapp_en: string | null; recordatorio_correo_en: string | null
 }
 const leerDetalle = (db: D1Database, id: number) => db.prepare(
   `SELECT t.id, t.fecha, t.hora, t.duracion_min, t.estado, t.confirmacion, t.consultorio_id, co.nombre consultorio, co.direccion, t.modalidad, t.enlace_video,
-          t.paciente_id, p.nombre, p.apellido, p.celular, p.dni, t.cobertura, os.nombre obra_social, pr.nombre prestacion,
+          t.paciente_id, p.nombre, p.apellido, p.celular, p.dni, p.correo, p.recordatorios_baja, t.recordatorio_whatsapp_en, t.recordatorio_correo_en, t.cobertura, os.nombre obra_social, pr.nombre prestacion,
           (SELECT COUNT(*) FROM turnos x WHERE x.paciente_id = p.id AND x.estado = 'atendido') veces,
           (SELECT COUNT(*) FROM turnos x WHERE x.paciente_id = p.id AND x.estado = 'ausente') faltas,
           (p.fecha_nacimiento IS NULL OR p.domicilio IS NULL OR p.ocupacion IS NULL OR p.cobertura IS NULL) incompleta
@@ -56,6 +57,14 @@ const leerDetalle = (db: D1Database, id: number) => db.prepare(
 
 const historial = (d: Pick<Detalle, 'veces' | 'faltas'>) =>
   d.veces === 0 ? 'Primera consulta' : `Ya vino ${d.veces === 1 ? '1 vez' : `${d.veces} veces`}${d.faltas ? ` · ${d.faltas === 1 ? '1 falta' : `${d.faltas} faltas`}` : ''}`
+
+/** Qué recordatorios recibió: el correo automático 48 h antes y el WhatsApp que se manda con un toque. */
+function recordatorioTexto(t: Pick<Detalle, 'recordatorios_baja' | 'recordatorio_whatsapp_en' | 'recordatorio_correo_en'>) {
+  if (t.recordatorios_baja) return 'Pidió no recibir recordatorios'
+  const hechos = [t.recordatorio_correo_en && 'por correo', t.recordatorio_whatsapp_en && 'por WhatsApp'].filter(Boolean)
+  if (hechos.length) return `Ya se lo mandaste ${hechos.join(' y ')}`
+  return 'Todavía no se lo mandaste'
+}
 
 const cuandoDe = (fecha: string, hora: string) => `${fechaLarga(fecha).toLowerCase()} · ${hora}`
 
@@ -373,6 +382,7 @@ function VentanaTurno({ t, hoy, ahoraMin, base }: { t: Detalle; hoy: string; aho
         <dt>Historial</dt><dd>{historial(t)}</dd>
         <dt>Celular</dt><dd><a href={enlaceWhatsapp(t.celular)}>{t.celular}</a></dd>
         {t.modalidad === 'videollamada' && <><dt>Modalidad</dt><dd>Videollamada</dd></>}
+        {abierto && t.fecha >= hoy && <><dt>Recordatorio</dt><dd>{recordatorioTexto(t)}</dd></>}
       </dl>
       {abierto && t.confirmacion === 'no_puedo' && <Aviso tipo="ambar">{t.nombre} avisó que no puede venir. Podés moverlo o cancelarlo.</Aviso>}
       {abierto && t.incompleta === 1 && <Aviso>La ficha está incompleta: se completa antes de la primera consulta.</Aviso>}
@@ -381,6 +391,9 @@ function VentanaTurno({ t, hoy, ahoraMin, base }: { t: Detalle; hoy: string; aho
           <Boton href={`/pacientes/${t.paciente_id}`} variante="borde">Ver ficha</Boton>
           <Boton href={`/turnos/nuevo?paciente=${t.paciente_id}`} variante="borde">Darle otro turno</Boton>
           {t.estado === 'atendido' && <Boton href={`/cobros/nuevo?turno=${t.id}`} variante="borde" data-modulo="cobros">Cobrar</Boton>}
+          {abierto && t.fecha >= hoy && !t.recordatorios_baja && (
+            <form method="post" action={`/turnos/${t.id}/recordatorio`} target="_blank"><Boton type="submit" variante="borde">Mandar recordatorio</Boton></form>
+          )}
         </div>
         {abierto && (
           <div class="fila">
