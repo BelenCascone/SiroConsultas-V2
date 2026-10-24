@@ -5,7 +5,7 @@ import { baseNueva } from '../base/base'
 import { ahoraAR, sumarDias } from '../../src/lib/fechas'
 import { diaDeSemana, type DatosAgenda } from '../../src/lib/turnos'
 import { cuandoCorto, leerBloqueo, mensajeParaElegir, rangoCorto, sugerirHorarios } from '../../src/lib/bloqueos'
-import { cuandoControl, duracionTxt, elegirAhora, type TurnoHoy } from '../../src/lib/hoy'
+import { controlesPorAgendar, cuandoControl, duracionTxt, elegirAhora, type TurnoHoy } from '../../src/lib/hoy'
 import { lunesDe } from '../../src/lib/agenda'
 import { volverValido } from '../../src/rutas/agenda'
 
@@ -168,9 +168,10 @@ describe('Bloquear y resolver turno por turno', () => {
     const { id } = await bloquear(e)
     const r = await e.navegador.pedir(`/bloqueos/${id}/proponer`, { form: { turno: String(t2) } })
     expect(r.status).toBe(302)
-    const props = todos(e.db, "SELECT id, fecha, hora, estado FROM propuestas WHERE turno_id = ? ORDER BY fecha", t2)
+    const props = todos(e.db, "SELECT id, fecha, hora, estado, vence_en FROM propuestas WHERE turno_id = ? ORDER BY fecha", t2)
     expect(props.length).toBe(3)
     expect(props.every((p) => p.estado === 'reservada')).toBe(true)
+    for (const p of props) expect(p.vence_en).toBe(new Date(`${p.fecha}T${p.hora}:00-03:00`).toISOString().replace('.000Z','Z'))
     const lista = await (await e.navegador.pedir(`/bloqueos/${id}`)).text()
     expect(lista).toContain('Todo resuelto')
     expect(lista).toContain('Eligió el')
@@ -187,6 +188,27 @@ describe('Bloquear y resolver turno por turno', () => {
     expect(todos(e.db, 'SELECT estado FROM propuestas WHERE turno_id = ? ORDER BY fecha', t2).map((p) => p.estado)).toEqual(['liberada', 'elegida', 'liberada'])
     const otra = await e.navegador.pedir(`/bloqueos/${id}/elegir`, { form: { turno: String(t2), propuesta: String(props[0].id) } })
     expect(otra.headers.get('location')).toContain('/bloqueos/')
+  })
+
+  it('si el destino se bloqueó después de ofrecerlo, elegir no mueve ni libera las reservas', async () => {
+    const e=await conSesion(),lunes=proximo(1),tid=turno(e.db,2,lunes,'17:00')
+    const {id}=await bloquear(e)
+    await e.navegador.pedir(`/bloqueos/${id}/proponer`,{form:{turno:String(tid)}})
+    const props=todos(e.db,'SELECT id,fecha FROM propuestas WHERE turno_id=? ORDER BY fecha',tid)
+    e.db.prepare('INSERT INTO bloqueos(desde,hasta) VALUES (?,?)').run(props[0].fecha,props[0].fecha)
+    const r=await e.navegador.pedir(`/bloqueos/${id}/elegir`,{form:{turno:String(tid),propuesta:String(props[0].id)}})
+    expect(error(r)).toContain('bloqueada')
+    expect(todos(e.db,'SELECT fecha FROM turnos WHERE id=?',tid)[0].fecha).toBe(lunes)
+    expect(todos(e.db,"SELECT id FROM propuestas WHERE turno_id=? AND estado='reservada'",tid)).toHaveLength(3)
+  })
+
+  it('una franja propone horarios después de terminar el bloqueo, aunque haya huecos anteriores más cercanos', async () => {
+    const e=await conSesion(),lunes=proximo(1),tid=turno(e.db,2,lunes,'09:00')
+    const {id}=await bloquear(e,{alcance:'franja',hora_desde:'09:00',hora_hasta:'11:00'})
+    await e.navegador.pedir(`/bloqueos/${id}/proponer`,{form:{turno:String(tid)}})
+    const props=todos(e.db,'SELECT fecha,hora FROM propuestas WHERE turno_id=? ORDER BY fecha',tid)
+    expect(props).toHaveLength(3)
+    expect(props[0]).toEqual({fecha:lunes,hora:'11:00'})
   })
 
   it('si los horarios vencen, el turno vuelve a quedar por resolver', async () => {
@@ -362,6 +384,19 @@ describe('Hoy', () => {
     // con turno futuro deja de figurar
     turno(e.db, id, sumarDias(HOY, 3), '10:00')
     expect(await (await e.navegador.pedir('/')).text()).not.toContain('Nora Quiroga')
+  })
+
+  it('la última consulta sin próximo control deja sin efecto la indicación anterior',async()=>{
+    const e=await conSesion()
+    const pid=Number(e.db.prepare("INSERT INTO pacientes(dni,nombre,apellido,celular) VALUES ('88777666','Paciente','Control ficticio','3430000000')").run().lastInsertRowid)
+    const finalizar=(control:string|null)=>{
+      const id=Number(e.db.prepare("INSERT INTO consultas(paciente_id,tipo) VALUES (?,'control')").run(pid).lastInsertRowid)
+      e.db.prepare("UPDATE consultas SET estado='finalizada',finalizada_en='2026-01-01T12:00:00Z',foto='{}',proximo_control=? WHERE id=?").run(control,id)
+    }
+    finalizar(sumarDias(HOY,-5))
+    expect((await controlesPorAgendar(e.env.DB,HOY)).some(p=>p.paciente_id===pid)).toBe(true)
+    finalizar(null)
+    expect((await controlesPorAgendar(e.env.DB,HOY)).some(p=>p.paciente_id===pid)).toBe(false)
   })
 
   it('Dar turno con una fecha sugerida lejana ofrece los días de esa semana', async () => {

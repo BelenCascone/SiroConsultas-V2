@@ -21,7 +21,7 @@ test('Hoy muestra el turno que sigue, la lista del día y los controles', async 
   await expect(page.getByRole('region', { name: 'Ahora' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Atender' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'No vino' })).toBeVisible()
-  await expect(page.getByRole('region', { name: 'Hoy' })).toContainText('Tomás Ferreyra')
+  await expect(page.getByRole('region', { name: 'Turnos de hoy' })).toContainText('Tomás Ferreyra')
   await expect(page.getByRole('region', { name: 'Controles por agendar' })).toBeVisible()
   expect(await sinScrollHorizontal(page)).toBe(true)
   // Un turno de la lista abre su ventana sobre la agenda.

@@ -96,8 +96,8 @@ export async function controlesPorAgendar(db: D1Database, hoy: string) {
   const r = await db.prepare(
     `WITH base AS (
        SELECT p.id paciente_id, p.nombre, p.apellido,
-              (SELECT c.proximo_control FROM consultas c WHERE c.paciente_id = p.id AND c.estado = 'finalizada' AND c.proximo_control IS NOT NULL
-                ORDER BY c.finalizada_en DESC LIMIT 1) control
+              (SELECT c.proximo_control FROM consultas c WHERE c.paciente_id = p.id AND c.estado = 'finalizada'
+                ORDER BY c.finalizada_en DESC, c.id DESC LIMIT 1) control
          FROM pacientes p
         WHERE p.baja_en IS NULL AND NOT EXISTS (SELECT 1 FROM turnos t WHERE t.paciente_id = p.id AND t.estado IN ('confirmado', 'solicitado') AND t.fecha >= ?)
      ) SELECT paciente_id, nombre, apellido, control FROM base WHERE control IS NOT NULL ORDER BY control, apellido`).bind(hoy).all<Control>()

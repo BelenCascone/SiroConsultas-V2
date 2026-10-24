@@ -9,8 +9,6 @@ export type DatosBloqueo = {
 
 export const MAX_DIAS_BLOQUEO = 366
 export const CUANTOS_HORARIOS = 3
-/** Cuánto antes de que vuelvan a ofrecerse los horarios que el paciente no eligió (horas). */
-export const HORAS_PARA_ELEGIR = 48
 
 const numero = (v: unknown) => (typeof v === 'string' && /^\d{1,9}$/.test(v) ? Number(v) : 0)
 
@@ -76,13 +74,13 @@ export type Horario = { fecha: string; hora: string }
  */
 export function sugerirHorarios(
   datos: DatosAgenda, consultorioId: number, duracion: number, desdeFecha: string, horaDeSiempre: string, hoy: string, ahoraMin: number,
-  cuantos = CUANTOS_HORARIOS, dias = 60,
+  cuantos = CUANTOS_HORARIOS, dias = 60, desdeMin = 0,
 ): Horario[] {
   const querida = aMinutos(horaDeSiempre)
   const salida: Horario[] = []
   for (let i = 0; i <= dias && salida.length < cuantos; i++) {
     const fecha = sumarDias(desdeFecha < hoy ? hoy : desdeFecha, i)
-    const libres = huecos(diaDe(datos, consultorioId, fecha), duracion, hoy, ahoraMin)
+    const libres = huecos(diaDe(datos, consultorioId, fecha), duracion, hoy, ahoraMin).filter(h => fecha !== desdeFecha || aMinutos(h) >= desdeMin)
     if (!libres.length) continue
     const mejor = libres.reduce((a, b) => (Math.abs(aMinutos(b) - querida) < Math.abs(aMinutos(a) - querida) ? b : a))
     salida.push({ fecha, hora: mejor })

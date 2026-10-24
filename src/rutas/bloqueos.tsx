@@ -10,7 +10,7 @@ import { enlaceWhatsapp } from '../lib/pacientes'
 import { aMinutos, cargarAgenda, MOTIVOS_BLOQUEO } from '../lib/turnos'
 import { moverTurno } from '../lib/agenda'
 import {
-  HORAS_PARA_ELEGIR, MOTIVO_TEXTO, cuandoCorto, leerBloqueo, mensajeParaElegir, rangoCorto, sugerirHorarios, turnosEnBloqueo,
+  MOTIVO_TEXTO, cuandoCorto, leerBloqueo, mensajeParaElegir, rangoCorto, sugerirHorarios, turnosEnBloqueo,
   type DatosBloqueo, type Horario, type TurnoEnBloqueo,
 } from '../lib/bloqueos'
 import { Pagina } from '../ui/pagina'
@@ -229,8 +229,9 @@ bloqueos.get('/bloqueos/:id{[0-9]+}', async (c) => {
   const moviendo = turnos.find((t) => t.id === entero(q.mover) && esperando(t).length === 0) ?? null
   let sugeridos: Horario[] = []
   if (moviendo) {
-    const datos = await cargarAgenda(db, moviendo.fecha < hoy ? hoy : moviendo.fecha, sumarDias(moviendo.fecha < hoy ? hoy : moviendo.fecha, 60), ahoraISO())
-    sugeridos = sugerirHorarios({ ...datos, turnos: datos.turnos.filter((x) => x.id !== moviendo.id) }, moviendo.consultorio_id, moviendo.duracion_min, moviendo.fecha, moviendo.hora, hoy, ahoraMin)
+    const desde = b.hora_hasta ? b.hasta : sumarDias(b.hasta,1)
+    const datos = await cargarAgenda(db, desde < hoy ? hoy : desde, sumarDias(desde < hoy ? hoy : desde, 60), ahoraISO())
+    sugeridos = sugerirHorarios({ ...datos, turnos: datos.turnos.filter((x) => x.id !== moviendo.id) }, moviendo.consultorio_id, moviendo.duracion_min, desde, moviendo.hora, hoy, ahoraMin,3,60,b.hora_hasta ? aMinutos(b.hora_hasta) : 0)
   }
   const [ec, ef, eh] = (q.elegido ?? '').split(',')
   const elegido = moviendo && ec === String(moviendo.consultorio_id) ? sugeridos.find((s) => s.fecha === ef && s.hora === eh) ?? null : null
@@ -262,7 +263,7 @@ bloqueos.get('/bloqueos/:id{[0-9]+}', async (c) => {
                   </span>
                   {hay.length > 0 ? (
                     <div class="resolver-panel">
-                      <span class="chico suave">Le ofrecimos estos horarios; quedan reservados hasta que elija (o {HORAS_PARA_ELEGIR} horas).</span>
+                      <span class="chico suave">Le ofrecimos estos horarios; quedan reservados hasta que elija. Cada opción se libera cuando pasa su horario.</span>
                       <div class="fila-marcas">
                         {hay.map((p) => (
                           <form method="post" action={`/bloqueos/${id}/elegir`}>
@@ -373,15 +374,26 @@ bloqueos.post('/bloqueos/:id{[0-9]+}/proponer', async (c) => {
   const ya = await db.prepare("SELECT 1 FROM propuestas WHERE turno_id = ? AND estado = 'reservada' AND vence_en > ?").bind(tid, ahoraISO()).first()
   if (ya) return c.redirect(`/bloqueos/${id}`)
   const { fecha: hoy, hora: ahora } = ahoraAR()
-  const desde = t.fecha < hoy ? hoy : t.fecha
+  const b = (await leerFila(db,id))!
+  const inicio = b.hora_hasta ? b.hasta : sumarDias(b.hasta,1), desde = inicio < hoy ? hoy : inicio
   const datos = await cargarAgenda(db, desde, sumarDias(desde, 60), ahoraISO())
-  const opciones = sugerirHorarios({ ...datos, turnos: datos.turnos.filter((x) => x.id !== tid) }, t.consultorio_id, t.duracion_min, t.fecha, t.hora, hoy, aMinutos(ahora))
+  const opciones = sugerirHorarios({ ...datos, turnos: datos.turnos.filter((x) => x.id !== tid) }, t.consultorio_id, t.duracion_min, inicio, t.hora, hoy, aMinutos(ahora),3,60,b.hora_hasta ? aMinutos(b.hora_hasta) : 0)
   if (!opciones.length) return volver('No hay huecos libres para ofrecerle: elegí otro día en la agenda.')
-  const vence = ahoraISO(Date.now() + HORAS_PARA_ELEGIR * 3600_000)
-  await db.batch(opciones.map((o) => db.prepare(
-    'INSERT INTO propuestas (turno_id, consultorio_id, fecha, hora, duracion_min, vence_en) VALUES (?, ?, ?, ?, ?, ?)').bind(tid, t.consultorio_id, o.fecha, o.hora, t.duracion_min, vence)))
-  await registrar(c, 'turno_propuestas', `turno:${tid} · ${opciones.length} horarios (bloqueo ${id})`, c.get('email'))
-  return c.redirect(`/bloqueos/${id}?${new URLSearchParams({ hecho: `Reservamos ${opciones.length} horarios para ${t.nombre}. Mandáselos por WhatsApp para que elija.` })}`)
+  const minutos = '(CAST(substr(x.hora,1,2) AS INTEGER)*60+CAST(substr(x.hora,4,2) AS INTEGER))'
+  const instante = ahoraISO()
+  await db.batch(opciones.map(o => {
+    const ini=aMinutos(o.hora),fin=ini+t.duracion_min
+    return db.prepare(`INSERT INTO propuestas (turno_id,consultorio_id,fecha,hora,duracion_min,vence_en)
+      SELECT ?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM turnos WHERE id=? AND estado='confirmado')
+      AND EXISTS (SELECT 1 FROM bloqueos WHERE id=? AND quitado_en IS NULL)
+      AND NOT EXISTS (SELECT 1 FROM turnos x WHERE x.fecha=? AND x.estado IN ('confirmado','solicitado','atendido') AND ${minutos}<? AND ?<${minutos}+x.duracion_min)
+      AND NOT EXISTS (SELECT 1 FROM propuestas x WHERE x.fecha=? AND x.estado='reservada' AND x.vence_en>? AND ${minutos}<? AND ?<${minutos}+x.duracion_min)`)
+      .bind(tid,t.consultorio_id,o.fecha,o.hora,t.duracion_min,new Date(`${o.fecha}T${o.hora}:00-03:00`).toISOString().replace('.000Z','Z'),tid,id,o.fecha,fin,ini,o.fecha,instante,fin,ini)
+  }))
+  const total = await db.prepare("SELECT COUNT(*) n FROM propuestas WHERE turno_id=? AND estado='reservada' AND vence_en>?").bind(tid,instante).first<{n:number}>()
+  if (!total?.n) return volver('Esos horarios se ocuparon recién. Volvé a buscar horarios.')
+  await registrar(c, 'turno_propuestas', `turno:${tid} · ${total.n} horarios (bloqueo ${id})`, c.get('email'))
+  return c.redirect(`/bloqueos/${id}?${new URLSearchParams({ hecho: `Reservamos ${total.n} horarios para ${t.nombre}. Mandáselos por WhatsApp para que elija.` })}`)
 })
 
 // El paciente contestó cuál le queda bien: el turno pasa a ese horario y los otros se liberan.
@@ -397,14 +409,9 @@ bloqueos.post('/bloqueos/:id{[0-9]+}/elegir', async (c) => {
     .all<{ id: number; fecha: string; hora: string; consultorio_id: number }>()).results ?? []
   const p = reservadas.find((x) => x.id === pid)
   if (!p) return volver('Esos horarios ya vencieron.')
-  // Mientras se mueve, los horarios dejan de estar reservados (si no, el turno chocaría con su propia reserva).
-  await db.prepare("UPDATE propuestas SET estado = CASE WHEN id = ? THEN 'elegida' ELSE 'liberada' END WHERE turno_id = ? AND estado = 'reservada'").bind(pid, tid).run()
   const { fecha: hoy, hora: ahora } = ahoraAR()
-  const r = await moverTurno(db, { ...t, estado: 'confirmado' }, { consultorio_id: p.consultorio_id, fecha: p.fecha, hora: p.hora }, hoy, aMinutos(ahora))
-  if (r.error) {
-    await db.prepare("UPDATE propuestas SET estado = 'reservada' WHERE turno_id = ? AND id IN (" + reservadas.map(() => '?').join(',') + ')').bind(tid, ...reservadas.map((x) => x.id)).run()
-    return volver(r.error)
-  }
+  const r = await moverTurno(db, { ...t, estado: 'confirmado' }, { consultorio_id: p.consultorio_id, fecha: p.fecha, hora: p.hora }, hoy, aMinutos(ahora), pid)
+  if (r.error) return volver(r.error)
   await registrar(c, 'turno_movido', `turno:${tid} · ${t.fecha} ${t.hora} → ${p.fecha} ${p.hora} (eligió, bloqueo ${id})`, c.get('email'))
   return c.redirect(`/turnos/${tid}/aviso?${new URLSearchParams({ que: 'movido', antes: `${t.fecha} ${t.hora}`, volver: `/bloqueos/${id}` })}`)
 })

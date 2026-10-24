@@ -105,7 +105,7 @@ inicio.get('/', async (c) => {
           )}
         </Tarjeta>
 
-        <Tarjeta titulo="Hoy" accion={<span class="chico suave">{lista.length === 0 ? 'Sin turnos' : lista.length === 1 ? '1 turno' : `${lista.length} turnos`} · <a href="/agenda" data-modulo="agenda">Ver agenda</a></span>}>
+        <Tarjeta titulo="Hoy" etiqueta="Turnos de hoy" accion={<span class="chico suave">{lista.length === 0 ? 'Sin turnos' : lista.length === 1 ? '1 turno' : `${lista.length} turnos`} · <a href="/agenda" data-modulo="agenda">Ver agenda</a></span>}>
           {lista.length === 0 ? (
             <p class="suave">Hoy no tenés turnos.</p>
           ) : (
