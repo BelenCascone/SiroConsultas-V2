@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pacientes en el celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#E9F1F3}
+a{color:#24605F}
+button,input{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .26s cubic-bezier(.2,.7,.2,1)}.hoja{animation:sube .26s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes sube{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; padding: 32px 24px; background: #E9F1F3; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #02261E; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; align-items: flex-start;">
+
+  <div style="width: 390px; height: 844px; position: relative; overflow: hidden; border-radius: 44px; background: radial-gradient(320px 220px at 10% 0%, rgba(137,201,201,0.40), transparent 70%), radial-gradient(300px 200px at 95% 6%, rgba(218,252,146,0.55), transparent 70%), #F2F7F9; box-shadow: 0 0 0 10px #02261E, 0 30px 60px rgba(2,38,30,0.25); font-size: 15px; line-height: 1.45;">
+    <div style="position: absolute; inset: 0 0 76px 0; overflow-y: auto; padding: 18px 16px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px;">
+      <sc-if value="{{enLista}}" hint-placeholder-val="{{true}}">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <header style="display: flex; flex-direction: column;">
+            <span style="font-size: 13px; color: #4A5F5C;">{{totalTxt}}</span>
+            <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em;">Pacientes</h1>
+          </header>
+          <label for="buscaPac" style="display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 16px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(2,38,30,0.06); color: #4A5F5C;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <input id="buscaPac" type="search" value="{{texto}}" onInput="{{escribir}}" placeholder="Nombre o DNI" autocomplete="off" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 16px; color: #02261E; outline: none;">
+          </label>
+          <div role="group" aria-label="Filtros" style="display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px; padding: 0 16px;">
+            <sc-for list="{{filtros}}" as="f" hint-placeholder-count="4">
+              <button type="button" onClick="{{f.elegir}}" aria-pressed="{{f.on}}" style="{{f.style}}">{{f.label}}</button>
+            </sc-for>
+          </div>
+          <sc-for list="{{lista}}" as="p" hint-placeholder-count="6">
+            <button type="button" onClick="{{p.abrir}}" style="display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px; border-radius: 16px; border: 0; background: #FFFFFF; color: #02261E; font-size: 15px; width: 100%; text-align: left;">
+              <span aria-hidden="true" style="flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800; font-size: 14px;">{{p.ini}}</span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-weight: 700;">{{p.nombre}}</span><span style="font-size: 13px; color: #4A5F5C;">{{p.sub}}</span></span>
+              <sc-if value="{{p.hayChip}}" hint-placeholder-val="{{false}}"><span style="{{p.chip}}">{{p.marca}}</span></sc-if>
+            </button>
+          </sc-for>
+          <sc-if value="{{sinResultados}}" hint-placeholder-val="{{false}}">
+            <div style="padding: 14px 16px; border-radius: 16px; background: #FFFFFF; font-size: 14px; color: #4A5F5C;">{{sinTxt}}</div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{enFicha}}" hint-placeholder-val="{{false}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 12px;">
+          <button type="button" onClick="{{volverLista}}" style="align-self: flex-start; height: 44px; padding: 0 4px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 15px;">‹ Pacientes</button>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span aria-hidden="true" style="flex: 0 0 auto; width: 56px; height: 56px; border-radius: 50%; background: #DCEFEF; color: #24605F; display: grid; place-items: center; font-weight: 800; font-size: 18px;">{{p.ini}}</span>
+            <div style="display: flex; flex-direction: column; min-width: 0;">
+              <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">{{p.nombre}}</h1>
+              <span style="font-size: 13px; color: #4A5F5C;">DNI {{p.dniTxt}} · {{p.cob}}</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <sc-for list="{{p.marcas}}" as="m" hint-placeholder-count="2">
+              <span style="{{m.style}}">{{m.label}}</span>
+            </sc-for>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button type="button" onClick="{{p.whatsapp}}" style="height: 48px; border-radius: 14px; border: 0; background: #E4F4EA; color: #166534; font-size: 15px; font-weight: 700;">WhatsApp</button>
+            <button type="button" onClick="{{p.darTurno}}" style="height: 48px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Dar turno</button>
+          </div>
+          <sc-if value="{{p.debe}}" hint-placeholder-val="{{false}}">
+            <button type="button" onClick="{{p.cobrar}}" style="display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 16px; border-radius: 16px; border: 0; background: #FFF1D6; color: #8A5300; font-size: 15px; font-weight: 800;"><span>Debe · Cobrar</span><span>{{p.debeTxt}}</span></button>
+          </sc-if>
+          <section aria-label="Resumen" style="background: #FFFFFF; border-radius: 18px; padding: 4px 16px;">
+            <sc-for list="{{p.datos}}" as="x" hint-placeholder-count="6">
+              <div style="display: flex; flex-direction: column; justify-content: center; min-height: 56px; border-top: 1px solid #E9F1F3;">
+                <span style="font-size: 13px; color: #4A5F5C;">{{x.k}}</span><span style="{{x.style}}">{{x.v}}</span>
+              </div>
+            </sc-for>
+          </section>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF;">
+            <span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-size: 14px; font-weight: 700;">App del paciente</span><span style="font-size: 13px; color: #4A5F5C;">{{p.appTxt}}</span></span>
+            <sc-if value="{{p.sinApp}}" hint-placeholder-val="{{true}}">
+              <button type="button" onClick="{{p.mandarApp}}" style="flex: 0 0 auto; height: 44px; padding: 0 12px; border-radius: 12px; border: 0; background: #DCEFEF; color: #24605F; font-size: 14px; font-weight: 700;">{{p.appBoton}}</button>
+            </sc-if>
+          </div>
+          <p style="margin: 0; font-size: 13px; color: #4A5F5C;">La historia clínica, las notas y los documentos se ven en la compu.</p>
+        </div>
+      </sc-if>
+    </div>
+
+    <nav aria-label="Secciones" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 8px 14px; background: #FFFFFF; box-shadow: 0 -1px 0 #E9F1F3; display: grid; grid-template-columns: repeat(4, 1fr);">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <a href="{{t.href}}" aria-current="{{t.actual}}" style="{{t.style}}"><span aria-hidden="true" style="{{t.dot}}"></span><span>{{t.label}}</span></a>
+      </sc-for>
+    </nav>
+
+    <sc-if value="{{aviso}}" hint-placeholder-val="{{false}}">
+      <div role="status" class="paso" style="position: absolute; left: 16px; right: 16px; bottom: 88px; padding: 12px 14px; border-radius: 14px; background: #02261E; color: #FFFFFF; font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <span>{{avisoTxt}}</span>
+        <button type="button" onClick="{{cerrarAviso}}" style="height: 44px; padding: 0 10px; border: 0; background: transparent; color: #DAFC92; font-weight: 700; font-size: 14px;">Listo</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{hoja}}" hint-placeholder-val="{{false}}">
+      <div style="position: absolute; inset: 0; background: rgba(2,38,30,0.35); display: flex; align-items: flex-end;">
+        <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="position: absolute; inset: 0; border: 0; background: transparent;"></button>
+        <div class="hoja" role="dialog" aria-modal="true" aria-label="{{h.titulo}}" style="position: relative; width: 100%; box-sizing: border-box; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 10px 16px 24px; display: flex; flex-direction: column; gap: 12px; max-height: 92%; overflow-y: auto;">
+          <span aria-hidden="true" style="align-self: center; width: 40px; height: 4px; border-radius: 4px; background: #DDE8EB;"></span>
+          <sc-if value="{{h.puedeVolver}}" hint-placeholder-val="{{false}}">
+            <button type="button" onClick="{{h.volver}}" style="align-self: flex-start; height: 44px; padding: 0 4px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 14px;">‹ Atrás</button>
+          </sc-if>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 13px; color: #4A5F5C;">{{h.sub}}</span>
+            <span style="font-size: 20px; font-weight: 700;">{{h.titulo}}</span>
+          </div>
+
+          <button type="button" onClick="{{cerrar}}" style="height: 48px; border-radius: 14px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 15px;">Cerrar</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <aside style="width: 320px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #4A5F5C;">
+    <h2 style="margin: 0; font-size: 18px; color: #02261E;">Pacientes en el celular</h2>
+    <p style="margin: 0;">Buscás por nombre o DNI, con los mismos filtros que en la compu: te deben, control vencido y sin próximo turno.</p>
+    <p style="margin: 0;"><b>Resumen:</b> contacto, alergias, última consulta, próximo turno y saldo. Desde ahí le escribís, le das turno, le cobrás o le mandás el enlace de la app.</p>
+    <p style="margin: 0;">Lo clínico (historia, notas y documentos) queda en la compu. Probá con Diego Paz (debe) o Rosa Medina (alergia).</p>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var set = function (o) { return function () { self.setState(o); }; };
+    var avisa = function (t) { return function () { self.setState({ hoja: null, aviso: t }); }; };
+    var plata = function (n) { return '$ ' + Number(n).toLocaleString('es-AR'); };
+    var celda = function (on) { return on ? 'background:#DCEFEF;color:#24605F;font-weight:700;box-shadow:inset 0 0 0 1.5px #24605F;' : 'background:#E9F1F3;color:#02261E;font-weight:600;'; };
+    var chipBase = 'font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; ';
+    var sinTilde = function (t) { return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+    var dniTxt = function (d) { return d.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+    var tabs = [['Hoy', 'HoyCel.dc.html'], ['Agenda', 'AgendaCel.dc.html'], ['Pacientes', 'PacientesCel.dc.html'], ['Pedidos', 'PedidosCel.dc.html']].map(function (x) {
+      var on = x[0] === 'Pacientes';
+      return { label: x[0] === 'Pedidos' ? 'Pedidos · 3' : x[0], href: x[1], actual: on ? 'page' : null,
+        dot: 'width: 28px; height: 4px; border-radius: 4px; background: ' + (on ? '#02261E' : 'transparent') + ';',
+        style: 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 52px; text-decoration: none; font-size: 13px; ' + (on ? 'color:#02261E;font-weight:800;' : 'color:#4A5F5C;font-weight:600;') };
+    });
+    // Pacientes ficticios (mismos que en Pacientes de la compu)
+    var PAC = [
+      { nombre: 'Ana Quiroga', dni: '30111222', cel: '11 5555-0110', mail: 'ana.q@correo.com', cob: 'OSDE', veces: 5, faltas: 0, ultima: '21/10 · Control', prox: 'Mar 28/10 · 10:30', debe: 0, vencido: true, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Camila Sosa', dni: '38444555', cel: '11 5555-0161', mail: 'cami.sosa@correo.com', cob: 'Particular', veces: 2, faltas: 0, ultima: '21/10 · Evolución', prox: 'Vie 31/10 · 16:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Carlos Vera', dni: '12345678', cel: '11 5555-0106', mail: 'sin correo', cob: 'PAMI', veces: 10, faltas: 1, ultima: '2/10 · Control', prox: 'Hoy · 12:30', debe: 0, vencido: false, alergias: 'Ibuprofeno', app: false },
+      { nombre: 'Diego Paz', dni: '33222111', cel: '11 5555-0199', mail: 'diego.paz@correo.com', cob: 'Swiss Medical', veces: 4, faltas: 0, ultima: '6/10 · Control', prox: 'Vie 24/10 · 17:00', debe: 12000, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Elena Castro', dni: '22333444', cel: '11 5555-0123', mail: 'elena.castro@correo.com', cob: 'Swiss Medical', veces: 6, faltas: 0, ultima: '20/10 · Evolución', prox: 'Mar 28/10 · 9:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Lucas Benítez', dni: '36555444', cel: '11 5555-0104', mail: 'lucas.b@correo.com', cob: 'OSDE', veces: 6, faltas: 0, ultima: '25/9 · Control', prox: 'Hoy · 11:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Martina Gómez', dni: '45678901', cel: '11 5555-0103', mail: 'martina.g@correo.com', cob: 'Sin completar', veces: 0, faltas: 0, ultima: 'Nunca vino', prox: 'Hoy · 10:30', debe: 0, vencido: false, alergias: 'Sin datos todavía', app: false },
+      { nombre: 'Nicolás Díaz', dni: '31444333', cel: '11 5555-0193', mail: 'nico.diaz@correo.com', cob: 'Galeno', veces: 7, faltas: 2, ultima: '21/10 · Control', prox: 'Sin turno', debe: 0, vencido: true, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Pedro Luna', dni: '25666777', cel: '11 5555-0152', mail: 'pedro.luna@correo.com', cob: 'Galeno', veces: 8, faltas: 0, ultima: '20/10 · Control', prox: 'Vie 24/10 · 9:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Rosa Medina', dni: '18999000', cel: '11 5555-0131', mail: 'rosa.m@correo.com', cob: 'PAMI', veces: 4, faltas: 1, ultima: '20/10 · Control', prox: 'Sáb 25/10 · 9:30', debe: 0, vencido: false, alergias: 'Penicilina', app: false },
+      { nombre: 'Tomás Ferreyra', dni: '40777888', cel: '11 5555-0102', mail: 'tomas.f@correo.com', cob: 'Particular', veces: 3, faltas: 0, ultima: 'Hoy · Control', prox: 'Sin turno', debe: 9500, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Valeria Ruiz', dni: '41222333', cel: '11 5555-0188', mail: 'vale.ruiz@correo.com', cob: 'Particular', veces: 1, faltas: 0, ultima: '20/10 · Primera consulta', prox: 'Sáb 25/10 · 11:00', debe: 15000, vencido: false, alergias: 'Sin alergias registradas', app: false }
+    ];
+    var buscar = function (texto) {
+      var t = (texto || '').trim(); if (!t) return [];
+      var dig = t.replace(/\D/g, '');
+      if (/^[\d.\s]+$/.test(t)) return dig.length >= 2 ? PAC.filter(function (p) { return p.dni.indexOf(dig) === 0; }) : [];
+      return t.length >= 2 ? PAC.filter(function (p) { return sinTilde(p.nombre).indexOf(sinTilde(t)) >= 0; }) : [];
+    };
+    var s = Object.assign({ texto: '', filtro: 'todos', abierto: null, aviso: '', enlaces: {} }, this.state || {});
+    var FIL = [['todos', 'Todos', function (p) { return true; }], ['deben', 'Te deben', function (p) { return p.debe > 0; }], ['control', 'Control vencido', function (p) { return p.vencido; }], ['sinTurno', 'Sin próximo turno', function (p) { return p.prox === 'Sin turno'; }]];
+    var f = FIL.filter(function (x) { return x[0] === s.filtro; })[0];
+    var base = s.texto.trim() ? buscar(s.texto) : PAC;
+    var vis = base.filter(f[2]);
+    var ini = function (n) { return n.split(' ').map(function (w) { return w.charAt(0); }).join('').slice(0, 2); };
+    var lista = vis.map(function (p) {
+      var marca = p.debe ? 'Debe ' + plata(p.debe) : p.vencido ? 'Control vencido' : p.veces === 0 ? 'Primera vez' : '';
+      var col = p.debe ? 'background:#FFF1D6;color:#8A5300;' : p.vencido ? 'background:#FDE8E8;color:#9E2016;' : 'background:#E5F2FF;color:#1D5FB8;';
+      return { nombre: p.nombre, ini: ini(p.nombre), sub: p.prox === 'Sin turno' ? 'Sin próximo turno · DNI ' + dniTxt(p.dni) : 'Próximo: ' + p.prox,
+        hayChip: !!marca, marca: marca, chip: chipBase + col, abrir: set({ abierto: p.nombre, aviso: '' }) };
+    });
+    var P = PAC.filter(function (p) { return p.nombre === s.abierto; })[0] || PAC[0];
+    var invitado = !!s.enlaces[P.nombre];
+    var marcas = [];
+    marcas.push({ label: P.veces ? 'Vino ' + P.veces + (P.veces === 1 ? ' vez' : ' veces') : 'Nunca vino', style: chipBase + 'background:#DCEFEF;color:#24605F;' });
+    if (P.faltas) marcas.push({ label: P.faltas + (P.faltas === 1 ? ' falta' : ' faltas'), style: chipBase + 'background:#FDE8E8;color:#9E2016;' });
+    if (P.vencido) marcas.push({ label: 'Control vencido', style: chipBase + 'background:#FDE8E8;color:#9E2016;' });
+    if (P.cob === 'Sin completar') marcas.push({ label: 'Ficha incompleta', style: chipBase + 'background:#FFF1D6;color:#8A5300;' });
+    var alergia = P.alergias !== 'Sin alergias registradas' && P.alergias !== 'Sin datos todavía';
+    var valor = 'font-weight: 600;';
+    var pv = {
+      nombre: P.nombre, ini: ini(P.nombre), dniTxt: dniTxt(P.dni), cob: P.cob, marcas: marcas,
+      debe: P.debe > 0, debeTxt: plata(P.debe),
+      datos: [
+        ['Alergias', P.alergias, alergia ? 'font-weight: 800; color: #9E2016;' : valor],
+        ['Celular', P.cel, valor], ['Correo', P.mail, valor],
+        ['Última consulta', P.ultima, valor], ['Próximo turno', P.prox, valor],
+        ['Saldo', P.debe ? 'Debe ' + plata(P.debe) : 'Al día', P.debe ? 'font-weight: 800; color: #8A5300;' : 'font-weight: 600; color: #166534;']
+      ].map(function (x) { return { k: x[0], v: x[1], style: x[2] }; }),
+      whatsapp: set({ aviso: 'Se abre WhatsApp con el chat de ' + P.nombre + '.' }),
+      darTurno: set({ aviso: 'Se abren los horarios libres, como en Agenda, con ' + P.nombre + ' ya elegido.' }),
+      cobrar: set({ aviso: 'Se abre el cobro de ' + P.nombre + ', igual que en Hoy, con lo que debe ya elegido.' }),
+      sinApp: !P.app, appTxt: P.app ? 'Ya tiene cuenta.' : invitado ? 'Le mandaste el enlace hoy. Vence en 7 días.' : 'Todavía no tiene cuenta.',
+      appBoton: invitado ? 'Reenviar' : 'Mandar enlace',
+      mandarApp: function () { var e = Object.assign({}, s.enlaces); e[P.nombre] = true; self.setState({ enlaces: e, aviso: 'Le mandamos a ' + P.nombre + ' el enlace de la app por WhatsApp.' }); }
+    };
+    return {
+      tabs: tabs, enLista: !s.abierto, enFicha: !!s.abierto, p: pv, volverLista: set({ abierto: null, aviso: '' }),
+      totalTxt: PAC.length + ' pacientes activos',
+      texto: s.texto, escribir: function (e) { if (e && e.target) self.setState({ texto: e.target.value }); },
+      filtros: FIL.map(function (x) { var on = x[0] === s.filtro; var n = PAC.filter(x[2]).length;
+        return { label: x[1] + (x[0] === 'todos' ? '' : ' · ' + n), on: on ? 'true' : 'false', elegir: set({ filtro: x[0] }),
+          style: 'flex: 0 0 auto; height: 44px; padding: 0 14px; border-radius: 999px; border: 0; font-size: 14px; white-space: nowrap; ' + (on ? 'background:#02261E;color:#FFFFFF;font-weight:700;' : 'background:#FFFFFF;color:#02261E;font-weight:600;') }; }),
+      lista: lista, sinResultados: !lista.length,
+      sinTxt: s.texto.trim() ? 'No encontramos a nadie con «' + s.texto.trim() + '». Si es nuevo, dale turno desde Hoy o Agenda con su DNI.' : 'No hay pacientes en este filtro.',
+      hoja: false, h: {}, cerrar: set({}),
+      aviso: !!s.aviso, avisoTxt: s.aviso, cerrarAviso: set({ aviso: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>

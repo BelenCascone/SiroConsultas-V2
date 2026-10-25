@@ -1,7 +1,7 @@
 # SiroConsultas · Diseño aprobado
 
-Tablero: https://claude.ai/artifact/J6jZgJy4gaAuEqsae9dZFq · fuentes en `docs/v2/pantallas/`.
-Por ahora solo compu; el celular se diseña después.
+Tablero: https://claude.ai/artifact/J6jZgJy4gaAuEqsae9dZFq · fuentes en `docs/pantallas/`.
+Compu, Hoy en el celular y app del paciente aprobados el 23/10; Agenda, Pacientes y Pedidos en el celular, en revisión.
 
 ## 1. Base visual · aprobada el 23/10
 - Estilo «Nube» (el del panel de Estudio Aura): menú en pastilla arriba, saludo y buscador centrados, tarjetas blancas grandes (radio 26–28 px) con sombra suave, botones en pastilla, bolitas de pasos, fondo con brillos suaves.
@@ -103,6 +103,25 @@ Por ahora solo compu; el celular se diseña después.
 - Si cambian: «Actualizamos los términos» con un recuadro «Qué cambió»; al aceptar va a Hoy.
 - Sin aceptar no se entra; se guarda versión y fecha (visible en Configuración). El texto definitivo lo redacta y revisa un abogado.
 
+## 15. Hoy en el celular (390 px) · aprobada el 23/10
+- Lo de todos los días: ver el día, marcar si llegó, cobrar, dar o mover un turno, bloquear, escribir por WhatsApp y mandar el enlace de la app. Abajo: Hoy, Agenda, Pacientes y Pedidos. Lo clínico, estadísticas, configuración y exportar quedan en la compu.
+- **Dar turno:** empieza por el DNI. Mientras se escribe, aparecen los pacientes que coinciden («Ya es paciente», última visita). Si el DNI no existe, avisa que es nuevo y pide la ficha mínima. Por nombre también busca, pero si no aparece sugiere el DNI para no duplicar fichas.
+- **Cobrar:** 1) a quién (DNI o nombre; arriba los que deben); 2) qué (lo que debe o una prestación con precio de lista), cuánto (todo, una parte con monto, nada aún), cómo pagó y comprobante (interno, factura C, ahora no). Un pago parcial deja el resto como deuda.
+
+## 16. App del paciente · aprobada el 23/10
+- Solo por invitación: la profesional le manda el enlace por WhatsApp. Con el enlace crea su cuenta (usuario = DNI, elige contraseña) y acepta términos y privacidad. Sin enlace no hay cuenta.
+- Después entra con usuario y contraseña; si cambian los términos, los vuelve a aceptar al entrar. Contraseña olvidada: código por WhatsApp al celular de la ficha.
+- Ve: próximo turno (confirmar, cambiar o cancelar), sus turnos, lo que debe con «Pagar con Mercado Pago», lo que pagó con comprobante y sus datos. Nada clínico.
+- El enlace vence (7 días en el diseño) y sirve una sola vez. Los documentos no aparecen en la app: le llegan solo por WhatsApp.
+- En la ficha de la compu: fila «App del paciente» con «Mandar el enlace» o «Reenviar enlace».
+- **Mercado Pago:** «Pagar con Mercado Pago» es solo un enlace que lleva al paciente a Mercado Pago (el enlace de cobro de la profesional): la app no cobra, no procesa ni guarda nada del pago. La profesional lo registra a mano cuando ve la plata, como cualquier otro pago (decidido el 25/10).
+
+## 17 a 19. Agenda, Pacientes y Pedidos en el celular · en revisión
+Armadas el 24/10 con el mismo estilo de Hoy en el celular; la barra de abajo pasa de una a otra. **Falta que Belén las apruebe:** no se programan hasta entonces.
+- **Agenda (`AgendaCel`):** tira de días arriba (hoy y lo que viene) y la lista del día con los huecos libres. Tocar un turno: escribirle, mandarle el recordatorio si no confirmó, moverlo a un horario libre, cancelarlo (con quién canceló) o ver su resumen. Tocar un hueco: dar turno por DNI, igual que en Hoy. Los días bloqueados se ven y no se dan turnos.
+- **Pacientes (`PacientesCel`):** buscar por nombre o DNI, con los filtros de la compu (te deben, control vencido, sin próximo turno). Resumen: contacto, alergias, última consulta, próximo turno y saldo; desde ahí escribirle, darle turno, cobrarle o mandarle el enlace de la app. Lo clínico queda en la compu.
+- **Pedidos (`PedidosCel`):** los mismos pedidos online que en la compu, uno debajo del otro, con si ya vino o sería su primera consulta y cuánto falta para que venza la reserva de 12 horas. Aceptar, proponer hasta 3 horarios o rechazar, con «Deshacer».
+
 ## Reglas comunes (23/10)
 - «Darle turno» a un paciente conocido es siempre la misma ventana con el paciente ya elegido y la semana sugerida, sobre la pantalla en la que estás (ficha, consulta, Hoy «Agendar», agenda «Darle otro turno»).
 - «Volver» lleva a donde estabas: ficha → Pacientes, consulta → Hoy.
@@ -114,4 +133,4 @@ Por ahora solo compu; el celular se diseña después.
 - Estadísticas: separar primeras consultas de pacientes recurrentes (pedido de la profesional, 23/10). La misma marca se ve en Pedidos de turno: «Nunca vino: sería su primera consulta» o «Ya vino N veces · la última el …».
 
 ## Pendientes de aprobar
-Ninguna por ahora. Todas las pantallas de compu están aprobadas. Sigue: el celular (profesional: funciones rápidas; paciente: página para pedir turno y mensajes de WhatsApp, sin app ni cuenta, a confirmar).
+Agenda, Pacientes y Pedidos en el celular (17 a 19): esperan la revisión de Belén. Lo demás está aprobado (compu, Hoy en el celular y app del paciente). Resuelto el 25/10: «Pagar con Mercado Pago» solo redirige a Mercado Pago. Resuelto el 23/10: los documentos le llegan al paciente solo por WhatsApp (no aparecen en la app); el enlace de invitación vence y sirve una vez; la ficha de la compu tiene «App del paciente» con «Mandar el enlace» / «Reenviar enlace»; la app del paciente ya está en el análisis funcional. Queda: el Cobrar de la compu usa $ 18.000 para un control y Configuración $ 12.000, unificar.

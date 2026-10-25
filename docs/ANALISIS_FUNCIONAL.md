@@ -2,14 +2,14 @@
 
 23/10/2026 · Belén (BC Informática) · versión aprobada
 
-> Pasado del documento original (https://claude.ai/artifact/97rHnjLosy9TmtobEngtdV) al repo el 23/10. Ajustes al pasarlo: el diagrama del ciclo del turno quedó como lista; donde el texto dice que el DNI puede faltar al dar el turno, vale lo decidido después el 23/10: **el DNI es obligatorio en el alta rápida y es el identificador único del paciente**. El «Siguiente paso» del final ya está cumplido: la segunda ronda está respondida y el diseño de compu, aprobado (`DISENO_APROBADO.md`).
+> Pasado del documento original (https://claude.ai/artifact/97rHnjLosy9TmtobEngtdV) al repo el 23/10. Ajustes al pasarlo: el diagrama del ciclo del turno quedó como lista; donde el texto dice que el DNI puede faltar al dar el turno, vale lo decidido después el 23/10: **el DNI es obligatorio en el alta rápida y es el identificador único del paciente**. El «Siguiente paso» del final ya está cumplido: la segunda ronda está respondida y el diseño, aprobado (`DISENO_APROBADO.md`). **Mercado Pago:** «Pagar con Mercado Pago» es solo un enlace que lleva al paciente a Mercado Pago (el enlace de cobro de la profesional): la app no cobra, no procesa ni guarda nada del pago. La profesional lo registra a mano cuando ve la plata, como cualquier otro pago (decidido el 25/10).
 
 ## Resumen
 
 SiroConsultas le da a una profesional de la salud que trabaja sin secretaria todo lo necesario para gestionarse sola: agenda, pacientes con ficha e historia clínica, cobros con comprobante (interno o factura de ARCA), documentos clínicos y estadísticas. Se instala un sistema por profesional, con su repositorio, su base, su marca y sus módulos.
 
 - **Una sola usuaria:** la profesional, desde la compu o el celular. No hay roles ni cuentas de equipo.
-- **El paciente** no tiene cuenta. Recibe recordatorios, confirma su turno con un enlace y recibe sus comprobantes y documentos por WhatsApp o correo. Si pide turnos solo, se define en la segunda ronda.
+- **El paciente** entra a su app solo si la profesional lo invita (ver «App del paciente»). Ahí ve sus turnos y sus pagos y puede pagar. Recordatorios, comprobantes y documentos le siguen llegando por WhatsApp o correo.
 - **Todo paciente tiene ficha.** No hay turnos, atenciones ni cobros de personas sin ficha.
 - **Nada clínico ni financiero se borra:** se anula con motivo y queda quién y cuándo.
 
@@ -48,6 +48,17 @@ En el **celular** la profesional no ve todo: solo lo que necesita hacer rápido 
 
 - **Sí en el celular:** agenda de hoy y de los próximos días; dar, mover y cancelar turnos; vino o no vino; registrar cobro y mandar el comprobante; buscar un paciente y ver su resumen (contacto, alergias, última consulta, saldo); mandar un recordatorio; bloquear la agenda; la campanita.
 - **Solo en la compu:** escribir la primera consulta y las evoluciones, estudios, documentos clínicos, estadísticas, configuración, prestaciones y obras sociales, exportaciones y respaldos.
+
+### App del paciente (decidido el 23/10)
+
+El paciente tiene una app propia, en el celular, solo con invitación. No es una cuenta de equipo: ve únicamente lo suyo.
+
+- **Cómo llega:** la profesional le manda el enlace por WhatsApp desde Hoy (al tocar un turno) o desde la ficha («Mandar el enlace» / «Reenviar enlace»). El enlace vence y sirve una sola vez (en el diseño, 7 días). Sin enlace no hay cuenta: el ingreso no ofrece «Crear mi cuenta».
+- **Alta:** con el enlace, el usuario es su DNI (ya cargado) y elige una contraseña. Lee los términos de uso y la política de privacidad y los acepta para entrar. Se guarda la versión y la fecha.
+- **Ingreso:** usuario y contraseña. Si cambian los términos, los vuelve a aceptar al entrar. Si se olvida la contraseña, le llega un código por WhatsApp al celular de su ficha.
+- **Qué ve:** su próximo turno (confirmar, pedir otro horario o cancelar), sus turnos anteriores, lo que debe con «Pagar con Mercado Pago» (solo redirige a Mercado Pago; la app no mueve plata), lo que pagó con su comprobante y sus datos (para corregirlos, avisa por WhatsApp).
+- **Qué no ve:** nada clínico (historia, notas, diagnósticos). Los documentos (certificados, recetas, pedidos) le llegan solo por WhatsApp y no aparecen en la app.
+- **Pedir turno:** el botón abre la misma página de turnos online, con sus datos ya cargados.
 
 ## Decisiones de la segunda ronda
 

@@ -92,7 +92,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
 
     <nav aria-label="Secciones" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 8px 14px; background: #FFFFFF; box-shadow: 0 -1px 0 #E9F1F3; display: grid; grid-template-columns: repeat(4, 1fr);">
       <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
-        <button type="button" onClick="{{t.ir}}" aria-current="{{t.actual}}" style="{{t.style}}"><span aria-hidden="true" style="{{t.dot}}"></span>{{t.label}}</button>
+        <a href="{{t.href}}" aria-current="{{t.actual}}" style="{{t.style}}"><span aria-hidden="true" style="{{t.dot}}"></span><span>{{t.label}}</span></a>
       </sc-for>
     </nav>
 
@@ -106,8 +106,11 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
     <sc-if value="{{hoja}}" hint-placeholder-val="{{false}}">
       <div style="position: absolute; inset: 0; background: rgba(2,38,30,0.35); display: flex; align-items: flex-end;">
         <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="position: absolute; inset: 0; border: 0; background: transparent;"></button>
-        <div class="hoja" role="dialog" aria-modal="true" aria-label="{{h.titulo}}" style="position: relative; width: 100%; box-sizing: border-box; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 10px 16px 24px; display: flex; flex-direction: column; gap: 12px;">
+        <div class="hoja" role="dialog" aria-modal="true" aria-label="{{h.titulo}}" style="position: relative; width: 100%; box-sizing: border-box; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 10px 16px 24px; display: flex; flex-direction: column; gap: 12px; max-height: 92%; overflow-y: auto;">
           <span aria-hidden="true" style="align-self: center; width: 40px; height: 4px; border-radius: 4px; background: #DDE8EB;"></span>
+          <sc-if value="{{h.puedeVolver}}" hint-placeholder-val="{{false}}">
+            <button type="button" onClick="{{h.volver}}" style="align-self: flex-start; height: 44px; padding: 0 4px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 14px;">‹ Atrás</button>
+          </sc-if>
           <div style="display: flex; flex-direction: column;">
             <span style="font-size: 13px; color: #4A5F5C;">{{h.sub}}</span>
             <span style="font-size: 20px; font-weight: 700;">{{h.titulo}}</span>
@@ -116,7 +119,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
           <sc-if value="{{h.esTurno}}" hint-placeholder-val="{{true}}">
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <sc-if value="{{h.puedeCobrar}}" hint-placeholder-val="{{true}}">
-                <button type="button" onClick="{{h.cobrar}}" style="display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #FFF1D6; color: #8A5300; font-size: 15px; font-weight: 800;"><span>Cobrar</span><span>$ 15.000</span></button>
+                <button type="button" onClick="{{h.cobrar}}" style="display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #FFF1D6; color: #8A5300; font-size: 15px; font-weight: 800;"><span>Cobrar</span><span>{{h.montoTurno}}</span></button>
               </sc-if>
               <sc-for list="{{h.acciones}}" as="a" hint-placeholder-count="3">
                 <button type="button" onClick="{{a.hacer}}" style="height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; text-align: left;">{{a.label}}</button>
@@ -124,17 +127,93 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
             </div>
           </sc-if>
 
-          <sc-if value="{{h.esCobro}}" hint-placeholder-val="{{false}}">
+          <sc-if value="{{h.esBuscar}}" hint-placeholder-val="{{false}}">
             <div style="display: flex; flex-direction: column; gap: 10px;">
-              <span style="font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums;">$ 15.000</span>
-              <span style="font-size: 13px; font-weight: 600; color: #4A5F5C;">¿Cómo te pagó?</span>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <sc-for list="{{h.medios}}" as="m" hint-placeholder-count="4">
-                  <button type="button" onClick="{{m.elegir}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">{{b.etiqueta}}<input type="text" inputmode="{{b.modo}}" value="{{b.texto}}" onInput="{{b.escribir}}" placeholder="{{b.ayuda}}" autocomplete="off" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+              <sc-if value="{{b.vacio}}" hint-placeholder-val="{{true}}">
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: #4A5F5C;">
+                  <span>Para probar:</span>
+                  <sc-for list="{{b.pruebas}}" as="x" hint-placeholder-count="2">
+                    <button type="button" onClick="{{x.usar}}" style="height: 44px; padding: 0 12px; border-radius: 999px; border: 0; background: #DCEFEF; color: #24605F; font-weight: 700; font-size: 13px;">{{x.label}}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{b.hayLista}}" hint-placeholder-val="{{false}}">
+                <div role="listbox" aria-label="Coincidencias" style="display: flex; flex-direction: column; gap: 6px;">
+                  <sc-for list="{{b.lista}}" as="p" hint-placeholder-count="2">
+                    <button type="button" role="option" onClick="{{p.elegir}}" style="display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 14px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; text-align: left; width: 100%;">
+                      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-weight: 700;">{{p.nombre}}</span><span style="font-size: 13px; color: #4A5F5C;">{{p.sub}}</span></span>
+                      <span style="{{p.chip}}">{{p.extra}}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{b.esNuevo}}" hint-placeholder-val="{{false}}">
+                <div class="paso" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div role="status" style="padding: 10px 12px; border-radius: 12px; background: #E5F2FF; color: #1D5FB8; font-size: 14px; font-weight: 600;">{{b.nuevoTxt}}</div>
+                  <sc-if value="{{b.pideFicha}}" hint-placeholder-val="{{true}}">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                      <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Nombre<input type="text" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                      <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Apellido<input type="text" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                      <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Celular<input type="tel" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                      <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Cobertura<input type="text" value="Particular" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                    </div>
+                    <button type="button" onClick="{{b.seguirNuevo}}" style="height: 52px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Seguir</button>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{h.esHorario}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; gap: 6px; overflow-x: auto;">
+                <sc-for list="{{hr.dias}}" as="d" hint-placeholder-count="5">
+                  <button type="button" onClick="{{d.elegir}}" aria-pressed="{{d.on}}" style="{{d.style}}"><span style="font-size: 13px; font-weight: 600;">{{d.dia}}</span><span style="font-size: 17px; font-weight: 800;">{{d.num}}</span></button>
                 </sc-for>
               </div>
-              <span style="font-size: 13px; color: #4A5F5C;">Se hace un comprobante interno. La factura C la hacés desde la compu.</span>
-              <button type="button" onClick="{{h.guardarCobro}}" disabled="{{h.sinMedio}}" style="{{h.guardarStyle}}">{{h.guardarTxt}}</button>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <sc-for list="{{hr.horas}}" as="x" hint-placeholder-count="3">
+                  <button type="button" onClick="{{x.elegir}}" aria-pressed="{{x.on}}" style="{{x.style}}">{{x.hora}}</button>
+                </sc-for>
+              </div>
+              <span style="font-size: 13px; color: #4A5F5C;">Solo ves los horarios libres. Al guardar le mandamos la confirmación por WhatsApp.</span>
+              <button type="button" onClick="{{hr.guardar}}" disabled="{{hr.sinHora}}" style="{{hr.guardarStyle}}">{{hr.guardarTxt}}</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{h.esCobro}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 10px;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Qué le cobrás</span>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <sc-for list="{{cb.conceptos}}" as="c" hint-placeholder-count="2">
+                  <button type="button" onClick="{{c.elegir}}" aria-pressed="{{c.on}}" style="{{c.style}}"><span style="flex: 1; display: flex; flex-direction: column;"><span style="font-weight: 700;">{{c.label}}</span><span style="font-size: 13px; font-weight: 500; opacity: .85;">{{c.sub}}</span></span><span style="font-weight: 800; font-variant-numeric: tabular-nums;">{{c.montoTxt}}</span></button>
+                </sc-for>
+              </div>
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Cuánto te paga</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                <sc-for list="{{cb.cuanto}}" as="c" hint-placeholder-count="3">
+                  <button type="button" onClick="{{c.elegir}}" aria-pressed="{{c.on}}" style="{{c.style}}">{{c.label}}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{cb.esParte}}" hint-placeholder-val="{{false}}">
+                <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Monto que paga hoy<input type="text" inputmode="numeric" value="{{cb.parteTxt}}" onInput="{{cb.escribirParte}}" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"><span style="font-weight: 500; color: #4A5F5C;">{{cb.restoTxt}}</span></label>
+              </sc-if>
+              <sc-if value="{{cb.pagaAlgo}}" hint-placeholder-val="{{true}}">
+                <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Cómo te pagó</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                  <sc-for list="{{cb.medios}}" as="m" hint-placeholder-count="4">
+                    <button type="button" onClick="{{m.elegir}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
+                  </sc-for>
+                </div>
+                <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Comprobante</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                  <sc-for list="{{cb.tipos}}" as="t" hint-placeholder-count="3">
+                    <button type="button" onClick="{{t.elegir}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.label}}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <button type="button" onClick="{{cb.guardar}}" disabled="{{cb.bloqueado}}" style="{{cb.guardarStyle}}">{{cb.guardarTxt}}</button>
             </div>
           </sc-if>
 
@@ -155,7 +234,9 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
   <aside style="width: 320px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #4A5F5C;">
     <h2 style="margin: 0; font-size: 18px; color: #02261E;">Hoy en el celular (390 px)</h2>
     <p style="margin: 0;">Lo de todos los días, a un toque: ver el día, marcar si llegó, cobrar, dar o mover un turno, bloquear y escribirle por WhatsApp.</p>
-    <p style="margin: 0;">Tocá un turno para ver qué podés hacer con él. Abajo quedan las cuatro secciones del celu: Hoy, Agenda, Pacientes y Pedidos.</p>
+    <p style="margin: 0;"><b>+ Turno:</b> escribís el DNI y el sistema se fija si ya es paciente. Si existe, aparece para elegirlo; si no, pide la ficha mínima. Así no se duplican fichas.</p>
+    <p style="margin: 0;"><b>Cobrar:</b> primero a quién (DNI o nombre; arriba están los que deben), después qué (lo que debe o una prestación de lista), cuánto (todo, una parte o nada aún), cómo te pagó y el comprobante.</p>
+    <p style="margin: 0;">Tocá un turno para cobrarlo, moverlo o escribirle. Abajo: Hoy, Agenda, Pacientes y Pedidos.</p>
     <p style="margin: 0;">Lo clínico y lo administrativo pesado queda en la compu, como dice el análisis funcional.</p>
   </aside>
 </div>
@@ -164,7 +245,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
 class Component extends DCLogic {
   renderVals() {
     var self = this;
-    var s = Object.assign({ fase: 'espera', hoja: null, medio: null, cobrados: {}, tab: 'Hoy', aviso: '' }, this.state || {});
+    var s = Object.assign({ fase: 'espera', hoja: null, medio: null, cobrados: { 'Ramiro Sánchez': true }, tab: 'Hoy', aviso: '', sel: null, cuanto: 'todo', comp: 'interno', parte: '', dia: 0, hora: null }, this.state || {});
     var set = function (o) { return function () { self.setState(o); }; };
     var avisa = function (t) { return function () { self.setState({ hoja: null, aviso: t }); }; };
     var CHIP = {
@@ -195,52 +276,145 @@ class Component extends DCLogic {
         chip: 'font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap;' + CHIP[e] };
     });
     var h = s.hoja || {};
-    var nombre = h.nombre || 'Tomás Ferreyra';
-    var MED = ['Efectivo', 'Transferencia', 'Mercado Pago', 'Débito'];
+    var plata = function (n) { return '$ ' + Number(n).toLocaleString('es-AR'); };
+    var PRES = [['Primera consulta', 15000], ['Control', 12000], ['Evolución', 16700]];
+    var PAC = [
+      { nombre: 'Martina Gómez', dni: '45678901', cob: 'OSDE', ultima: 'Vino el 23/10', deuda: [] },
+      { nombre: 'Marcela Gómez', dni: '45112300', cob: 'Particular', ultima: 'Vino el 2/9', deuda: [] },
+      { nombre: 'Lucas Benítez', dni: '36555444', cob: 'OSDE', ultima: 'Hoy 11:00', deuda: [] },
+      { nombre: 'Tomás Ferreyra', dni: '33210987', cob: 'Particular', ultima: 'Hoy 9:30', deuda: [['Control de hoy 9:30', 'Particular', 12000]] },
+      { nombre: 'Ramiro Sánchez', dni: '29876543', cob: 'OSDE', ultima: 'Hoy 8:30', deuda: [['Copago del control de hoy', 'OSDE', 4000]] },
+      { nombre: 'Carla Núñez', dni: '40222333', cob: 'Particular', ultima: 'Vino el 22/10', deuda: [['Resto del control del 22/10', 'Pagó una parte', 8000]] },
+      { nombre: 'Diego Paz', dni: '31444555', cob: 'Particular', ultima: 'Faltó el 3/10', deuda: [['Ausencia del 3/10', 'Cobro por no avisar', 12000]] }
+    ];
+    var debeDe = function (p) { if (s.cobrados[p.nombre]) return []; var y = (s.parcial || {})[p.nombre] || 0; return p.deuda.map(function (d, i) { return i === 0 && y ? [d[0], 'Pagó ' + plata(y) + ' a cuenta', d[2] - y] : d; }); };
+    var porNombre = function (n) { return PAC.filter(function (p) { return p.nombre === n; })[0] || PAC[0]; };
+    var dniTxt = function (d) { return d.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+    var sinTilde = function (t) { return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+    var chipBase = 'font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; ';
+    var celda = function (on) { return on ? 'background:#DCEFEF;color:#24605F;font-weight:700;box-shadow:inset 0 0 0 1.5px #24605F;' : 'background:#E9F1F3;color:#02261E;font-weight:600;'; };
+
+    // buscar paciente: por DNI o por nombre
+    var texto = h.texto || '';
+    var dig = texto.replace(/\D/g, '');
+    var esNum = texto.trim() !== '' && /^[\d.\s]+$/.test(texto.trim());
+    var coinciden = !texto.trim() ? [] : esNum
+      ? (dig.length >= 2 ? PAC.filter(function (p) { return p.dni.indexOf(dig) === 0; }) : [])
+      : (texto.trim().length >= 2 ? PAC.filter(function (p) { return sinTilde(p.nombre).indexOf(sinTilde(texto.trim())) >= 0; }) : []);
+    var paraCobro = h.para === 'cobro';
+    var deudores = PAC.filter(function (p) { return debeDe(p).length; });
+    var lista = (paraCobro && !texto.trim() ? deudores : coinciden).map(function (p) {
+      var d = debeDe(p); var total = d.reduce(function (t, x) { return t + x[2]; }, 0);
+      return { nombre: p.nombre, sub: 'DNI ' + dniTxt(p.dni) + ' · ' + (paraCobro && d.length ? d[0][0] : p.ultima),
+        extra: paraCobro ? (d.length ? 'Debe ' + plata(total) : 'Al día') : 'Ya es paciente',
+        chip: chipBase + (paraCobro ? (d.length ? 'background:#FFF1D6;color:#8A5300;' : 'background:#E4F4EA;color:#166534;') : 'background:#DCEFEF;color:#24605F;'),
+        elegir: paraCobro ? set({ hoja: { tipo: 'cobro', nombre: p.nombre, desde: h }, sel: d.length ? 'd0' : null, cuanto: 'todo', medio: null, comp: 'interno', parte: '' })
+                          : set({ hoja: { tipo: 'horario', nombre: p.nombre, desde: h }, dia: 0, hora: null }) };
+    });
+    var esNuevo = !paraCobro && !coinciden.length && ((esNum && dig.length >= 7) || (!esNum && texto.trim().length >= 3));
+    var bv = {
+      etiqueta: paraCobro ? 'A quién le cobrás' : 'DNI del paciente',
+      ayuda: paraCobro ? 'DNI o nombre' : 'Escribí el DNI, o el nombre si no lo tenés',
+      modo: paraCobro ? 'text' : 'numeric', texto: texto,
+      escribir: function (e) { if (e && e.target) self.setState({ hoja: Object.assign({}, h, { texto: e.target.value }) }); },
+      vacio: !paraCobro && !texto.trim(),
+      pruebas: [['45678901', '45.678.901 · ya vino'], ['40999888', '40.999.888 · nuevo']].map(function (x) { return { label: x[1], usar: set({ hoja: Object.assign({}, h, { texto: x[0] }) }) }; }),
+      hayLista: lista.length > 0, lista: lista,
+      esNuevo: esNuevo || (paraCobro && texto.trim().length >= 3 && !coinciden.length),
+      pideFicha: !paraCobro && esNum,
+      nuevoTxt: paraCobro ? 'No encontramos a nadie con eso. Probá con el DNI.' : esNum ? 'No hay ningún paciente con el DNI ' + dniTxt(dig) + '. Es nuevo: completá su ficha mínima.' : 'No encontramos a nadie con ese nombre. Buscalo por DNI para no crear una ficha repetida.',
+      seguirNuevo: set({ hoja: { tipo: 'horario', nombre: 'Paciente nuevo (DNI ' + dniTxt(dig) + ')', desde: h }, dia: 0, hora: null })
+    };
+
+    // horarios libres
+    var DIAS = [['Lun', 27], ['Mar', 28], ['Mié', 29], ['Jue', 30], ['Vie', 31]];
+    var HS = [['9:00', '10:30', '16:00'], ['11:00', '17:30'], ['9:30', '12:00', '15:00', '18:00'], ['10:00', '16:30'], ['9:00', '11:30', '17:00']];
+    var dia = s.dia || 0;
+    var slot = s.hora ? DIAS[dia][0] + ' ' + DIAS[dia][1] + '/10 · ' + s.hora : '';
+    var hr = {
+      dias: DIAS.map(function (d, i) { var on = i === dia; return { dia: d[0], num: d[1], on: on ? 'true' : 'false', elegir: set({ dia: i, hora: null }),
+        style: 'flex: 0 0 auto; width: 58px; height: 60px; border-radius: 14px; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; ' + celda(on) }; }),
+      horas: HS[dia].map(function (x) { var on = s.hora === x; return { hora: x, on: on ? 'true' : 'false', elegir: set({ hora: x }),
+        style: 'height: 48px; border-radius: 12px; border: 0; font-size: 15px; font-variant-numeric: tabular-nums; ' + celda(on) }; }),
+      sinHora: s.hora ? null : 'disabled',
+      guardarTxt: s.hora ? 'Guardar turno · ' + slot : 'Elegí un horario',
+      guardarStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 16px; font-weight: 700; ' + (s.hora ? 'background:#02261E;color:#FFFFFF;' : 'background:#E9F1F3;color:#4A5F5C;'),
+      guardar: function () { var mueve = h.desde && h.desde.tipo === 'turno'; self.setState({ hoja: null, aviso: (mueve ? 'Turno movido: ' : 'Turno para ') + h.nombre + ', ' + slot + '. Le avisamos por WhatsApp.' }); }
+    };
+
+    // cobro: qué, cuánto, cómo
+    var pc = porNombre(h.nombre);
+    var conceptos = debeDe(pc).map(function (d, i) { return { k: 'd' + i, label: d[0], sub: d[1], monto: d[2] }; })
+      .concat(PRES.map(function (p, i) { return { k: 'p' + i, label: p[0], sub: 'Otra prestación · precio de lista', monto: p[1] }; }));
+    var elegido = conceptos.filter(function (c) { return c.k === s.sel; })[0];
+    var monto = elegido ? elegido.monto : 0;
+    var parteN = parseInt(String(s.parte || '').replace(/\D/g, ''), 10) || 0;
+    var paga = s.cuanto === 'todo' ? monto : s.cuanto === 'parte' ? parteN : 0;
+    var parteMal = s.cuanto === 'parte' && (parteN <= 0 || parteN >= monto);
+    var falta = !elegido || parteMal || (s.cuanto !== 'nada' && !s.medio);
+    var chip3 = 'height: 48px; border-radius: 14px; border: 0; font-size: 14px; ';
+    var cb = {
+      conceptos: conceptos.map(function (c) { var on = c.k === s.sel; return { label: c.label, sub: c.sub, montoTxt: plata(c.monto), on: on ? 'true' : 'false', elegir: set({ sel: c.k, parte: '' }),
+        style: 'display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 14px; border-radius: 14px; border: 0; font-size: 15px; text-align: left; width: 100%; ' + celda(on) }; }),
+      cuanto: [['todo', 'Todo'], ['parte', 'Una parte'], ['nada', 'Nada aún']].map(function (x) { var on = s.cuanto === x[0]; return { label: x[1], on: on ? 'true' : 'false', elegir: set({ cuanto: x[0] }), style: chip3 + celda(on) }; }),
+      esParte: s.cuanto === 'parte', parteTxt: s.parte || '',
+      escribirParte: function (e) { if (e && e.target) self.setState({ parte: e.target.value }); },
+      restoTxt: !elegido ? 'Primero elegí qué le cobrás.' : parteN <= 0 ? 'Escribí cuánto paga hoy, de ' + plata(monto) + '.' : parteN >= monto ? 'Si paga ' + plata(monto) + ' o más, elegí «Todo».' : 'Queda debiendo ' + plata(monto - parteN) + '.',
+      pagaAlgo: s.cuanto !== 'nada',
+      medios: ['Efectivo', 'Transferencia', 'Tarjeta', 'Otro'].map(function (m) { var on = s.medio === m; return { label: m, on: on ? 'true' : 'false', elegir: set({ medio: m }), style: chip3 + celda(on) }; }),
+      tipos: [['interno', 'Interno'], ['arca', 'Factura C'], ['no', 'Ahora no']].map(function (x) { var on = s.comp === x[0]; return { label: x[1], on: on ? 'true' : 'false', elegir: set({ comp: x[0] }), style: chip3 + celda(on) }; }),
+      bloqueado: falta ? 'disabled' : null,
+      guardarTxt: !elegido ? 'Elegí qué le cobrás' : s.cuanto === 'nada' ? 'Dejar en «Te deben» · ' + plata(monto) : (s.cuanto !== 'nada' && !s.medio) ? 'Elegí cómo te pagó' : parteMal ? 'Revisá el monto' : 'Guardar pago de ' + plata(paga),
+      guardarStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 16px; font-weight: 700; ' + (falta ? 'background:#E9F1F3;color:#4A5F5C;' : 'background:#02261E;color:#FFFFFF;'),
+      guardar: function () {
+        var c = Object.assign({}, s.cobrados); var pa = Object.assign({}, s.parcial || {}); var esDeuda = elegido.k === 'd0';
+        if (esDeuda && s.cuanto === 'todo') c[pc.nombre] = true;
+        if (esDeuda && s.cuanto === 'parte') pa[pc.nombre] = (pa[pc.nombre] || 0) + paga;
+        var comp = s.comp === 'interno' ? ' Le mandamos el comprobante interno.' : s.comp === 'arca' ? ' Se hace la factura C.' : '';
+        var txt = s.cuanto === 'nada' ? pc.nombre + ' debe ' + plata(monto) + '. Queda en «Te deben».' : 'Cobrado: ' + plata(paga) + ' de ' + pc.nombre + ' en ' + s.medio.toLowerCase() + '.' + (s.cuanto === 'parte' ? ' Debe ' + plata(monto - paga) + '.' : '') + comp;
+        self.setState({ hoja: null, cobrados: c, parcial: pa, aviso: txt });
+      }
+    };
+
+    var TIT = { turno: h.nombre, buscar: paraCobro ? 'Cobrar' : 'Dar turno', horario: h.nombre, cobro: 'Cobrar a ' + h.nombre, bloqueo: 'Bloquear la agenda', avisos: 'Para resolver' };
+    var SUB = { turno: (h.hora || '') + ' · ' + (h.detalle || ''), buscar: paraCobro ? 'Paso 1 de 2 · a quién' : 'Paso 1 de 2 · quién', horario: h.desde && h.desde.tipo === 'turno' ? 'Mover el turno de las ' + h.desde.hora : 'Paso 2 de 2 · cuándo', cobro: 'Paso 2 de 2 · qué, cuánto y cómo', bloqueo: 'Los turnos que caigan se avisan por WhatsApp', avisos: '3 cosas' };
+    var turnoPac = h.tipo === 'turno' ? PAC.filter(function (p) { return p.nombre === h.nombre; })[0] : null;
     var hv = {
-      titulo: h.tipo === 'turno' ? h.nombre : h.tipo === 'cobro' ? 'Cobrar a ' + nombre : h.tipo === 'turnoNuevo' ? 'Dar turno' : h.tipo === 'bloqueo' ? 'Bloquear la agenda' : 'Para resolver',
-      sub: h.tipo === 'turno' ? h.hora + ' · ' + h.detalle : h.tipo === 'cobro' ? 'Control de hoy · Particular' : h.tipo === 'turnoNuevo' ? 'Elegí cómo empezar' : h.tipo === 'bloqueo' ? 'Los turnos que caigan se avisan por WhatsApp' : '3 cosas',
-      esTurno: h.tipo === 'turno', esCobro: h.tipo === 'cobro', esLista: ['turnoNuevo', 'bloqueo', 'avisos'].indexOf(h.tipo) >= 0,
-      puedeCobrar: h.tipo === 'turno' && h.estado === 'Para cobrar',
-      cobrar: set({ hoja: { tipo: 'cobro', nombre: h.nombre }, medio: null }),
+      titulo: TIT[h.tipo] || '', sub: SUB[h.tipo] || '',
+      esTurno: h.tipo === 'turno', esBuscar: h.tipo === 'buscar', esHorario: h.tipo === 'horario', esCobro: h.tipo === 'cobro',
+      esLista: ['bloqueo', 'avisos'].indexOf(h.tipo) >= 0,
+      puedeVolver: !!h.desde, volver: set({ hoja: h.desde || null }),
+      puedeCobrar: !!(turnoPac && debeDe(turnoPac).length),
+      montoTurno: turnoPac && debeDe(turnoPac).length ? plata(debeDe(turnoPac)[0][2]) : '',
+      cobrar: set({ hoja: { tipo: 'cobro', nombre: h.nombre, desde: h }, sel: 'd0', cuanto: 'todo', medio: null, comp: 'interno', parte: '' }),
       acciones: [
-        ['Escribirle por WhatsApp', 'Se abre WhatsApp con el mensaje armado para ' + h.nombre + '.'],
-        ['Mover el turno', 'Elegís otro horario libre y le avisamos por WhatsApp.'],
-        ['Ver contacto y cobertura', 'Ves celular, cobertura y el último turno. La historia, en la compu.']
-      ].map(function (a) { return { label: a[0], hacer: avisa(a[1]) }; }),
-      medios: MED.map(function (m) { var on = s.medio === m; return { label: m, on: on ? 'true' : 'false', elegir: set({ medio: m }), style: 'height: 48px; border-radius: 14px; border: 0; font-size: 15px; ' + (on ? 'background:#DCEFEF;color:#24605F;font-weight:700;box-shadow:inset 0 0 0 1.5px #24605F;' : 'background:#E9F1F3;color:#02261E;font-weight:600;') }; }),
-      sinMedio: s.medio ? null : 'disabled',
-      guardarTxt: s.medio ? 'Guardar cobro · ' + s.medio : 'Elegí cómo te pagó',
-      guardarStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 16px; font-weight: 700; ' + (s.medio ? 'background:#02261E;color:#FFFFFF;' : 'background:#E9F1F3;color:#4A5F5C;'),
-      guardarCobro: function () { var c = Object.assign({}, s.cobrados); c[nombre] = true; self.setState({ hoja: null, cobrados: c, aviso: 'Cobrado: $ 15.000 de ' + nombre + ' en ' + s.medio + '.' }); },
-      opciones: (h.tipo === 'turnoNuevo' ? [
-        ['Paciente que ya tenés', 'Buscás por nombre o DNI y elegís el horario'],
-        ['Paciente nuevo', 'Ficha mínima: nombre, celular y cobertura'],
-        ['Responder un pedido online', '2 pedidos esperando']
-      ] : h.tipo === 'bloqueo' ? [
+        ['Escribirle por WhatsApp', avisa('Se abre WhatsApp con el mensaje armado para ' + h.nombre + '.')],
+        ['Mover el turno', set({ hoja: { tipo: 'horario', nombre: h.nombre, desde: h }, dia: 0, hora: null })],
+        [(s.invitados || {})[h.nombre] ? 'Reenviar el enlace de la app' : 'Mandarle el enlace de la app', function () { var iv = Object.assign({}, s.invitados || {}); iv[h.nombre] = true; self.setState({ hoja: null, invitados: iv, aviso: 'Le mandamos a ' + h.nombre + ' el enlace por WhatsApp para crear su cuenta. Vence en 7 días.' }); }],
+        ['Ver contacto y cobertura', avisa('Ves celular, cobertura y el último turno. La historia, en la compu.')]
+      ].map(function (a) { return { label: a[0], hacer: a[1] }; }),
+      opciones: (h.tipo === 'bloqueo' ? [
         ['El resto de hoy', 'Caen 3 turnos: Lucas, Inés y Carlos'],
         ['Un día o un rango', 'Elegís las fechas'],
         ['Unas horas', 'Elegís desde y hasta']
       ] : [
-        ['Tomás Ferreyra debe la consulta', 'Cobrar $ 15.000'],
-        ['2 pedidos de turno online', 'Aceptar o proponer otro horario'],
+        ['Tomás Ferreyra debe la consulta', 'Cobrar ' + plata(12000)],
+        ['3 pedidos de turno online', 'Aceptar o proponer otro horario'],
         ['Carlos Vera no confirmó', 'Escribirle por WhatsApp']
       ]).map(function (o, i) {
-        var hacer = h.tipo === 'avisos' && i === 0 ? set({ hoja: { tipo: 'cobro', nombre: 'Tomás Ferreyra' }, medio: null }) : avisa(o[0] + ': acá sigue el paso, igual que en la compu.');
+        var hacer = h.tipo === 'avisos' && i === 0 ? set({ hoja: { tipo: 'cobro', nombre: 'Tomás Ferreyra', desde: h }, sel: 'd0', cuanto: 'todo', medio: null, comp: 'interno', parte: '' }) : avisa(o[0] + ': acá sigue el paso, igual que en la compu.');
         return { label: o[0], sub: o[1], hacer: hacer };
       })
     };
-    var TABS = ['Hoy', 'Agenda', 'Pacientes', 'Pedidos'];
-    var tabs = TABS.map(function (x) { var on = x === s.tab; return { label: x, actual: on ? 'page' : null,
-      ir: x === 'Hoy' ? set({ tab: 'Hoy', aviso: '' }) : set({ tab: x, aviso: x + ' en el celu: la diseñamos en el próximo paso.' }),
+    var tabs = [['Hoy', 'HoyCel.dc.html'], ['Agenda', 'AgendaCel.dc.html'], ['Pacientes', 'PacientesCel.dc.html'], ['Pedidos · 3', 'PedidosCel.dc.html']].map(function (x, i) { var on = i === 0; return { label: x[0], href: x[1], actual: on ? 'page' : null,
       dot: 'width: 28px; height: 4px; border-radius: 4px; background: ' + (on ? '#02261E' : 'transparent') + ';',
-      style: 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 52px; border: 0; background: transparent; font-size: 13px; ' + (on ? 'color:#02261E;font-weight:800;' : 'color:#4A5F5C;font-weight:600;') }; });
+      style: 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 52px; text-decoration: none; font-size: 13px; ' + (on ? 'color:#02261E;font-weight:800;' : 'color:#4A5F5C;font-weight:600;') }; });
     return {
-      turnos: turnos, tabs: tabs, hoja: !!s.hoja, h: hv,
-      aviso: !!s.aviso, avisoTxt: s.aviso, cerrarAviso: set({ aviso: '', tab: 'Hoy' }),
+      turnos: turnos, tabs: tabs, hoja: !!s.hoja, h: hv, b: bv, hr: hr, cb: cb,
+      aviso: !!s.aviso, avisoTxt: s.aviso, cerrarAviso: set({ aviso: '' }),
       cerrar: set({ hoja: null }),
-      abrirTurno: set({ hoja: { tipo: 'turnoNuevo' }, aviso: '' }),
-      abrirCobro: set({ hoja: { tipo: 'cobro', nombre: 'Tomás Ferreyra' }, medio: null, aviso: '' }),
+      abrirTurno: set({ hoja: { tipo: 'buscar', para: 'turno', texto: '' }, aviso: '' }),
+      abrirCobro: set({ hoja: { tipo: 'buscar', para: 'cobro', texto: '' }, aviso: '' }),
       abrirBloqueo: set({ hoja: { tipo: 'bloqueo' }, aviso: '' }),
       verAvisos: set({ hoja: { tipo: 'avisos' }, aviso: '' }),
       espera: s.fase === 'espera', marcado: s.fase !== 'espera',

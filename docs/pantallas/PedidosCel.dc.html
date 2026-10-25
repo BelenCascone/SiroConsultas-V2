@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pedidos en el celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#E9F1F3}
+a{color:#24605F}
+button,input{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .26s cubic-bezier(.2,.7,.2,1)}.hoja{animation:sube .26s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes sube{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; padding: 32px 24px; background: #E9F1F3; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #02261E; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; align-items: flex-start;">
+
+  <div style="width: 390px; height: 844px; position: relative; overflow: hidden; border-radius: 44px; background: radial-gradient(320px 220px at 10% 0%, rgba(137,201,201,0.40), transparent 70%), radial-gradient(300px 200px at 95% 6%, rgba(218,252,146,0.55), transparent 70%), #F2F7F9; box-shadow: 0 0 0 10px #02261E, 0 30px 60px rgba(2,38,30,0.25); font-size: 15px; line-height: 1.45;">
+    <div style="position: absolute; inset: 0 0 76px 0; overflow-y: auto; padding: 18px 16px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px;">
+      <header style="display: flex; flex-direction: column; gap: 4px;">
+        <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em;">Pedidos de turno</h1>
+        <span style="font-size: 14px; color: #4A5F5C;">{{subtitulo}}</span>
+      </header>
+      <sc-for list="{{pedidos}}" as="p" hint-placeholder-count="3">
+        <section style="background: #FFFFFF; border-radius: 22px; padding: 16px; box-shadow: 0 1px 2px rgba(2,38,30,0.05), 0 12px 28px rgba(2,38,30,0.06); display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <span style="font-size: 13px; color: #4A5F5C;">{{p.hace}}</span>
+            <span style="{{p.chip}}">{{p.estado}}</span>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 18px; font-weight: 700;">{{p.nombre}}</span>
+            <span style="font-weight: 600;">{{p.cuando}}</span>
+            <span style="font-size: 14px; color: #4A5F5C;">{{p.prestacion}} · {{p.cobertura}}</span>
+          </div>
+          <span style="{{p.fichaStyle}}">{{p.ficha}}</span>
+          <sc-if value="{{p.abierto}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button type="button" onClick="{{p.aceptar}}" style="height: 52px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">Aceptar</button>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button type="button" onClick="{{p.proponer}}" style="height: 48px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600;">Proponer otro</button>
+                <button type="button" onClick="{{p.rechazar}}" style="height: 48px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600;">Rechazar</button>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{p.proponiendo}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Elegí hasta 3 horarios para ofrecerle</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <sc-for list="{{p.horarios}}" as="x" hint-placeholder-count="4">
+                  <button type="button" onClick="{{x.tocar}}" aria-pressed="{{x.on}}" style="{{x.style}}">{{x.label}}</button>
+                </sc-for>
+              </div>
+              <button type="button" onClick="{{p.enviarPropuesta}}" disabled="{{p.sinSel}}" style="{{p.enviarStyle}}">{{p.enviarTxt}}</button>
+              <button type="button" onClick="{{p.cancelarProp}}" style="height: 44px; border: 0; background: transparent; color: #24605F; font-size: 15px; font-weight: 700;">Volver</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{p.cerrado}}" hint-placeholder-val="{{false}}">
+            <div class="paso" role="status" style="{{p.resStyle}}">
+              <span style="font-weight: 700;">{{p.estado}}</span>
+              <span>{{p.resTexto}}</span>
+              <button type="button" onClick="{{p.reabrir}}" style="align-self: flex-start; height: 44px; padding: 0; border: 0; background: transparent; color: inherit; font-size: 14px; font-weight: 700; text-decoration: underline;">Deshacer</button>
+            </div>
+          </sc-if>
+        </section>
+      </sc-for>
+    </div>
+
+    <nav aria-label="Secciones" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 8px 14px; background: #FFFFFF; box-shadow: 0 -1px 0 #E9F1F3; display: grid; grid-template-columns: repeat(4, 1fr);">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <a href="{{t.href}}" aria-current="{{t.actual}}" style="{{t.style}}"><span aria-hidden="true" style="{{t.dot}}"></span><span>{{t.label}}</span></a>
+      </sc-for>
+    </nav>
+
+    <sc-if value="{{aviso}}" hint-placeholder-val="{{false}}">
+      <div role="status" class="paso" style="position: absolute; left: 16px; right: 16px; bottom: 88px; padding: 12px 14px; border-radius: 14px; background: #02261E; color: #FFFFFF; font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <span>{{avisoTxt}}</span>
+        <button type="button" onClick="{{cerrarAviso}}" style="height: 44px; padding: 0 10px; border: 0; background: transparent; color: #DAFC92; font-weight: 700; font-size: 14px;">Listo</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{hoja}}" hint-placeholder-val="{{false}}">
+      <div style="position: absolute; inset: 0; background: rgba(2,38,30,0.35); display: flex; align-items: flex-end;">
+        <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="position: absolute; inset: 0; border: 0; background: transparent;"></button>
+        <div class="hoja" role="dialog" aria-modal="true" aria-label="{{h.titulo}}" style="position: relative; width: 100%; box-sizing: border-box; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 10px 16px 24px; display: flex; flex-direction: column; gap: 12px; max-height: 92%; overflow-y: auto;">
+          <span aria-hidden="true" style="align-self: center; width: 40px; height: 4px; border-radius: 4px; background: #DDE8EB;"></span>
+          <sc-if value="{{h.puedeVolver}}" hint-placeholder-val="{{false}}">
+            <button type="button" onClick="{{h.volver}}" style="align-self: flex-start; height: 44px; padding: 0 4px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 14px;">‹ Atrás</button>
+          </sc-if>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 13px; color: #4A5F5C;">{{h.sub}}</span>
+            <span style="font-size: 20px; font-weight: 700;">{{h.titulo}}</span>
+          </div>
+
+          <button type="button" onClick="{{cerrar}}" style="height: 48px; border-radius: 14px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 15px;">Cerrar</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <aside style="width: 320px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #4A5F5C;">
+    <h2 style="margin: 0; font-size: 18px; color: #02261E;">Pedidos en el celular</h2>
+    <p style="margin: 0;">Los mismos pedidos de la página online que en la compu, uno debajo del otro.</p>
+    <p style="margin: 0;">Cada uno dice si ya vino o si sería su primera consulta, y cuánto falta para que venza la reserva de 12 horas.</p>
+    <p style="margin: 0;"><b>Aceptar</b> le manda la confirmación. <b>Proponer otro</b> le ofrece hasta 3 horarios libres. <b>Rechazar</b> le avisa que no está disponible.</p>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var set = function (o) { return function () { self.setState(o); }; };
+    var avisa = function (t) { return function () { self.setState({ hoja: null, aviso: t }); }; };
+    var plata = function (n) { return '$ ' + Number(n).toLocaleString('es-AR'); };
+    var celda = function (on) { return on ? 'background:#DCEFEF;color:#24605F;font-weight:700;box-shadow:inset 0 0 0 1.5px #24605F;' : 'background:#E9F1F3;color:#02261E;font-weight:600;'; };
+    var chipBase = 'font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; ';
+    var sinTilde = function (t) { return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+    var dniTxt = function (d) { return d.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+    var tabs = [['Hoy', 'HoyCel.dc.html'], ['Agenda', 'AgendaCel.dc.html'], ['Pacientes', 'PacientesCel.dc.html'], ['Pedidos', 'PedidosCel.dc.html']].map(function (x) {
+      var on = x[0] === 'Pedidos';
+      return { label: x[0] === 'Pedidos' ? 'Pedidos · 3' : x[0], href: x[1], actual: on ? 'page' : null,
+        dot: 'width: 28px; height: 4px; border-radius: 4px; background: ' + (on ? '#02261E' : 'transparent') + ';',
+        style: 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 52px; text-decoration: none; font-size: 13px; ' + (on ? 'color:#02261E;font-weight:800;' : 'color:#4A5F5C;font-weight:600;') };
+    });
+    // Pacientes ficticios (mismos que en Pacientes de la compu)
+    var PAC = [
+      { nombre: 'Ana Quiroga', dni: '30111222', cel: '11 5555-0110', mail: 'ana.q@correo.com', cob: 'OSDE', veces: 5, faltas: 0, ultima: '21/10 · Control', prox: 'Mar 28/10 · 10:30', debe: 0, vencido: true, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Camila Sosa', dni: '38444555', cel: '11 5555-0161', mail: 'cami.sosa@correo.com', cob: 'Particular', veces: 2, faltas: 0, ultima: '21/10 · Evolución', prox: 'Vie 31/10 · 16:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Carlos Vera', dni: '12345678', cel: '11 5555-0106', mail: 'sin correo', cob: 'PAMI', veces: 10, faltas: 1, ultima: '2/10 · Control', prox: 'Hoy · 12:30', debe: 0, vencido: false, alergias: 'Ibuprofeno', app: false },
+      { nombre: 'Diego Paz', dni: '33222111', cel: '11 5555-0199', mail: 'diego.paz@correo.com', cob: 'Swiss Medical', veces: 4, faltas: 0, ultima: '6/10 · Control', prox: 'Vie 24/10 · 17:00', debe: 12000, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Elena Castro', dni: '22333444', cel: '11 5555-0123', mail: 'elena.castro@correo.com', cob: 'Swiss Medical', veces: 6, faltas: 0, ultima: '20/10 · Evolución', prox: 'Mar 28/10 · 9:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Lucas Benítez', dni: '36555444', cel: '11 5555-0104', mail: 'lucas.b@correo.com', cob: 'OSDE', veces: 6, faltas: 0, ultima: '25/9 · Control', prox: 'Hoy · 11:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Martina Gómez', dni: '45678901', cel: '11 5555-0103', mail: 'martina.g@correo.com', cob: 'Sin completar', veces: 0, faltas: 0, ultima: 'Nunca vino', prox: 'Hoy · 10:30', debe: 0, vencido: false, alergias: 'Sin datos todavía', app: false },
+      { nombre: 'Nicolás Díaz', dni: '31444333', cel: '11 5555-0193', mail: 'nico.diaz@correo.com', cob: 'Galeno', veces: 7, faltas: 2, ultima: '21/10 · Control', prox: 'Sin turno', debe: 0, vencido: true, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Pedro Luna', dni: '25666777', cel: '11 5555-0152', mail: 'pedro.luna@correo.com', cob: 'Galeno', veces: 8, faltas: 0, ultima: '20/10 · Control', prox: 'Vie 24/10 · 9:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Rosa Medina', dni: '18999000', cel: '11 5555-0131', mail: 'rosa.m@correo.com', cob: 'PAMI', veces: 4, faltas: 1, ultima: '20/10 · Control', prox: 'Sáb 25/10 · 9:30', debe: 0, vencido: false, alergias: 'Penicilina', app: false },
+      { nombre: 'Tomás Ferreyra', dni: '40777888', cel: '11 5555-0102', mail: 'tomas.f@correo.com', cob: 'Particular', veces: 3, faltas: 0, ultima: 'Hoy · Control', prox: 'Sin turno', debe: 9500, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Valeria Ruiz', dni: '41222333', cel: '11 5555-0188', mail: 'vale.ruiz@correo.com', cob: 'Particular', veces: 1, faltas: 0, ultima: '20/10 · Primera consulta', prox: 'Sáb 25/10 · 11:00', debe: 15000, vencido: false, alergias: 'Sin alergias registradas', app: false }
+    ];
+    var buscar = function (texto) {
+      var t = (texto || '').trim(); if (!t) return [];
+      var dig = t.replace(/\D/g, '');
+      if (/^[\d.\s]+$/.test(t)) return dig.length >= 2 ? PAC.filter(function (p) { return p.dni.indexOf(dig) === 0; }) : [];
+      return t.length >= 2 ? PAC.filter(function (p) { return sinTilde(p.nombre).indexOf(sinTilde(t)) >= 0; }) : [];
+    };
+    var s = Object.assign({ res: {}, prop: null, sel: [], aviso: '' }, this.state || {});
+    var datos = [
+      { nombre: 'Javier Ortiz', cuando: 'Miércoles 29/10 · 18:00', prestacion: 'Control · Consultorio Norte', hace: 'Hace 10 h', vence: 'Vence en 2 h', cobertura: 'OSDE', nueva: true, urgente: true },
+      { nombre: 'Sofía Herrera', cuando: 'Viernes 24/10 · 10:00', prestacion: 'Primera consulta · Consultorio Centro', hace: 'Hace 3 h', vence: 'Vence en 9 h', cobertura: 'Particular', nueva: true },
+      { nombre: 'Elena Castro', cuando: 'Martes 28/10 · 9:00', prestacion: 'Evolución · Consultorio Centro', hace: 'Hace 1 h', vence: 'Vence en 11 h', cobertura: 'Swiss Medical', nueva: false, veces: 6, ultima: '20/10' }
+    ];
+    var EST = { aceptado: ['Confirmado', 'background:#E4F4EA;color:#166534;'], propuesto: ['Propuesta enviada', 'background:#DCEFEF;color:#24605F;'], rechazado: ['Rechazado', 'background:#ECEFF3;color:#475467;'] };
+    var RES = { aceptado: 'Le llegó la confirmación por WhatsApp y correo.', propuesto: 'Le llegaron los horarios para elegir. El original quedó libre.', rechazado: 'Le avisamos que ese horario no está disponible.' };
+    var HOR = ['Lun 27 · 9:30', 'Mar 28 · 16:00', 'Mié 29 · 11:00', 'Jue 30 · 17:30'];
+    var pedidos = datos.map(function (d, i) {
+      var r = s.res[i];
+      var marca = function (v) { return function () { var n = Object.assign({}, s.res); n[i] = v; self.setState({ res: n, prop: null }); }; };
+      var e = r ? EST[r] : [d.vence, d.urgente ? 'background:#FDE8E8;color:#9E2016;' : 'background:#EFEAF6;color:#5B3F8C;'];
+      var prop = s.prop === i && !r;
+      var haySel = s.sel.length > 0;
+      return Object.assign({}, d, {
+        estado: e[0], chip: chipBase + e[1],
+        ficha: d.nueva ? 'Nunca vino: sería su primera consulta.' : 'Ya vino ' + d.veces + ' veces · la última el ' + d.ultima + '.',
+        fichaStyle: 'font-size: 13px; line-height: 1.4; padding: 10px 12px; border-radius: 14px; ' + (d.nueva ? 'background: #E5F2FF; color: #1D5FB8;' : 'background: #E4F4EA; color: #166534;'),
+        horarios: HOR.map(function (hh) { var on = s.sel.indexOf(hh) >= 0, lleno = !on && s.sel.length >= 3;
+          return { label: hh, on: on ? 'true' : 'false', tocar: function () { if (lleno) return; self.setState({ sel: on ? s.sel.filter(function (x) { return x !== hh; }) : s.sel.concat([hh]) }); },
+            style: 'min-height: 48px; border-radius: 12px; border: 0; font-size: 14px; ' + celda(on) + (lleno ? ' opacity: 0.5;' : '') }; }),
+        sinSel: haySel ? null : 'disabled',
+        enviarTxt: haySel ? 'Enviar ' + (s.sel.length === 1 ? 'el horario' : 'los ' + s.sel.length + ' horarios') : 'Elegí al menos un horario',
+        enviarStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 15px; font-weight: 700; ' + (haySel ? 'background:#02261E;color:#FFFFFF;' : 'background:#E9F1F3;color:#4A5F5C;'),
+        abierto: !r && !prop, proponiendo: prop, cerrado: !!r,
+        aceptar: marca('aceptado'), rechazar: marca('rechazado'),
+        enviarPropuesta: function () { if (haySel) marca('propuesto')(); },
+        proponer: set({ prop: i, sel: [] }), cancelarProp: set({ prop: null, sel: [] }),
+        reabrir: function () { var n = Object.assign({}, s.res); delete n[i]; self.setState({ res: n }); },
+        resTexto: r ? RES[r] : '', resStyle: 'display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 16px; font-size: 14px; ' + (r ? e[1] : '')
+      });
+    });
+    var faltan = datos.length - Object.keys(s.res).length;
+    tabs = tabs.map(function (t) { if (t.href === 'PedidosCel.dc.html') t.label = faltan ? 'Pedidos · ' + faltan : 'Pedidos'; return t; });
+    return {
+      tabs: tabs, pedidos: pedidos,
+      subtitulo: faltan ? 'Tenés ' + faltan + ' para responder. Cada horario queda reservado 12 horas; si no respondés, se libera y al paciente le llega un aviso.' : 'No tenés pedidos para responder.',
+      hoja: false, h: {}, cerrar: set({}),
+      aviso: !!s.aviso, avisoTxt: s.aviso, cerrarAviso: set({ aviso: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>
