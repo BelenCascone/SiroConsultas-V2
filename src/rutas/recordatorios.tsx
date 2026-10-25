@@ -5,7 +5,6 @@ import { leerInstalacion } from '../lib/instalacion'
 import { ahoraAR, ahoraISO, sumarDias } from '../lib/fechas'
 import { SIN_CORREO, modoCorreo } from '../lib/correo'
 import { MAX_MENSAJE, MENSAJE_ORIGINAL, diaRecordatorio, lugar, revisarMensaje, textoRecordatorio } from '../lib/recordatorios'
-import { enlaceWhatsapp } from '../lib/pacientes'
 import { SECCIONES } from './configuracion'
 import { Pagina } from '../ui/pagina'
 import { Aviso, Boton, Interruptor, Tarjeta } from '../ui/componentes'
@@ -80,18 +79,13 @@ recordatorios.post(RUTA, async (c) => {
   return c.redirect(`${RUTA}?guardado=1`, 303)
 })
 
-// Recordatorio por WhatsApp desde el turno: queda anotado y se abre el mensaje listo para mandar.
+// Recordatorio por WhatsApp desde el turno: el enlace abre WhatsApp y app.js avisa acá para dejarlo anotado.
 recordatorios.post('/turnos/:id{[0-9]+}/recordatorio', async (c) => {
   const id = Number(c.req.param('id'))
-  const t = await c.env.DB.prepare(
-    `SELECT t.id, t.fecha, t.hora, t.modalidad, t.enlace_video, co.nombre consultorio, co.direccion, p.nombre, p.celular, p.recordatorios_baja
-       FROM turnos t JOIN pacientes p ON p.id = t.paciente_id JOIN consultorios co ON co.id = t.consultorio_id
-      WHERE t.id = ? AND t.estado = 'confirmado'`).bind(id).first<{ id: number; fecha: string; hora: string; modalidad: string; enlace_video: string | null; consultorio: string; direccion: string | null; nombre: string; celular: string; recordatorios_baja: number }>()
-  if (!t || t.recordatorios_baja) return c.notFound()
-  const prof = await c.env.DB.prepare('SELECT recordatorio_mensaje FROM profesional WHERE id = 1').first<{ recordatorio_mensaje: string | null }>()
-  await c.env.DB.batch([
-    c.env.DB.prepare("UPDATE turnos SET recordatorio_whatsapp_en = ? WHERE id = ? AND estado = 'confirmado'").bind(ahoraISO(), id),
-    c.env.DB.prepare("INSERT INTO envios (que, objeto_id, paciente_id, canal, destino) SELECT 'recordatorio', id, paciente_id, 'whatsapp', NULL FROM turnos WHERE id = ?").bind(id),
-  ])
-  return c.redirect(enlaceWhatsapp(t.celular, textoRecordatorio(prof?.recordatorio_mensaje, t)), 303)
+  const r = await c.env.DB.prepare(
+    `UPDATE turnos SET recordatorio_whatsapp_en = ? WHERE id = ? AND estado = 'confirmado'
+       AND (SELECT recordatorios_baja FROM pacientes WHERE id = turnos.paciente_id) = 0`).bind(ahoraISO(), id).run()
+  if (!r.meta.changes) return c.notFound()
+  await c.env.DB.prepare("INSERT INTO envios (que, objeto_id, paciente_id, canal) SELECT 'recordatorio', id, paciente_id, 'whatsapp' FROM turnos WHERE id = ?").bind(id).run()
+  return c.body(null, 204)
 })

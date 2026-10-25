@@ -7,6 +7,7 @@ import { leerInstalacion } from '../lib/instalacion'
 import { DIAS, MESES, ahoraAR, ahoraISO, esFecha, esHora, fechaLarga, sumarDias } from '../lib/fechas'
 import { registrar } from '../lib/sesion'
 import { enlaceWhatsapp } from '../lib/pacientes'
+import { textoRecordatorio } from '../lib/recordatorios'
 import { PASO_MIN, aHora, aMinutos, cargarAgenda, controlar, diaDe, huecos, type DatosAgenda, type Dia } from '../lib/turnos'
 import {
   CLAVE_ESTADO, VISTAS, estadoMostrado, lunesDe, limitesDelTablero, moverTurno, nombreCorto, rangoDe, turnosDelRango, vecina, type TurnoAgenda, type Vista,
@@ -44,11 +45,11 @@ type Consultorio = { id: number; nombre: string; modalidad: string }
 type Detalle = TurnoAgenda & {
   celular: string; dni: string; cobertura: string; obra_social: string | null; veces: number; faltas: number; incompleta: number
   direccion: string | null; enlace_video: string | null
-  correo: string | null; recordatorios_baja: number; recordatorio_whatsapp_en: string | null; recordatorio_correo_en: string | null
+  correo: string | null; recordatorios_baja: number; recordatorio_whatsapp_en: string | null; recordatorio_correo_en: string | null; plantilla: string | null
 }
 const leerDetalle = (db: D1Database, id: number) => db.prepare(
   `SELECT t.id, t.fecha, t.hora, t.duracion_min, t.estado, t.confirmacion, t.consultorio_id, co.nombre consultorio, co.direccion, t.modalidad, t.enlace_video,
-          t.paciente_id, p.nombre, p.apellido, p.celular, p.dni, p.correo, p.recordatorios_baja, t.recordatorio_whatsapp_en, t.recordatorio_correo_en, t.cobertura, os.nombre obra_social, pr.nombre prestacion,
+          t.paciente_id, p.nombre, p.apellido, p.celular, p.dni, p.correo, p.recordatorios_baja, t.recordatorio_whatsapp_en, t.recordatorio_correo_en, (SELECT recordatorio_mensaje FROM profesional WHERE id = 1) plantilla, t.cobertura, os.nombre obra_social, pr.nombre prestacion,
           (SELECT COUNT(*) FROM turnos x WHERE x.paciente_id = p.id AND x.estado = 'atendido') veces,
           (SELECT COUNT(*) FROM turnos x WHERE x.paciente_id = p.id AND x.estado = 'ausente') faltas,
           (p.fecha_nacimiento IS NULL OR p.domicilio IS NULL OR p.ocupacion IS NULL OR p.cobertura IS NULL) incompleta
@@ -392,7 +393,8 @@ function VentanaTurno({ t, hoy, ahoraMin, base }: { t: Detalle; hoy: string; aho
           <Boton href={`/turnos/nuevo?paciente=${t.paciente_id}`} variante="borde">Darle otro turno</Boton>
           {t.estado === 'atendido' && <Boton href={`/cobros/nuevo?turno=${t.id}`} variante="borde" data-modulo="cobros">Cobrar</Boton>}
           {abierto && t.fecha >= hoy && !t.recordatorios_baja && (
-            <form method="post" action={`/turnos/${t.id}/recordatorio`} target="_blank"><Boton type="submit" variante="borde">Mandar recordatorio</Boton></form>
+            // Un enlace y no un formulario: la CSP («form-action 'self'») no deja que un formulario termine en wa.me. app.js lo anota.
+            <a class="boton borde" href={enlaceWhatsapp(t.celular, textoRecordatorio(t.plantilla, t))} target="_blank" rel="noopener" data-anotar={`/turnos/${t.id}/recordatorio`}>Mandar recordatorio</a>
           )}
         </div>
         {abierto && (

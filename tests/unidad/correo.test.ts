@@ -193,17 +193,23 @@ describe('Recordatorio de turno', () => {
     expect((await navegador.pedir('/configuracion/recordatorios')).status).toBe(404)
   })
 
-  it('«Mandar recordatorio» abre WhatsApp con el mensaje y lo anota', async () => {
+  it('«Mandar recordatorio» es un enlace a WhatsApp con el mensaje, y queda anotado', async () => {
     const { db, navegador } = await conSesion()
     db.prepare("UPDATE profesional SET recordatorio_mensaje = 'Hola {nombre}, te espero el {dia} a las {hora}.'").run()
     const id = turno(db, 1, '2030-03-11', '10:00')
+    const html = await (await navegador.pedir(`/agenda?vista=dia&fecha=2030-03-11&turno=${id}`)).text()
+    // Un enlace, no un formulario: la CSP no deja que un formulario termine en wa.me.
+    expect(html).toContain(`href="https://wa.me/5493431111111?text=${encodeURIComponent('Hola Tomás, te espero el lunes 11/3 a las 10:00.')}"`)
+    expect(html).toContain(`data-anotar="/turnos/${id}/recordatorio"`)
+    expect(html).not.toContain(`action="/turnos/${id}/recordatorio"`)
     const r = await navegador.pedir(`/turnos/${id}/recordatorio`, { form: {} })
-    expect(r.status).toBe(303)
-    expect(r.headers.get('location')).toBe(`https://wa.me/5493431111111?text=${encodeURIComponent('Hola Tomás, te espero el lunes 11/3 a las 10:00.')}`)
+    expect(r.status).toBe(204)
     expect(db.prepare('SELECT recordatorio_whatsapp_en IS NOT NULL m FROM turnos WHERE id = ?').get(id)!.m).toBe(1)
     expect(db.prepare("SELECT canal FROM envios WHERE que = 'recordatorio' AND objeto_id = ?").get(id)!.canal).toBe('whatsapp')
+    expect(await (await navegador.pedir(`/agenda?vista=dia&fecha=2030-03-11&turno=${id}`)).text()).toContain('Ya se lo mandaste por WhatsApp')
     db.prepare('UPDATE pacientes SET recordatorios_baja = 1 WHERE id = 1').run()
     expect((await navegador.pedir(`/turnos/${id}/recordatorio`, { form: {} })).status).toBe(404)
+    expect(await (await navegador.pedir(`/agenda?vista=dia&fecha=2030-03-11&turno=${id}`)).text()).not.toContain('Mandar recordatorio')
   })
 })
 
