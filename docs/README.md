@@ -12,11 +12,12 @@ Tablero de pantallas para verlas e interactuar: https://claude.ai/artifact/J6jZg
 
 ## Decisiones clave
 
-- **Se rehace desde cero en Cloudflare:** Workers, D1 y R2, con TypeScript y Hono. Del código actual se toman solo las ideas (segundo factor, respaldos cifrados, inmutabilidad con triggers, las pruebas como lista de casos). El sistema actual queda como demo hasta que el nuevo lo reemplace.
+- **Se rehace desde cero en Cloudflare:** Workers, D1 y R2, con TypeScript y Hono. Del sistema anterior se toman solo las ideas (segundo factor, respaldos cifrados, inmutabilidad con triggers, las pruebas como lista de casos).
 - **El DNI es el identificador único del paciente.** Va en el alta rápida (DNI, nombre, apellido, celular y correo opcional). Si el DNI ya existe, se usa esa ficha: no hay fichas duplicadas.
 - **Todo turno, consulta y cobro pertenece a una ficha.** No existe el turno sin ficha.
-- **La app no mueve plata.** La profesional registra los pagos a mano; puede mandarle al paciente sus datos para transferir (alias, CBU, titular, QR opcional). Sin señas ni pagos online por ahora.
+- **La app no mueve plata.** La profesional registra los pagos a mano; puede mandarle al paciente sus datos para transferir (alias, CBU, titular, QR opcional). Sin señas ni pagos online: el botón de Mercado Pago de la app del paciente solo redirige.
 - **Un comprobante por pago:** comprobante interno (con su diseño y la leyenda «Documento no válido como factura») o factura C de ARCA. El interno se anula con motivo; la factura se compensa con nota de crédito C. Si ARCA no responde, el pago se guarda y la factura queda pendiente.
+- **La app del paciente es solo por invitación:** enlace de la profesional, usuario = DNI, contraseña y aceptación de términos.
 - **Una sola profesional, sin roles.** Lo clínico y lo financiero no se borra: se anula con motivo.
 
 ## Estado de las pantallas
@@ -32,15 +33,18 @@ Tablero de pantallas para verlas e interactuar: https://claude.ai/artifact/J6jZg
 | 7 | Enviar a la contadora | `Contadora.dc.html` | Aprobada |
 | 8 | Agenda (día, semana, mes) | `Agenda.dc.html` | Aprobada |
 | 9 | Pacientes | `Pacientes.dc.html` | Aprobada |
-| 10 | Ficha del paciente | `Ficha.dc.html` | Aprobada |
+| 10 | Ficha del paciente (con «Mandar el enlace» de la app) | `Ficha.dc.html` | Aprobada |
 | 11 | Consulta: primera vez o control | `Consulta.dc.html` | Aprobada |
 | 12 | Estadísticas | `Estadisticas.dc.html` | Aprobada |
 | 13 | Configuración | `Configuracion.dc.html` | Aprobada |
 | 14 | Términos y privacidad al entrar | `Terminos.dc.html` | Aprobada |
-| 15 | Hoy en el celular | `HoyCel.dc.html` | **Pendiente: en diseño** |
-| 16 | App del paciente | `AppPaciente.dc.html` | **Pendiente: en diseño** |
+| 15 | Hoy en el celular | `HoyCel.dc.html` | Aprobada |
+| 16 | App del paciente | `AppPaciente.dc.html` | Aprobada |
+| 17 | Agenda en el celular | `AgendaCel.dc.html` | **En revisión: no programar todavía** |
+| 18 | Pacientes en el celular | `PacientesCel.dc.html` | **En revisión: no programar todavía** |
+| 19 | Pedidos en el celular | `PedidosCel.dc.html` | **En revisión: no programar todavía** |
 
-Las dos del celular son borradores: no se programan hasta que se aprueben. Qué hace la profesional en el celular está definido en el análisis («Acciones rápidas y celular»); falta el diseño.
+Las pantallas 1 a 16 están aprobadas. Agenda, Pacientes y Pedidos en el celular esperan la revisión de Belén. En la app del paciente, «Pagar con Mercado Pago» solo redirige a Mercado Pago: la app no mueve plata. Los documentos no aparecen en la app: le llegan al paciente solo por WhatsApp.
 
 ## Para quien programa
 

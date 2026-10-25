@@ -131,6 +131,8 @@ button:focus-visible{outline:2px solid #24605F;outline-offset:2px}
             </sc-for>
           </section>
           <p style="margin: 0; font-size: 13px; color: #4A5F5C;">Si algo cambió, avisale al consultorio por WhatsApp y lo corrige en tu ficha.</p>
+          <button type="button" onClick="{{cambiarPass}}" style="height: 48px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600;">Cambiar mi contraseña</button>
+          <button type="button" onClick="{{salir}}" style="height: 44px; border: 0; background: transparent; color: #24605F; font-size: 15px; font-weight: 700;">Salir</button>
         </div>
       </sc-if>
     </div>
@@ -144,6 +146,92 @@ button:focus-visible{outline:2px solid #24605F;outline-offset:2px}
       </sc-for>
     </nav>
 
+  <sc-if value="{{afuera}}" hint-placeholder-val="{{false}}">
+    <div class="paso" style="position: absolute; inset: 0; z-index: 5; box-sizing: border-box; padding: 40px 22px 24px; overflow-y: auto; background: radial-gradient(320px 220px at 10% 0%, rgba(137,201,201,0.40), transparent 70%), radial-gradient(300px 200px at 95% 6%, rgba(218,252,146,0.55), transparent 70%), #F2F7F9; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #89C9C9; box-shadow: 8px 0 0 -2px #DAFC92;"></span>
+        <span style="font-size: 15px; font-weight: 700; margin-left: 6px;">Consultorio de Julia</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">{{en.titulo}}</h1>
+        <span style="font-size: 14px; color: #4A5F5C;">{{en.sub}}</span>
+      </div>
+
+      <sc-if value="{{en.esLogin}}" hint-placeholder-val="{{true}}">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">DNI<input type="text" inputmode="numeric" value="45.678.901" autocomplete="username" style="height: 50px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">Contraseña<input type="password" value="muestra1" autocomplete="current-password" style="height: 50px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+          <button type="button" onClick="{{en.entrar}}" style="height: 52px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 16px; font-weight: 700;">Entrar</button>
+          <button type="button" onClick="{{en.irOlvide}}" style="height: 44px; border: 0; background: transparent; color: #24605F; font-size: 15px; font-weight: 700;">Me olvidé la contraseña</button>
+          <div style="margin-top: 8px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,0.75); display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 14px; color: #4A5F5C;">¿Todavía no tenés cuenta? Se crea con el enlace que te manda el consultorio por WhatsApp. Si no lo tenés, pedíselo.</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{en.esInvitacion}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="padding: 12px 14px; border-radius: 14px; background: #FFFFFF; display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13px; color: #4A5F5C;">Enlace para</span>
+            <span style="font-weight: 700;">Martina Gómez · DNI 45.678.901</span>
+            <span style="font-size: 13px; color: #4A5F5C;">Vence en 7 días y sirve una sola vez.</span>
+          </div>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">Tu usuario<input type="text" value="45678901" readonly autocomplete="username" style="height: 50px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit; background: #E9F1F3;"><span style="font-weight: 500; color: #4A5F5C;">Es tu DNI, sin puntos.</span></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">Elegí tu contraseña<input type="password" value="muestra1" autocomplete="new-password" style="height: 50px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"><span style="font-weight: 500; color: #4A5F5C;">Al menos 8 caracteres.</span></label>
+          <div style="display: flex; flex-direction: column; gap: 2px; padding: 4px 14px; border-radius: 14px; background: #FFFFFF;">
+            <sc-for list="{{en.docs}}" as="d" hint-placeholder-count="2">
+              <button type="button" onClick="{{d.abrir}}" aria-expanded="{{d.abierto}}" style="display: flex; align-items: center; justify-content: space-between; min-height: 48px; border: 0; background: transparent; color: #02261E; font-size: 15px; font-weight: 600; text-align: left; padding: 0;"><span>{{d.titulo}}</span><span aria-hidden="true" style="color: #24605F;">{{d.signo}}</span></button>
+              <sc-if value="{{d.ver}}" hint-placeholder-val="{{false}}">
+                <p class="paso" style="margin: 0 0 10px; font-size: 13px; color: #4A5F5C;">{{d.texto}}</p>
+              </sc-if>
+            </sc-for>
+          </div>
+          <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; min-height: 44px;">
+            <input type="checkbox" onChange="{{en.togAcepto}}" checked="{{en.aceptoAttr}}" style="width: 22px; height: 22px; margin: 1px 0 0; flex: 0 0 auto; accent-color: #02261E;">
+            <span>Leí y acepto los términos de uso y la política de privacidad.</span>
+          </label>
+          <button type="button" onClick="{{en.crear}}" disabled="{{en.sinAceptar}}" style="{{en.crearStyle}}">{{en.crearTxt}}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{en.esTerminos}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="padding: 12px 14px; border-radius: 14px; background: #E5F2FF; color: #1D5FB8; font-size: 14px;"><b>Qué cambió:</b> texto de muestra con el resumen de los cambios.</div>
+          <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; min-height: 44px;">
+            <input type="checkbox" onChange="{{en.togAcepto}}" checked="{{en.aceptoAttr}}" style="width: 22px; height: 22px; margin: 1px 0 0; flex: 0 0 auto; accent-color: #02261E;">
+            <span>Leí y acepto los términos de uso y la política de privacidad nuevos.</span>
+          </label>
+          <button type="button" onClick="{{en.crear}}" disabled="{{en.sinAceptar}}" style="{{en.crearStyle}}">{{en.aceptarTxt}}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{en.esDni}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">Tu DNI<input type="text" inputmode="numeric" value="{{en.dni}}" onInput="{{en.escribirDni}}" placeholder="Sin puntos" style="height: 50px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: #4A5F5C;">
+            <span>Para probar:</span>
+            <sc-for list="{{en.pruebas}}" as="x" hint-placeholder-count="2">
+              <button type="button" onClick="{{x.usar}}" style="height: 44px; padding: 0 12px; border-radius: 999px; border: 0; background: #DCEFEF; color: #24605F; font-weight: 700; font-size: 13px;">{{x.label}}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{en.encontrado}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 12px;">
+              <div role="status" style="padding: 12px 14px; border-radius: 14px; background: #E4F4EA; color: #166534; font-size: 14px; font-weight: 600;">Te mandamos un código por WhatsApp al celular que termina en 0142.</div>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">Código de 6 números<input type="text" inputmode="numeric" value="482913" autocomplete="one-time-code" style="height: 50px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">{{en.passLabel}}<input type="password" value="muestra1" autocomplete="new-password" style="height: 50px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"><span style="font-weight: 500; color: #4A5F5C;">Al menos 8 caracteres.</span></label>
+              <button type="button" onClick="{{en.entrar}}" style="height: 52px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 16px; font-weight: 700;">{{en.listoTxt}}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{en.noEsta}}" hint-placeholder-val="{{false}}">
+            <div class="paso" role="status" style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 14px; background: #E5F2FF; color: #1D5FB8; font-size: 14px; font-weight: 600;">
+              <span>No hay ninguna cuenta con ese DNI. La cuenta se crea con el enlace que te manda el consultorio: pedíselo por WhatsApp.</span>
+            </div>
+          </sc-if>
+          <button type="button" onClick="{{en.irLogin}}" style="height: 44px; border: 0; background: transparent; color: #24605F; font-size: 15px; font-weight: 700;">Ya tengo cuenta: entrar</button>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
     <sc-if value="{{toast}}" hint-placeholder-val="{{false}}">
       <div role="status" class="paso" style="position: absolute; left: 16px; right: 16px; bottom: 92px; padding: 12px 14px; border-radius: 14px; background: #02261E; color: #FFFFFF; font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
         <span>{{toastTxt}}</span>
@@ -167,9 +255,16 @@ button:focus-visible{outline:2px solid #24605F;outline-offset:2px}
 
   <aside style="width: 320px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #4A5F5C;">
     <h2 style="margin: 0; font-size: 18px; color: #02261E;">Lo que ve el paciente</h2>
+    <div role="group" aria-label="Ver la entrada" style="display: flex; flex-wrap: wrap; gap: 6px;">
+      <sc-for list="{{ejemplos}}" as="e" hint-placeholder-count="3">
+        <button type="button" onClick="{{e.elegir}}" aria-pressed="{{e.on}}" style="{{e.style}}">{{e.label}}</button>
+      </sc-for>
+    </div>
     <p style="margin: 0;">Igual que en SiroStudio: su próximo turno para confirmar o cambiar, sus turnos, lo que debe con el botón de Mercado Pago, lo que pagó con el comprobante y sus datos.</p>
     <p style="margin: 0;">No ve nada clínico: ni historia, ni notas, ni diagnósticos.</p>
-    <p style="margin: 0; padding: 10px 12px; border-radius: 12px; background: #FFF1D6; color: #8A5300;">A definir: cómo entra (por ejemplo, un enlace por WhatsApp con un código) y si los documentos que le mandaste aparecen acá.</p>
+    <p style="margin: 0;"><b>Solo con invitación:</b> la profesional le manda el enlace desde Hoy o la ficha. Con ese enlace crea su contraseña (el usuario es su DNI) y acepta los términos y la privacidad. Sin enlace no hay cuenta.</p>
+    <p style="margin: 0;">Después entra con su usuario y contraseña. Si cambian los términos, los vuelve a aceptar al entrar. Si se olvida la contraseña, le llega un código por WhatsApp.</p>
+    <p style="margin: 0;">Los documentos (certificados, recetas, pedidos) le llegan solo por WhatsApp: no aparecen en la app.</p>
   </aside>
 </div>
 </x-dc>
@@ -177,7 +272,7 @@ button:focus-visible{outline:2px solid #24605F;outline-offset:2px}
 class Component extends DCLogic {
   renderVals() {
     var self = this;
-    var s = Object.assign({ tab: 'Inicio', turno: 'pendiente', cambio: false, pagado: false, toast: '' }, this.state || {});
+    var s = Object.assign({ entrada: 'invitacion', acepto: false, abierto: null, dniC: '', tab: 'Inicio', turno: 'pendiente', cambio: false, pagado: false, toast: '' }, this.state || {});
     var set = function (o) { return function () { self.setState(o); }; };
     var chip = 'font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; ';
     var ESTADO = {
@@ -208,7 +303,31 @@ class Component extends DCLogic {
     ];
     if (s.pagado) pagos.unshift({ s: 'Resto de la primera consulta', d: '23/10 · Mercado Pago', m: '$ 5.000' });
     pagos.forEach(function (p) { p.ver = set({ toast: 'Se abre el comprobante interno en PDF.' }); });
+    var dig = String(s.dniC || '').replace(/\D/g, '');
+    var crea = false;
+    var DOCS = [['t', 'Términos de uso', 'Texto de muestra. Qué podés hacer en la app, qué hace el consultorio con tus turnos y tus pagos, y cómo darte de baja.'],
+      ['p', 'Política de privacidad', 'Texto de muestra. Qué datos tuyos se guardan, quién los ve y cómo pedir que los corrijan. En la app no se muestra nada de tu historia clínica.']];
+    var en = {
+      esLogin: s.entrada === 'login', esDni: s.entrada === 'olvide', esInvitacion: s.entrada === 'invitacion', esTerminos: s.entrada === 'terminos',
+      titulo: { login: 'Entrá a tu cuenta', invitacion: 'Julia te invitó a su app', terminos: 'Actualizamos los términos', olvide: 'Nueva contraseña' }[s.entrada] || '',
+      sub: { login: 'Tus turnos y tus pagos, en un solo lugar.', invitacion: 'Creá tu cuenta para ver tus turnos y tus pagos.', terminos: 'Para seguir usando la app, leelos y aceptalos.', olvide: 'Escribí tu DNI y te mandamos un código.' }[s.entrada] || '',
+      docs: DOCS.map(function (d) { var on = s.abierto === d[0]; return { titulo: d[1], texto: d[2], ver: on, abierto: on ? 'true' : 'false', signo: on ? '−' : '+', abrir: set({ abierto: on ? null : d[0] }) }; }),
+      aceptoAttr: s.acepto ? 'checked' : null, togAcepto: set({ acepto: !s.acepto }), sinAceptar: s.acepto ? null : 'disabled',
+      crearTxt: s.acepto ? 'Crear cuenta y entrar' : 'Marcá que leíste y aceptás',
+      aceptarTxt: s.acepto ? 'Aceptar y entrar' : 'Marcá que leíste y aceptás',
+      crearStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 16px; font-weight: 800; ' + (s.acepto ? 'background: #DAFC92; color: #02261E;' : 'background: #E9F1F3; color: #4A5F5C;'),
+      crear: s.acepto ? set({ entrada: null, tab: 'Inicio', acepto: false }) : function () {},
+      dni: s.dniC, escribirDni: function (e) { if (e && e.target) self.setState({ dniC: e.target.value }); },
+      pruebas: [['45678901', '45.678.901 · con cuenta'], ['40999888', '40.999.888 · sin cuenta']].map(function (x) { return { label: x[1], usar: set({ dniC: x[0] }) }; }),
+      encontrado: dig === '45678901', noEsta: dig.length >= 7 && dig !== '45678901',
+      passLabel: crea ? 'Elegí tu contraseña' : 'Tu nueva contraseña', listoTxt: crea ? 'Crear cuenta y entrar' : 'Guardar y entrar',
+      entrar: set({ entrada: null, tab: 'Inicio' }), irOlvide: set({ entrada: 'olvide', dniC: '' }), irLogin: set({ entrada: 'login' }),
+    };
     return {
+      afuera: !!s.entrada, en: en,
+      ejemplos: [['invitacion', 'Llega por el enlace'], ['login', 'Ya tiene cuenta'], ['terminos', 'Cambiaron los términos']].map(function (e) { var on = s.entrada === e[0]; return { label: e[1], on: on ? 'true' : 'false', elegir: set({ entrada: e[0], acepto: false, abierto: null, tab: 'Inicio' }),
+        style: 'height: 44px; padding: 0 14px; border-radius: 999px; border: 0; font-size: 13px; ' + (on ? 'background:#DCEFEF;color:#24605F;font-weight:700;box-shadow:inset 0 0 0 1.5px #24605F;' : 'background:#FFFFFF;color:#02261E;font-weight:600;') }; }),
+      salir: set({ entrada: 'login', tab: 'Inicio' }), cambiarPass: set({ entrada: 'olvide', dniC: '45678901' }),
       tabInicio: s.tab === 'Inicio', tabTurnos: s.tab === 'Turnos', tabPagos: s.tab === 'Pagos', tabDatos: s.tab === 'Datos',
       tabs: tabs,
       irPagos: set({ tab: 'Pagos' }), irTurnos: set({ tab: 'Turnos' }),

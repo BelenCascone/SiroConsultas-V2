@@ -146,11 +146,38 @@
       "is_interactive": true
     },
     "AppPaciente.dc.html": {
+      "x": 0,
+      "y": 8900,
+      "w": 800,
+      "h": 920,
+      "title": "19 · App del paciente",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "AgendaCel.dc.html": {
       "x": 880,
       "y": 7900,
       "w": 800,
       "h": 920,
-      "title": "16 · App del paciente",
+      "title": "16 · Agenda en el celular",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "PacientesCel.dc.html": {
+      "x": 1760,
+      "y": 7900,
+      "w": 800,
+      "h": 920,
+      "title": "17 · Pacientes en el celular",
+      "expand": "fill",
+      "is_interactive": true
+    },
+    "PedidosCel.dc.html": {
+      "x": 2640,
+      "y": 7900,
+      "w": 800,
+      "h": 920,
+      "title": "18 · Pedidos en el celular",
       "expand": "fill",
       "is_interactive": true
     }
@@ -171,7 +198,10 @@
     "Configuracion.dc.html",
     "Terminos.dc.html",
     "HoyCel.dc.html",
-    "AppPaciente.dc.html"
+    "AppPaciente.dc.html",
+    "AgendaCel.dc.html",
+    "PacientesCel.dc.html",
+    "PedidosCel.dc.html"
   ],
   "notes": {
     "fila1": {
@@ -212,7 +242,14 @@
     "fila6": {
       "x": 0,
       "y": 7600,
-      "text": "El celular: la profesional y el paciente",
+      "text": "El celular de la profesional",
+      "kind": "title1",
+      "maxW": 4000
+    },
+    "fila7": {
+      "x": 0,
+      "y": 8800,
+      "text": "El celular del paciente",
       "kind": "title1",
       "maxW": 4000
     }

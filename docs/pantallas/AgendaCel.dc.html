@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Agenda en el celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#E9F1F3}
+a{color:#24605F}
+button,input{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #24605F;outline-offset:2px}
+@media (prefers-reduced-motion: no-preference){.paso{animation:entra .26s cubic-bezier(.2,.7,.2,1)}.hoja{animation:sube .26s cubic-bezier(.2,.7,.2,1)}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes sube{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 900px; box-sizing: border-box; padding: 32px 24px; background: #E9F1F3; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #02261E; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; align-items: flex-start;">
+
+  <div style="width: 390px; height: 844px; position: relative; overflow: hidden; border-radius: 44px; background: radial-gradient(320px 220px at 10% 0%, rgba(137,201,201,0.40), transparent 70%), radial-gradient(300px 200px at 95% 6%, rgba(218,252,146,0.55), transparent 70%), #F2F7F9; box-shadow: 0 0 0 10px #02261E, 0 30px 60px rgba(2,38,30,0.25); font-size: 15px; line-height: 1.45;">
+    <div style="position: absolute; inset: 0 0 76px 0; overflow-y: auto; padding: 18px 16px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px;">
+      <header style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 13px; color: #4A5F5C;">{{mesTxt}}</span>
+          <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em;">Agenda</h1>
+        </div>
+        <sc-if value="{{noEsHoy}}" hint-placeholder-val="{{false}}">
+          <button type="button" onClick="{{irHoy}}" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 0; background: #FFFFFF; color: #02261E; font-weight: 700; font-size: 14px; box-shadow: 0 1px 2px rgba(2,38,30,0.08);">Volver a hoy</button>
+        </sc-if>
+      </header>
+
+      <div role="group" aria-label="Días" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin: 0 -16px; padding-left: 16px; padding-right: 16px;">
+        <sc-for list="{{dias}}" as="d" hint-placeholder-count="7">
+          <button type="button" onClick="{{d.elegir}}" aria-pressed="{{d.on}}" style="{{d.style}}"><span style="font-size: 13px; font-weight: 600;">{{d.dia}}</span><span style="font-size: 18px; font-weight: 800;">{{d.num}}</span><span style="{{d.notaStyle}}">{{d.nota}}</span></button>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 700;">{{diaLargo}}</h2>
+        <span style="font-size: 13px; color: #4A5F5C;">{{resumenDia}}</span>
+      </div>
+
+      <sc-if value="{{bloqueado}}" hint-placeholder-val="{{false}}">
+        <div class="paso" style="padding: 14px 16px; border-radius: 16px; background: #ECEFF3; color: #475467; font-size: 14px;"><b>Día bloqueado.</b> No se dan turnos ni se ofrecen online. Lo cambiás desde Bloquear, en Hoy.</div>
+      </sc-if>
+
+      <sc-for list="{{filas}}" as="r" hint-placeholder-count="6">
+        <button type="button" onClick="{{r.abrir}}" style="{{r.card}}">
+          <span style="font-weight: 700; font-variant-numeric: tabular-nums; width: 42px; flex: 0 0 auto; text-align: left;">{{r.hora}}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: left;">
+            <span style="font-weight: 600; font-size: 15px;">{{r.nombre}}</span>
+            <span style="font-size: 13px; color: #4A5F5C;">{{r.detalle}}</span>
+          </span>
+          <span style="{{r.chip}}">{{r.estado}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <nav aria-label="Secciones" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 8px 14px; background: #FFFFFF; box-shadow: 0 -1px 0 #E9F1F3; display: grid; grid-template-columns: repeat(4, 1fr);">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <a href="{{t.href}}" aria-current="{{t.actual}}" style="{{t.style}}"><span aria-hidden="true" style="{{t.dot}}"></span><span>{{t.label}}</span></a>
+      </sc-for>
+    </nav>
+
+    <sc-if value="{{aviso}}" hint-placeholder-val="{{false}}">
+      <div role="status" class="paso" style="position: absolute; left: 16px; right: 16px; bottom: 88px; padding: 12px 14px; border-radius: 14px; background: #02261E; color: #FFFFFF; font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <span>{{avisoTxt}}</span>
+        <button type="button" onClick="{{cerrarAviso}}" style="height: 44px; padding: 0 10px; border: 0; background: transparent; color: #DAFC92; font-weight: 700; font-size: 14px;">Listo</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{hoja}}" hint-placeholder-val="{{false}}">
+      <div style="position: absolute; inset: 0; background: rgba(2,38,30,0.35); display: flex; align-items: flex-end;">
+        <button type="button" onClick="{{cerrar}}" aria-label="Cerrar" style="position: absolute; inset: 0; border: 0; background: transparent;"></button>
+        <div class="hoja" role="dialog" aria-modal="true" aria-label="{{h.titulo}}" style="position: relative; width: 100%; box-sizing: border-box; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 10px 16px 24px; display: flex; flex-direction: column; gap: 12px; max-height: 92%; overflow-y: auto;">
+          <span aria-hidden="true" style="align-self: center; width: 40px; height: 4px; border-radius: 4px; background: #DDE8EB;"></span>
+          <sc-if value="{{h.puedeVolver}}" hint-placeholder-val="{{false}}">
+            <button type="button" onClick="{{h.volver}}" style="align-self: flex-start; height: 44px; padding: 0 4px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 14px;">‹ Atrás</button>
+          </sc-if>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 13px; color: #4A5F5C;">{{h.sub}}</span>
+            <span style="font-size: 20px; font-weight: 700;">{{h.titulo}}</span>
+          </div>
+          <sc-if value="{{h.esTurno}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><span style="{{h.chip}}">{{h.estado}}</span><span style="font-size: 13px; color: #4A5F5C;">{{h.historial}}</span></div>
+              <sc-for list="{{h.acciones}}" as="a" hint-placeholder-count="4">
+                <button type="button" onClick="{{a.hacer}}" style="{{a.style}}">{{a.label}}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{h.esMover}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Horarios libres</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <sc-for list="{{h.libres}}" as="x" hint-placeholder-count="4">
+                  <button type="button" onClick="{{x.elegir}}" aria-pressed="{{x.on}}" style="{{x.style}}">{{x.label}}</button>
+                </sc-for>
+              </div>
+              <button type="button" onClick="{{h.confirmarMover}}" disabled="{{h.sinDestino}}" style="{{h.moverStyle}}">{{h.moverTxt}}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{h.esCancelar}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 14px; color: #4A5F5C;">El horario queda libre y le avisamos por WhatsApp. El turno queda en su historial como cancelado.</span>
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">¿Quién lo cancela?</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <sc-for list="{{h.quien}}" as="x" hint-placeholder-count="2">
+                  <button type="button" onClick="{{x.elegir}}" aria-pressed="{{x.on}}" style="{{x.style}}">{{x.label}}</button>
+                </sc-for>
+              </div>
+              <button type="button" onClick="{{h.confirmarCancelar}}" disabled="{{h.sinQuien}}" style="{{h.cancelarStyle}}">{{h.cancelarTxt}}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{h.esDar}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600;">DNI del paciente<input type="text" inputmode="numeric" value="{{d.texto}}" onInput="{{d.escribir}}" placeholder="Escribí el DNI, o el nombre si no lo tenés" autocomplete="off" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit; background: #E9F1F3;"></label>
+              <sc-if value="{{d.vacio}}" hint-placeholder-val="{{true}}">
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: #4A5F5C;">
+                  <span>Para probar:</span>
+                  <sc-for list="{{d.pruebas}}" as="x" hint-placeholder-count="2">
+                    <button type="button" onClick="{{x.usar}}" style="height: 44px; padding: 0 12px; border-radius: 999px; border: 0; background: #DCEFEF; color: #24605F; font-weight: 700; font-size: 13px;">{{x.label}}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-for list="{{d.lista}}" as="p" hint-placeholder-count="1">
+                <button type="button" onClick="{{p.elegir}}" style="display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 14px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; text-align: left; width: 100%;">
+                  <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-weight: 700;">{{p.nombre}}</span><span style="font-size: 13px; color: #4A5F5C;">{{p.sub}}</span></span>
+                  <span style="{{p.chip}}">Ya es paciente</span>
+                </button>
+              </sc-for>
+              <sc-if value="{{d.esNuevo}}" hint-placeholder-val="{{false}}">
+                <div class="paso" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div role="status" style="padding: 10px 12px; border-radius: 12px; background: #E5F2FF; color: #1D5FB8; font-size: 14px; font-weight: 600;">{{d.nuevoTxt}}</div>
+                  <sc-if value="{{d.pideFicha}}" hint-placeholder-val="{{true}}">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                      <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Nombre<input type="text" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit; background: #E9F1F3;"></label>
+                      <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Apellido<input type="text" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit; background: #E9F1F3;"></label>
+                      <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Celular<input type="tel" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #FFFFFF; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit; background: #E9F1F3;"></label>
+                    </div>
+                    <button type="button" onClick="{{d.guardarNuevo}}" style="height: 52px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">{{d.guardarNuevoTxt}}</button>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <button type="button" onClick="{{cerrar}}" style="height: 48px; border-radius: 14px; border: 0; background: transparent; color: #24605F; font-weight: 700; font-size: 15px;">Cerrar</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <aside style="width: 320px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #4A5F5C;">
+    <h2 style="margin: 0; font-size: 18px; color: #02261E;">Agenda en el celular</h2>
+    <p style="margin: 0;">Una tira de días arriba (hoy y lo que viene) y la lista del día elegido, con los huecos libres en el medio.</p>
+    <p style="margin: 0;"><b>Turno:</b> escribirle, mandarle el recordatorio si no confirmó, moverlo a un horario libre, cancelarlo o ver su resumen.</p>
+    <p style="margin: 0;"><b>Hueco libre:</b> darlo por DNI, igual que en Hoy. Si el DNI no existe, pide la ficha mínima.</p>
+    <p style="margin: 0;">El lunes 27 está bloqueado, como en la agenda de la compu.</p>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var set = function (o) { return function () { self.setState(o); }; };
+    var avisa = function (t) { return function () { self.setState({ hoja: null, aviso: t }); }; };
+    var plata = function (n) { return '$ ' + Number(n).toLocaleString('es-AR'); };
+    var celda = function (on) { return on ? 'background:#DCEFEF;color:#24605F;font-weight:700;box-shadow:inset 0 0 0 1.5px #24605F;' : 'background:#E9F1F3;color:#02261E;font-weight:600;'; };
+    var chipBase = 'font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; ';
+    var sinTilde = function (t) { return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+    var dniTxt = function (d) { return d.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+    var tabs = [['Hoy', 'HoyCel.dc.html'], ['Agenda', 'AgendaCel.dc.html'], ['Pacientes', 'PacientesCel.dc.html'], ['Pedidos', 'PedidosCel.dc.html']].map(function (x) {
+      var on = x[0] === 'Agenda';
+      return { label: x[0] === 'Pedidos' ? 'Pedidos · 3' : x[0], href: x[1], actual: on ? 'page' : null,
+        dot: 'width: 28px; height: 4px; border-radius: 4px; background: ' + (on ? '#02261E' : 'transparent') + ';',
+        style: 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 52px; text-decoration: none; font-size: 13px; ' + (on ? 'color:#02261E;font-weight:800;' : 'color:#4A5F5C;font-weight:600;') };
+    });
+    // Pacientes ficticios (mismos que en Pacientes de la compu)
+    var PAC = [
+      { nombre: 'Ana Quiroga', dni: '30111222', cel: '11 5555-0110', mail: 'ana.q@correo.com', cob: 'OSDE', veces: 5, faltas: 0, ultima: '21/10 · Control', prox: 'Mar 28/10 · 10:30', debe: 0, vencido: true, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Camila Sosa', dni: '38444555', cel: '11 5555-0161', mail: 'cami.sosa@correo.com', cob: 'Particular', veces: 2, faltas: 0, ultima: '21/10 · Evolución', prox: 'Vie 31/10 · 16:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Carlos Vera', dni: '12345678', cel: '11 5555-0106', mail: 'sin correo', cob: 'PAMI', veces: 10, faltas: 1, ultima: '2/10 · Control', prox: 'Hoy · 12:30', debe: 0, vencido: false, alergias: 'Ibuprofeno', app: false },
+      { nombre: 'Diego Paz', dni: '33222111', cel: '11 5555-0199', mail: 'diego.paz@correo.com', cob: 'Swiss Medical', veces: 4, faltas: 0, ultima: '6/10 · Control', prox: 'Vie 24/10 · 17:00', debe: 12000, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Elena Castro', dni: '22333444', cel: '11 5555-0123', mail: 'elena.castro@correo.com', cob: 'Swiss Medical', veces: 6, faltas: 0, ultima: '20/10 · Evolución', prox: 'Mar 28/10 · 9:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Lucas Benítez', dni: '36555444', cel: '11 5555-0104', mail: 'lucas.b@correo.com', cob: 'OSDE', veces: 6, faltas: 0, ultima: '25/9 · Control', prox: 'Hoy · 11:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Martina Gómez', dni: '45678901', cel: '11 5555-0103', mail: 'martina.g@correo.com', cob: 'Sin completar', veces: 0, faltas: 0, ultima: 'Nunca vino', prox: 'Hoy · 10:30', debe: 0, vencido: false, alergias: 'Sin datos todavía', app: false },
+      { nombre: 'Nicolás Díaz', dni: '31444333', cel: '11 5555-0193', mail: 'nico.diaz@correo.com', cob: 'Galeno', veces: 7, faltas: 2, ultima: '21/10 · Control', prox: 'Sin turno', debe: 0, vencido: true, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Pedro Luna', dni: '25666777', cel: '11 5555-0152', mail: 'pedro.luna@correo.com', cob: 'Galeno', veces: 8, faltas: 0, ultima: '20/10 · Control', prox: 'Vie 24/10 · 9:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
+      { nombre: 'Rosa Medina', dni: '18999000', cel: '11 5555-0131', mail: 'rosa.m@correo.com', cob: 'PAMI', veces: 4, faltas: 1, ultima: '20/10 · Control', prox: 'Sáb 25/10 · 9:30', debe: 0, vencido: false, alergias: 'Penicilina', app: false },
+      { nombre: 'Tomás Ferreyra', dni: '40777888', cel: '11 5555-0102', mail: 'tomas.f@correo.com', cob: 'Particular', veces: 3, faltas: 0, ultima: 'Hoy · Control', prox: 'Sin turno', debe: 9500, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Valeria Ruiz', dni: '41222333', cel: '11 5555-0188', mail: 'vale.ruiz@correo.com', cob: 'Particular', veces: 1, faltas: 0, ultima: '20/10 · Primera consulta', prox: 'Sáb 25/10 · 11:00', debe: 15000, vencido: false, alergias: 'Sin alergias registradas', app: false }
+    ];
+    var buscar = function (texto) {
+      var t = (texto || '').trim(); if (!t) return [];
+      var dig = t.replace(/\D/g, '');
+      if (/^[\d.\s]+$/.test(t)) return dig.length >= 2 ? PAC.filter(function (p) { return p.dni.indexOf(dig) === 0; }) : [];
+      return t.length >= 2 ? PAC.filter(function (p) { return sinTilde(p.nombre).indexOf(sinTilde(t)) >= 0; }) : [];
+    };
+    var s = Object.assign({ dia: 0, hoja: null, aviso: '', destino: null, quien: null, movidos: {}, cancelados: {}, dados: {}, recordados: {} }, this.state || {});
+    var h = s.hoja || {};
+    var DIAS = [['Jue', 23, 'Jueves 23/10'], ['Vie', 24, 'Viernes 24/10'], ['Sáb', 25, 'Sábado 25/10'], ['Lun', 27, 'Lunes 27/10'], ['Mar', 28, 'Martes 28/10'], ['Mié', 29, 'Miércoles 29/10'], ['Jue', 30, 'Jueves 30/10']];
+    var BLOQ = { 3: true };
+    // [id, día, hora, nombre, prestación, estado, historial]
+    var T = [
+      ['d1', 0, '8:30', 'Ramiro Sánchez', 'Control', 'Atendido', 'Ya vino 5 veces'],
+      ['d2', 0, '9:30', 'Tomás Ferreyra', 'Control', 'Para cobrar', 'Ya vino 3 veces'],
+      ['d3', 0, '10:30', 'Martina Gómez', 'Primera consulta', 'Ahora', 'Primera consulta · ficha incompleta'],
+      ['d4', 0, '11:00', 'Lucas Benítez', 'Control', 'Confirmó', 'Ya vino 6 veces'],
+      ['d5', 0, '11:30', 'Inés Molina', 'Evolución · videollamada', 'Confirmó', 'Ya vino 2 veces'],
+      ['d6', 0, '12:30', 'Carlos Vera', 'Control · PAMI', 'Sin respuesta', 'Ya vino 10 veces'],
+      ['e1', 1, '9:00', 'Pedro Luna', 'Evolución', 'Confirmó', 'Ya vino 8 veces'],
+      ['e2', 1, '10:00', 'Sofía Herrera', 'Primera consulta', 'Pedido online', 'Nunca vino: sería su primera consulta'],
+      ['e3', 1, '11:30', 'Hugo Ibarra', 'Control', 'Sin respuesta', 'Ya vino 3 veces'],
+      ['e4', 1, '17:00', 'Diego Paz', 'Control · Norte', 'No puede venir', 'Ya vino 4 veces'],
+      ['f1', 2, '9:30', 'Rosa Medina', 'Control', 'Confirmó', 'Ya vino 4 veces · 1 falta'],
+      ['f2', 2, '11:00', 'Valeria Ruiz', 'Evolución', 'Sin respuesta', 'Ya vino 1 vez'],
+      ['g1', 4, '9:00', 'Elena Castro', 'Evolución', 'Pedido online', 'Ya vino 6 veces'],
+      ['g2', 4, '10:30', 'Ana Quiroga', 'Control', 'Confirmó', 'Ya vino 5 veces'],
+      ['g3', 5, '18:00', 'Javier Ortiz', 'Control · Norte', 'Pedido online', 'Nunca vino: sería su primera consulta'],
+      ['g4', 6, '9:30', 'Martina Gómez', 'Control', 'Sin respuesta', 'Ya vino 1 vez']
+    ];
+    var LIBRES = { 0: ['16:00', '17:30'], 1: ['9:30', '15:00', '16:00'], 2: ['10:00', '12:00'], 3: [], 4: ['9:30', '11:00', '16:00'], 5: ['9:00', '10:30', '16:30'], 6: ['10:00', '11:30', '17:00'] };
+    var CHIP = {
+      'Atendido': 'background:#E4F4EA;color:#166534;', 'Para cobrar': 'background:#FFF1D6;color:#8A5300;', 'Ahora': 'background:#02261E;color:#FFFFFF;',
+      'Confirmó': 'background:#DCEFEF;color:#24605F;', 'Sin respuesta': 'background:#ECEFF3;color:#475467;', 'Recordatorio enviado': 'background:#ECEFF3;color:#475467;',
+      'No puede venir': 'background:#FDE8E8;color:#9E2016;', 'Pedido online': 'background:#EFEAF6;color:#5B3F8C;', 'Libre': 'background:#FFFFFF;color:#24605F;'
+    };
+    var CARD = { 'Atendido': '#F2F7F9', 'Para cobrar': '#FFF8EA', 'Ahora': '#F3FDE0', 'No puede venir': '#FEF4F4' };
+    var minutos = function (hh) { var p = hh.split(':'); return +p[0] * 60 + +p[1]; };
+    // turnos con los cambios hechos en esta pantalla
+    var lista = T.filter(function (t) { return !s.cancelados[t[0]]; }).map(function (t) {
+      var m = s.movidos[t[0]]; var n = t.slice();
+      if (m) { n[1] = m.dia; n[2] = m.hora; n[5] = 'Confirmó'; }
+      if (s.recordados[t[0]] && n[5] === 'Sin respuesta') n[5] = 'Recordatorio enviado';
+      return n;
+    }).concat(Object.keys(s.dados).map(function (k) { var x = s.dados[k]; return [k, x.dia, x.hora, x.nombre, 'Control', 'Sin respuesta', 'Turno dado recién']; }));
+    var ocupado = function (dia, hora) { return lista.some(function (t) { return t[1] === dia && t[2] === hora; }); };
+    var libresDe = function (dia) { return BLOQ[dia] ? [] : LIBRES[dia].filter(function (hh) { return !ocupado(dia, hh); }); };
+    var delDia = function (dia) { return lista.filter(function (t) { return t[1] === dia; }); };
+
+    var darA = function (nombre) { var d = Object.assign({}, s.dados); d['n' + Object.keys(d).length] = { dia: h.dia, hora: h.hora, nombre: nombre };
+      self.setState({ hoja: null, dados: d, aviso: 'Le diste turno a ' + nombre + ' el ' + DIAS[h.dia][2].toLowerCase() + ' a las ' + h.hora + '. Le avisamos por WhatsApp.' }); };
+    var texto = h.texto || '';
+    var coinc = buscar(texto);
+    var digT = texto.replace(/\D/g, ''), numT = texto.trim() !== '' && /^[\d.\s]+$/.test(texto.trim());
+    var dv = {
+      texto: texto, vacio: !texto.trim(),
+      escribir: function (e) { if (e && e.target) self.setState({ hoja: Object.assign({}, h, { texto: e.target.value }) }); },
+      pruebas: [['33222111', '33.222.111 · ya vino'], ['40999888', '40.999.888 · nuevo']].map(function (x) { return { label: x[1], usar: set({ hoja: Object.assign({}, h, { texto: x[0] }) }) }; }),
+      lista: coinc.map(function (p) { return { nombre: p.nombre, sub: 'DNI ' + dniTxt(p.dni) + ' · ' + (p.veces ? 'vino ' + p.veces + (p.veces === 1 ? ' vez' : ' veces') : 'nunca vino'), chip: chipBase + 'background:#DCEFEF;color:#24605F;',
+        elegir: function () { darA(p.nombre); } }; }),
+      esNuevo: !coinc.length && ((numT && digT.length >= 7) || (!numT && texto.trim().length >= 3)),
+      pideFicha: numT,
+      nuevoTxt: numT ? 'No hay ningún paciente con el DNI ' + dniTxt(digT) + '. Es nuevo: completá su ficha mínima.' : 'No encontramos a nadie con ese nombre. Buscalo por DNI para no crear una ficha repetida.',
+      guardarNuevoTxt: 'Dar el turno de las ' + (h.hora || ''),
+      guardarNuevo: function () { darA('el paciente nuevo (DNI ' + dniTxt(digT) + ')'); }
+    };
+
+    var dia = s.dia;
+    var filas = delDia(dia).map(function (t) { return { tipo: 't', t: t, min: minutos(t[2]) }; })
+      .concat(libresDe(dia).map(function (hh) { return { tipo: 'l', hora: hh, min: minutos(hh) }; }))
+      .sort(function (a, b) { return a.min - b.min; })
+      .map(function (f) {
+        if (f.tipo === 'l') return { hora: f.hora, nombre: 'Libre', detalle: 'Tocá para dar este turno', estado: 'Dar turno',
+          card: 'display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 12px; border-radius: 16px; border: 0; width: 100%; color: #24605F; font-size: 15px; background: transparent; box-shadow: inset 0 0 0 1.5px #C5D6DA;',
+          chip: chipBase + 'background:#DCEFEF;color:#24605F;',
+          abrir: set({ hoja: { tipo: 'dar', dia: dia, hora: f.hora, texto: '' }, aviso: '' }) };
+        var t = f.t, e = t[5];
+        var borde = CARD[e] ? '' : 'box-shadow: inset 0 0 0 1.5px #DDE8EB;';
+        return { hora: t[2], nombre: t[3], detalle: t[4], estado: e,
+          card: 'display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px; border-radius: 16px; border: 0; color: #02261E; font-size: 15px; width: 100%; background: ' + (CARD[e] || '#FFFFFF') + ';' + borde,
+          chip: chipBase + CHIP[e],
+          abrir: set({ hoja: { tipo: 'turno', id: t[0] }, aviso: '' }) };
+      });
+
+    var tSel = lista.filter(function (t) { return t[0] === h.id; })[0];
+    var accion = function (label, fn, fuerte) { return { label: label, hacer: fn, style: fuerte ? 'height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #FFF1D6; color: #8A5300; font-size: 15px; font-weight: 800; text-align: left;' : 'height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; text-align: left;' }; };
+    var acciones = [];
+    if (tSel) {
+      var e = tSel[5], pasado = e === 'Atendido' || e === 'Ahora';
+      if (e === 'Para cobrar') acciones.push(accion('Cobrar', avisa('Se abre el cobro de ' + tSel[3] + ', igual que en Hoy.'), true));
+      if (e === 'Pedido online') acciones.push(accion('Responder el pedido', avisa('Se abre en Pedidos para aceptarlo o proponer otro horario.'), false));
+      acciones.push(accion('Escribirle por WhatsApp', avisa('Se abre WhatsApp con el mensaje armado para ' + tSel[3] + '.'), false));
+      if (e === 'Sin respuesta') acciones.push(accion('Mandarle el recordatorio', function () { var r = Object.assign({}, s.recordados); r[tSel[0]] = true; self.setState({ hoja: null, recordados: r, aviso: 'Le mandamos el recordatorio a ' + tSel[3] + ' por WhatsApp.' }); }, false));
+      if (!pasado && e !== 'Pedido online') acciones.push(accion('Mover el turno', set({ hoja: { tipo: 'mover', id: tSel[0], desde: h }, destino: null }), false));
+      if (!pasado && e !== 'Pedido online') acciones.push(accion('Cancelar el turno', set({ hoja: { tipo: 'cancelar', id: tSel[0], desde: h }, quien: null }), false));
+      acciones.push(accion('Ver su resumen', avisa('Se abre su resumen en Pacientes: contacto, alergias, última consulta y saldo.'), false));
+    }
+    var opcionesMover = [];
+    [tSel ? tSel[1] : 0, 4, 5].forEach(function (d) { libresDe(d).forEach(function (hh) { if (opcionesMover.length < 6 && !opcionesMover.some(function (o) { return o.dia === d && o.hora === hh; })) opcionesMover.push({ dia: d, hora: hh }); }); });
+    var dest = s.destino;
+    var hv = {
+      titulo: tSel ? tSel[3] : h.tipo === 'dar' ? 'Dar turno' : '',
+      sub: h.tipo === 'dar' ? DIAS[h.dia][2] + ' · ' + h.hora : tSel ? DIAS[tSel[1]][2] + ' · ' + tSel[2] + ' · ' + tSel[4] : '',
+      esTurno: h.tipo === 'turno', esMover: h.tipo === 'mover', esCancelar: h.tipo === 'cancelar', esDar: h.tipo === 'dar',
+      puedeVolver: !!h.desde, volver: set({ hoja: h.desde || null }),
+      estado: tSel ? tSel[5] : '', chip: chipBase + (tSel ? CHIP[tSel[5]] : ''), historial: tSel ? tSel[6] : '',
+      acciones: acciones,
+      libres: opcionesMover.map(function (o) { var on = dest && dest.dia === o.dia && dest.hora === o.hora; return { label: DIAS[o.dia][0] + ' ' + DIAS[o.dia][1] + ' · ' + o.hora, on: on ? 'true' : 'false', elegir: set({ destino: o }), style: 'height: 48px; border-radius: 12px; border: 0; font-size: 14px; ' + celda(on) }; }),
+      sinDestino: dest ? null : 'disabled',
+      moverTxt: dest ? 'Mover al ' + DIAS[dest.dia][0].toLowerCase() + ' ' + DIAS[dest.dia][1] + ' · ' + dest.hora : 'Elegí el horario nuevo',
+      moverStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 15px; font-weight: 700; ' + (dest ? 'background:#02261E;color:#FFFFFF;' : 'background:#E9F1F3;color:#4A5F5C;'),
+      confirmarMover: function () { if (!dest) return; var m = Object.assign({}, s.movidos); m[tSel[0]] = dest; self.setState({ hoja: null, movidos: m, dia: dest.dia, aviso: 'Moviste a ' + tSel[3] + ' al ' + DIAS[dest.dia][2].toLowerCase() + ' a las ' + dest.hora + '. Le avisamos por WhatsApp.' }); },
+      quien: [['paciente', 'El paciente'], ['yo', 'Yo']].map(function (x) { var on = s.quien === x[0]; return { label: x[1], on: on ? 'true' : 'false', elegir: set({ quien: x[0] }), style: 'height: 48px; border-radius: 12px; border: 0; font-size: 15px; ' + celda(on) }; }),
+      sinQuien: s.quien ? null : 'disabled',
+      cancelarTxt: s.quien ? 'Cancelar el turno' : 'Elegí quién lo cancela',
+      cancelarStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 15px; font-weight: 700; ' + (s.quien ? 'background:#9E2016;color:#FFFFFF;' : 'background:#E9F1F3;color:#4A5F5C;'),
+      confirmarCancelar: function () { if (!s.quien) return; var c = Object.assign({}, s.cancelados); c[tSel[0]] = true; self.setState({ hoja: null, cancelados: c, aviso: 'Cancelaste el turno de ' + tSel[3] + '. Le avisamos por WhatsApp y el horario quedó libre.' }); }
+    };
+    var cant = delDia(dia).length, lib = libresDe(dia).length;
+    return {
+      tabs: tabs, mesTxt: 'Octubre 2026 · Consultorio Centro',
+      dias: DIAS.map(function (d, i) { var on = i === dia; var n = delDia(i).length;
+        return { dia: i === 0 ? 'Hoy' : d[0], num: d[1], on: on ? 'true' : 'false', elegir: set({ dia: i }),
+          nota: BLOQ[i] ? 'Bloq.' : n ? n + ' t.' : 'Libre',
+          notaStyle: 'font-size: 12px; font-weight: 600; ' + (on ? 'color: #DAFC92;' : 'color: #4A5F5C;'),
+          style: 'flex: 0 0 auto; width: 58px; min-height: 72px; border-radius: 16px; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25; ' + (on ? 'background:#02261E;color:#FFFFFF;' : BLOQ[i] ? 'background:#ECEFF3;color:#475467;' : 'background:#FFFFFF;color:#02261E;') }; }),
+      diaLargo: DIAS[dia][2], resumenDia: BLOQ[dia] ? 'Bloqueado' : cant + (cant === 1 ? ' turno' : ' turnos') + ' · ' + lib + (lib === 1 ? ' libre' : ' libres'),
+      bloqueado: !!BLOQ[dia], filas: filas,
+      noEsHoy: dia !== 0, irHoy: set({ dia: 0 }),
+      hoja: !!s.hoja, h: hv, d: dv,
+      aviso: !!s.aviso, avisoTxt: s.aviso, cerrarAviso: set({ aviso: '' }), cerrar: set({ hoja: null })
+    };
+  }
+}
+</script>
+</body>
+</html>
