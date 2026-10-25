@@ -538,6 +538,50 @@ a.e-ahora:hover { color: var(--sobre-oscuro); }
 .dato-tarjeta { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: var(--radio); background: var(--superficie-3); box-shadow: inset 0 0 0 1px var(--borde-suave); }
 .chico-buscador { max-width: none; height: var(--control); box-shadow: inset 0 0 0 1px var(--borde); border-radius: var(--pastilla); }
 
+/* ---------- estadisticas ---------- */
+:root { --est-azul: #1D5FB8; --est-verde: #00918C; }
+.est-encabezado { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+.est-filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.est-consultorio { min-width: 210px; }
+.est-fechas { justify-content: flex-end; align-items: flex-end; }
+.est-indicadores { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.est-indicador { display: flex; flex-direction: column; gap: 6px; padding: 18px; border-radius: var(--radio-grande); background: var(--superficie); box-shadow: var(--sombra-chica); min-width: 0; }
+.est-indicador h2 { font-size: 13px; color: var(--texto-2); font-weight: 600; }
+.est-indicador > strong { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.est-ambar { background: var(--debe-fondo); }
+.est-dos { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.est-tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.est-dos > *, .est-tres > * { min-width: 0; }
+.est-grupos { display: flex; flex-direction: column; gap: 8px; list-style: none; padding: 0; margin: 0; }
+.est-grupos li { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(30px, 0.8fr) minmax(70px, auto); gap: 10px; align-items: center; min-height: 36px; font-size: 14px; }
+.est-grupos li > span:first-child { overflow-wrap: anywhere; }
+.est-barra { width: 100%; height: 14px; }
+.est-numero { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.est-numero small { margin-left: 4px; font-size: 13px; font-weight: 400; color: var(--texto-2); }
+.est-fondo-barra { fill: var(--superficie-2); }
+.est-verde { fill: var(--est-verde); background: var(--est-verde); }
+.est-azul { fill: var(--est-azul); background: var(--est-azul); }
+.est-grafico { display: block; width: 100%; height: auto; }
+.est-eje { fill: var(--texto-2); font-size: 15px; }
+.est-total { fill: var(--texto); font-size: 15px; font-weight: 700; }
+.est-grilla-linea { stroke: var(--borde-suave); stroke-width: 1; }
+.est-seleccion { fill: transparent; stroke: transparent; stroke-width: 2; }
+.est-mes[aria-current='true'] .est-seleccion { fill: var(--superficie-2); }
+.est-mes:hover .est-seleccion { fill: var(--superficie-2); }
+.est-mes:focus-visible { outline: none; }
+.est-mes:focus-visible .est-seleccion { stroke: var(--enlace); }
+.est-leyenda > span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.est-marca { width: 12px; height: 12px; border-radius: var(--radio-chico); }
+.est-tabla { border-collapse: collapse; width: 100%; font-size: 14px; table-layout: fixed; }
+.est-tabla caption { text-align: left; font-size: 13px; color: var(--texto-2); padding-bottom: 12px; }
+.est-tabla th, .est-tabla td { padding: 10px 6px; border-bottom: 1px solid var(--borde-suave); text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.est-tabla th:first-child { text-align: left; width: 32%; }
+.est-tabla thead th { font-size: 13px; color: var(--texto-2); }
+.est-lista { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; }
+.est-lista dt, .est-lista dd { padding-bottom: 8px; border-bottom: 1px solid var(--borde-suave); margin: 0; }
+.est-lista dd { font-size: 20px; font-weight: 800; }
+#est-detalle { display: flex; flex-wrap: wrap; gap: 8px 16px; scroll-margin-top: 24px; }
+
 /* ---------- correo y contadora ---------- */
 .contadora-fechas { align-items: flex-end; }
 .contadora-fechas .campo { flex: 1 1 160px; }
