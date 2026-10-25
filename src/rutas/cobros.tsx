@@ -15,6 +15,7 @@ import { Pagina } from '../ui/pagina'
 import { Aviso, Boton, Campo, Estado, Pastilla, Tarjeta, Ventana, pesos } from '../ui/componentes'
 import { Lupa, Mas, Volver } from '../ui/iconos'
 import { avisosSinLeer, datosProfesional } from './inicio'
+import { PorCorreo, mandarAlPaciente, resultado, volverSeguro } from './envios'
 
 export const cobros = new Hono<Env>()
 
@@ -178,6 +179,7 @@ async function pasoDos(c: C, d: Destino, v: Valores = {}, error?: string) {
   const medio = MEDIOS.find((m) => m.valor === v.medio)?.valor ?? 'efectivo'
   const importe = v.importe ?? (k.importe !== null ? importeCampo(k.importe) : '')
   const conDatos = !!(prof?.alias || prof?.cbu)
+  const correo = (await c.env.DB.prepare('SELECT correo FROM pacientes WHERE id = ?').bind(k.paciente.id).first<{ correo: string | null }>())?.correo ?? null
   const mensaje = mensajeDatosPago({ nombre: k.paciente.nombre, concepto: k.sub.split(' · ')[0] || 'la consulta', importe: k.importe ?? 0, alias: prof?.alias ?? null, cbu: prof?.cbu ?? null, titular: prof?.titular ?? null, qr: !!prof?.qr }, pesos)
   return pagina(c, 'Cobrar', <div class="angosto columna">
     <a class="volver" href="/cobros/nuevo"><Volver />Cambiar a quién le cobrás</a>
@@ -237,12 +239,37 @@ async function pasoDos(c: C, d: Destino, v: Valores = {}, error?: string) {
           {prof?.qr && <a class="boton borde" href="/cobros/qr?descargar=1">Descargar el QR</a>}
           <a class="boton oscuro" href={enlaceWhatsapp(k.paciente.celular, mensaje)} target="_blank" rel="noopener">Mandar por WhatsApp</a>
         </div>
+        <PorCorreo env={c.env} accion="/cobros/datos-pago/correo" correo={correo} volver={`/cobros/nuevo?${d.tipo === 'libre' ? `paciente=${d.id}&otro=1` : `${d.tipo}=${d.id}`}`}
+          oculto={<><input type="hidden" name="tipo" value={d.tipo} /><input type="hidden" name="id" value={d.id} /></>} />
       </> : (
         <Aviso tipo="ambar">Todavía no cargaste tus datos para transferir. Cargalos en <a href="/configuracion/cobros">Configuración → Cobros y comprobantes</a>.</Aviso>
       )}
     </Ventana>
   </div>, error ? 422 : 200)
 }
+
+// «Enviar datos de pago» por correo (P5): el mismo mensaje, con la imagen del QR adjunta si está cargada.
+cobros.post('/cobros/datos-pago/correo', async (c) => {
+  const f = await c.req.parseBody()
+  const tipo = (['turno', 'cobro', 'libre'] as const).find((x) => x === f.tipo), id = numeroId(typeof f.id === 'string' ? f.id : undefined)
+  const volver = volverSeguro(f.volver, '/cobros/nuevo')
+  const k = tipo && id ? await contexto(c, { tipo, id }, ahoraAR().fecha) : null
+  if (!k) return c.notFound()
+  const [prof, p] = await Promise.all([
+    c.env.DB.prepare('SELECT transferencia_alias alias, transferencia_cbu cbu, transferencia_titular titular, transferencia_qr_clave qr FROM profesional WHERE id = 1')
+      .first<{ alias: string | null; cbu: string | null; titular: string | null; qr: string | null }>(),
+    c.env.DB.prepare('SELECT id paciente_id, nombre, apellido, correo, baja_en FROM pacientes WHERE id = ?').bind(k.paciente.id)
+      .first<{ paciente_id: number; nombre: string; apellido: string; correo: string | null; baja_en: string | null }>(),
+  ])
+  if (!prof?.alias && !prof?.cbu) return resultado(c, { ok: false, texto: 'Todavía no cargaste tus datos para transferir.', volver })
+  const qr = prof.qr ? await c.env.ARCHIVOS.get(prof.qr) : null
+  const imagen = qr ? new Uint8Array(await qr.arrayBuffer()) : null
+  const texto = mensajeDatosPago({ nombre: k.paciente.nombre, concepto: k.sub.split(' · ')[0] || 'la consulta', importe: k.importe ?? 0, alias: prof.alias, cbu: prof.cbu, titular: prof.titular, qr: !!imagen }, pesos)
+  return mandarAlPaciente(c, p!, 'datos_pago', tipo === 'cobro' ? id : null, 'Datos para pagar', `${texto}
+
+La app no mueve plata: cuando me llegue el pago, te mando el comprobante.`,
+    imagen ? [{ nombre: imagen[0] === 255 ? 'qr.jpg' : 'qr.png', tipo: imagen[0] === 255 ? 'image/jpeg' : 'image/png', datos: imagen }] : [], volver, 'los datos de pago')
+})
 
 cobros.post('/cobros', async (c) => {
   const f = await c.req.parseBody()

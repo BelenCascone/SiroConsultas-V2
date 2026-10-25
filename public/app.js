@@ -306,4 +306,18 @@
     })
     form.elements.namedItem('quitar_logo')?.addEventListener('change', () => { logo.hidden = form.elements.namedItem('quitar_logo').checked || !logo.getAttribute('src') })
   }
+  // ---------- recordatorio por WhatsApp: se abre el enlace y se deja anotado ----------
+  for (const enlace of document.querySelectorAll('a[data-anotar]')) {
+    enlace.addEventListener('click', () => {
+      fetch(enlace.dataset.anotar, { method: 'POST', body: new FormData(), keepalive: true }).catch(() => {})
+    })
+  }
+  // ---------- recordatorios: vista previa mientras se escribe ----------
+  for (const texto of document.querySelectorAll('textarea[data-recordatorio]')) {
+    const previa = document.getElementById(texto.dataset.recordatorio)
+    if (!previa) continue
+    texto.addEventListener('input', () => {
+      previa.textContent = texto.value.replace(/\{(nombre|dia|hora|lugar)\}/g, (_, k) => previa.dataset[k] ?? '')
+    })
+  }
 })()

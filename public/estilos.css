@@ -581,3 +581,10 @@ a.e-ahora:hover { color: var(--sobre-oscuro); }
 .est-lista dt, .est-lista dd { padding-bottom: 8px; border-bottom: 1px solid var(--borde-suave); margin: 0; }
 .est-lista dd { font-size: 20px; font-weight: 800; }
 #est-detalle { display: flex; flex-wrap: wrap; gap: 8px 16px; scroll-margin-top: 24px; }
+
+/* ---------- correo y contadora ---------- */
+.contadora-fechas { align-items: flex-end; }
+.contadora-fechas .campo { flex: 1 1 160px; }
+.contadora-hojas { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.contadora-acciones { align-items: flex-start; }
+.contadora-acciones form { display: contents; }

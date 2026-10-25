@@ -19,6 +19,9 @@
     // Correos que pueden entrar con Google (la profesional). Separados por coma.
     "CORREOS_PERMITIDOS": "demo@siroconsultas.test"
   },
+  // Cada hora: recordatorios por correo de los turnos de las próximas 48 h (P5).
+  // El correo sale con los secretos SMTP_HOST, SMTP_PUERTO (587 con STARTTLS o 465), SMTP_USUARIO, SMTP_CLAVE y SMTP_REMITENTE.
+  "triggers": { "crons": ["0 * * * *"] },
   "d1_databases": [
     {
       "binding": "DB",
