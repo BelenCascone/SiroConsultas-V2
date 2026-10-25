@@ -5,7 +5,7 @@ import type { Instalacion, Modulo } from '../lib/instalacion'
 import { Campana } from './iconos'
 
 /** Sube con cada cambio de estilos.css o app.js para que el navegador no use la copia vieja. */
-export const VERSION_ESTATICOS = '2.0.0-x4-p4'
+export const VERSION_ESTATICOS = '2.0.0-x5'
 
 export type Seccion = 'hoy' | 'agenda' | 'pacientes' | 'cobros' | 'estadisticas' | 'configuracion' | 'otra'
 
