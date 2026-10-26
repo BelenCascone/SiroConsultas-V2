@@ -104,6 +104,7 @@ app.route('/', configuracion)
 // ---------- Secciones que se arman en las próximas etapas ----------
 const PROXIMAS: { ruta: string; seccion: Seccion; titulo: string }[] = [
   { ruta: '/avisos', seccion: 'otra', titulo: 'Avisos' },
+  { ruta: '/pedidos', seccion: 'pedidos', titulo: 'Pedidos de turno' },
 ]
 for (const p of PROXIMAS) {
   app.get(p.ruta, async (c) => {

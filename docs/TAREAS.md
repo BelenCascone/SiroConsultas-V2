@@ -7,7 +7,7 @@ Una tarea = una rama = un PR. Estado: pendiente · en curso · en revisión · h
 | E0 | **Etapa 0 · base del repositorio madre:** esquema completo de la base con sus triggers, ingreso con Google y segundo código, componentes del estilo «Nube», pruebas y despliegue automático | Claude | hecha |
 | E1 | **Etapa 1 · base ordenada** (repartida abajo en tres tandas) | Claude y Codex | hecha |
 | E2 | **Etapa 2 · comprobante interno:** cobrar, datos fiscales, comprobante interno por pago con numeración, anulación con el pago, envío por WhatsApp o correo, enviar a la contadora (repartida abajo en dos tandas) | Claude y Codex | hecha |
-| E3 | **Etapa 3 · puerta de producción:** términos y privacidad (texto del abogado), aceptación al entrar, staging, simulacro de restauración, dominio propio, repositorios de cliente | Claude y Codex (reparto parcial abajo) | en curso |
+| E3 | **Etapa 3 · puerta de producción:** términos y privacidad (texto del abogado), aceptación al entrar, staging, simulacro de restauración, dominio propio, repositorios de cliente (la parte técnica va en la tanda 6) | Codex | en curso |
 | E4 | **Etapa 4 · factura C de ARCA** con nota de crédito, pendientes y reintentos | — | pendiente |
 | E5 | **Etapa 5 · autogestión del paciente:** pedido de turno online, cobro por ausencia, estadísticas por rango y consultorio | — | pendiente |
 
@@ -37,6 +37,15 @@ Igual que la etapa 1: una tarea para cada uno por tanda, en paralelo y en archiv
 | P5 | 5 | **Correo y contadora:** correo saliente para la instalación (SMTP con secretos, como los recordatorios del sistema anterior), «Por correo» en datos de pago, comprobantes y documentos, recordatorio automático por correo 48 h antes; «Enviar a la contadora» (período, totales cobrado / facturado / sin factura, planilla .xlsx con tres hojas Cobros, Pagos y Comprobantes, sin datos clínicos; enviar o solo descargar, copia a la profesional, envíos anteriores); Configuración → «Recordatorios» | `Contadora`, `Configuracion` (sección Recordatorios) | Claude | hecha |
 | X5 | 5 | **Estadísticas:** filtros de período (este mes, el anterior, trimestre, elegir fechas) y consultorio; consultas con la diferencia contra el período anterior, primera vez, pacientes que vuelven, ausencias; gráfico de los últimos 6 meses en SVG sin dependencias (tocar un mes muestra el detalle, «Ver como tabla»); coberturas, ausencias y cancelaciones, por consultorio y tipo de atención; cobros: cobrado, particulares, copagos, te deben, ticket promedio, por prestación, facturado y comprobante interno, por medio de pago; botón «Enviar a la contadora» | `Estadisticas` | Codex | hecha |
 
+## Tanda 6: el celular de la profesional y la puerta de producción
+
+Las dos tareas van en paralelo y en archivos propios. Pedidos en el celular y la app del paciente quedan para la etapa 5, porque necesitan el pedido de turno online.
+
+| # | Tanda | Tarea | Maquetas | Quién | Estado |
+|---|---|---|---|---|---|
+| P6 | 6 | **Celular de la profesional:** barra de abajo (Hoy, Agenda, Pacientes y Pedidos; Pedidos avisa que llega en la etapa 5); Hoy con «+ Turno», «Cobrar» y «Bloquear» en una fila, «Llegó» en vez de Atender (queda en consulta y las notas se escriben en la compu) y el turno que se abre en una hoja; la hoja del turno con su resumen (alergias, última consulta, saldo) y cancelar con «¿Quién lo cancela?»; Agenda «Día \| Mes» con la tira de días y la lista del día con los huecos libres, y el mes con la cantidad de turnos por día; Pacientes con los cuatro filtros de la maqueta y la ficha como resumen sin nada clínico | `HoyCel`, `AgendaCel`, `PacientesCel` | Claude | en revisión |
+| X6 | 6 | **Puerta de producción, la parte técnica:** tabla de aceptaciones y la pantalla de términos al entrar (`Terminos`) con un texto de prueba hasta que llegue el del abogado; `MODO_PRUEBA=0` sin clave de prueba; entorno de staging | `Terminos` | Codex | pendiente |
+
 ## Etapa 3: reparto parcial
 
 | # | Tarea | Quién | Estado |
@@ -61,7 +70,7 @@ El resto de E3 mantiene su alcance: legales y aceptación, staging, dominio prop
 - **Lo que una tarea necesita de la otra de la misma tanda,** se lee de la base con su propia consulta, sin importar el código de la otra. Por ejemplo, Pacientes lista las consultas para la pestaña Historia clínica sin esperar a X2.
 - Antes de abrir el PR: `npm run typecheck`, `npm test` y `npm run test:e2e`, todo en verde (reglas completas en `CLAUDE.md` / `AGENTS.md`).
 
-## Preguntas abiertas para Belén
-- **Pedido online de un paciente sin ficha:** el análisis dice que todo turno pertenece a una ficha y que, si el paciente nunca vino, la ficha se crea al aceptar. El esquema lo resuelve con una tabla de pedidos aparte (`pedidos`) que retiene el hueco hasta que la profesional responde; al aceptar nace la ficha (o se vincula por DNI) y el turno. Hay que confirmar si también un paciente conocido pasa por esa tabla o queda como turno «Solicitado». (Recién hace falta en la etapa 5).
-- **Largo del DNI:** se aceptan de 6 a 10 números, para no dejar afuera documentos viejos o de extranjeros. ¿Va bien así?
-- **Duración de la sesión:** se cierra sola a las 12 horas. ¿Va bien así o preferís otro plazo?
+## Preguntas respondidas por Belén (26/10)
+- **Pedidos de turno online:** todos van a la tabla `pedidos`, también los de pacientes que ya tienen ficha, y la profesional los aprueba. Al aceptar nace la ficha (o se vincula por DNI) y el turno. (Etapa 5).
+- **Largo del DNI:** de 6 a 10 números, como está.
+- **Duración de la sesión:** se cierra sola a las 12 horas, como está.

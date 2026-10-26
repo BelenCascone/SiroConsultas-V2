@@ -1,6 +1,7 @@
 import { HerramientasDocumentos } from './documentos'
 // P1 · Pacientes: lista con buscador, filtros y orden; alta rápida con DNI; ficha con sus pestañas; editar; dar de baja y reactivar.
 // Maquetas: docs/pantallas/Pacientes.dc.html y Ficha.dc.html · docs/DISENO_APROBADO.md, secciones 9 y 10.
+// En el celular (P6, PacientesCel.dc.html) la ficha es un resumen sin nada clínico: lo clínico queda en la compu.
 import { Hono } from 'hono'
 import type { Child } from 'hono/jsx'
 import type { C, Env } from '../tipos'
@@ -20,6 +21,7 @@ import { datosProfesional, avisosSinLeer } from './inicio'
 export const pacientes = new Hono<Env>()
 
 const POR_PAGINA = 50
+const EN_CELULAR: readonly Filtro[] = ['todos', 'deben', 'control', 'sin_turno']
 
 async function pagina(c: C, titulo: string, hijos: Child, status: 200 | 404 | 409 | 422 = 200) {
   const [prof, avisos] = await Promise.all([datosProfesional(c), avisosSinLeer(c)])
@@ -189,9 +191,11 @@ pacientes.get('/pacientes', async (c) => {
       </div>
     </section>
     <nav class="fila" aria-label="Filtrar pacientes">
-      {FILTROS.map((f) => (
-        <Pastilla href={enlace({ filtro: f.id === 'todos' ? '' : f.id, n: '' })} actual={f.id === filtro} cuenta={f.id === 'todos' ? undefined : cuenta[f.id]}>{f.texto}</Pastilla>
-      ))}
+      {FILTROS.map((f) => {
+        const pastilla = <Pastilla href={enlace({ filtro: f.id === 'todos' ? '' : f.id, n: '' })} actual={f.id === filtro} cuenta={f.id === 'todos' ? undefined : cuenta[f.id]}>{f.texto}</Pastilla>
+        // En el celular van los cuatro filtros de la maqueta (PacientesCel); el resto queda en la compu, salvo el que está elegido.
+        return EN_CELULAR.includes(f.id) || f.id === filtro ? pastilla : <span class="solo-compu">{pastilla}</span>
+      })}
     </nav>
     <section class="tarjeta tabla-pacientes" aria-label="Lista de pacientes">
       <div class="fila-tabla cabeza-tabla">
@@ -296,11 +300,13 @@ pacientes.get('/pacientes/:id{[0-9]+}', async (c) => {
   const anios = edad(p.fecha_nacimiento, hoy)
   const cobertura = p.cobertura === 'obra_social' ? p.obra_social : p.cobertura === 'particular' ? 'Particular' : 'Cobertura sin completar'
   const cobros = habilitado(inst, 'cobros')
-  const [opciones, proximos] = await Promise.all([
+  const [opciones, proximos, antecedente] = await Promise.all([
     opcionesFicha(c, p),
     c.env.DB.prepare(`SELECT fecha, hora FROM turnos WHERE paciente_id = ? AND estado IN ('confirmado', 'solicitado') AND fecha >= ? ORDER BY fecha, hora`)
       .bind(id, hoy).all<{ fecha: string; hora: string }>(),
+    c.env.DB.prepare('SELECT alergias FROM antecedentes WHERE paciente_id = ? ORDER BY id DESC LIMIT 1').bind(id).first<{ alergias: string | null }>(),
   ])
+  const alergias = antecedente?.alergias ?? null
   const aviso = c.req.query('aviso')
   const cancelados = aviso === 'baja' && p.baja_en
     ? (await c.env.DB.prepare(`SELECT fecha, hora FROM turnos WHERE paciente_id = ? AND estado = 'cancelado' AND cierre_motivo = 'Paciente dado de baja' AND cerrado_en = ? ORDER BY fecha, hora`)
@@ -346,7 +352,7 @@ pacientes.get('/pacientes/:id{[0-9]+}', async (c) => {
         </div>
       </div>
       {activo && (
-        <div class="fila ficha-acciones">
+        <div class="fila ficha-acciones solo-compu">
           {cobros && fila.saldo > 0 && (
             <a class="boton debe-boton" href={`/cobros/nuevo?paciente=${id}`} data-modulo="cobros"><span>Debe</span><strong>Cobrar {pesos(fila.saldo)}</strong></a>
           )}
@@ -357,17 +363,43 @@ pacientes.get('/pacientes/:id{[0-9]+}', async (c) => {
       )}
     </section>
 
-    {activo && <HerramientasDocumentos c={c} pacienteId={id} />}
+    <div class="solo-celular-bloque ficha-celular">
+      {activo && (
+        <div class="ficha-celular-botones">
+          <a class="boton borde" href={enlaceWhatsapp(p.celular)} target="_blank" rel="noopener">WhatsApp</a>
+          <Boton href={`/turnos/nuevo?paciente=${id}`} variante="oscuro" data-modulo="agenda">Dar turno</Boton>
+        </div>
+      )}
+      {activo && cobros && fila.saldo > 0 && (
+        <a class="boton debe-boton ancho" href={`/cobros/nuevo?paciente=${id}`} data-modulo="cobros"><span>Debe · Cobrar</span><strong>{pesos(fila.saldo)}</strong></a>
+      )}
+      <Tarjeta titulo="Resumen">
+        <dl class="datos">
+          <dt>Alergias</dt><dd class={alergias ? 'alerta-texto' : undefined}>{alergias ?? 'Sin alergias registradas'}</dd>
+          <dt>Celular</dt><dd>{p.celular}</dd>
+          <dt>Correo</dt><dd class={p.correo ? undefined : 'suave'}>{p.correo ?? 'Sin correo'}</dd>
+          <dt>Último turno</dt><dd>{fila.ultimo ? (fila.ultimo === hoy ? 'Hoy' : fechaCorta(fila.ultimo)) : 'Nunca vino'}</dd>
+          <dt>Próximo turno</dt><dd>{proximoTexto(fila.proximo, hoy)}</dd>
+          {cobros && <><dt>Saldo</dt><dd class={fila.saldo > 0 ? 'debe-texto' : undefined}>{fila.saldo > 0 ? `Debe ${pesos(fila.saldo)}` : 'Al día'}</dd></>}
+        </dl>
+      </Tarjeta>
+      {activo && <a class="boton borde" href={`/pacientes/${id}/editar`} data-abre="ventana-editar">Editar datos</a>}
+      <p class="suave chico">La historia clínica, las notas y los documentos se ven en la compu.</p>
+    </div>
 
-    <nav class="fila" aria-label="Secciones de la ficha">
-      {pestanas.map((t) => <Pastilla href={`/pacientes/${id}${t.id === 'resumen' ? '' : `?tab=${t.id}`}`} actual={t.id === tab}>{t.texto}</Pastilla>)}
-    </nav>
+    <div class="solo-compu-grupo">
+      {activo && <HerramientasDocumentos c={c} pacienteId={id} />}
 
-    {tab === 'resumen' && <Resumen c={c} p={p} fila={fila} hoy={hoy} cobertura={cobertura} />}
-    {tab === 'historia' && <Historia c={c} id={id} />}
-    {tab === 'turnos' && <Turnos c={c} id={id} hoy={hoy} />}
-    {tab === 'pagos' && <Pagos c={c} id={id} />}
-    {tab === 'documentos' && <Documentos c={c} id={id} />}
+      <nav class="fila" aria-label="Secciones de la ficha">
+        {pestanas.map((t) => <Pastilla href={`/pacientes/${id}${t.id === 'resumen' ? '' : `?tab=${t.id}`}`} actual={t.id === tab}>{t.texto}</Pastilla>)}
+      </nav>
+
+      {tab === 'resumen' && <Resumen c={c} p={p} fila={fila} hoy={hoy} cobertura={cobertura} />}
+      {tab === 'historia' && <Historia c={c} id={id} />}
+      {tab === 'turnos' && <Turnos c={c} id={id} hoy={hoy} />}
+      {tab === 'pagos' && <Pagos c={c} id={id} />}
+      {tab === 'documentos' && <Documentos c={c} id={id} />}
+    </div>
 
     {activo && (
       <>

@@ -1,9 +1,11 @@
 // P2b · Agenda Día / Semana / Mes y la ventana del turno (Atender, No vino, Mover, Cancelar y avisar, Darle otro turno, Ver ficha).
 // Maqueta: docs/pantallas/Agenda.dc.html · docs/DISENO_APROBADO.md, sección 8. Todo se abre en ventanas sobre la agenda.
+// En el celular (P6, docs/pantallas/AgendaCel.dc.html): «Día | Mes», la tira de días y la lista del día con los huecos libres;
+// las ventanas se ven como hojas que suben desde abajo.
 import { Hono } from 'hono'
 import type { Child } from 'hono/jsx'
 import type { C, Env } from '../tipos'
-import { leerInstalacion } from '../lib/instalacion'
+import { habilitado, leerInstalacion } from '../lib/instalacion'
 import { DIAS, MESES, ahoraAR, ahoraISO, esFecha, esHora, fechaLarga, sumarDias } from '../lib/fechas'
 import { registrar } from '../lib/sesion'
 import { enlaceWhatsapp } from '../lib/pacientes'
@@ -13,7 +15,7 @@ import {
   CLAVE_ESTADO, VISTAS, estadoMostrado, lunesDe, limitesDelTablero, moverTurno, nombreCorto, rangoDe, turnosDelRango, vecina, type TurnoAgenda, type Vista,
 } from '../lib/agenda'
 import { Pagina } from '../ui/pagina'
-import { Aviso, Boton, Estado, Tarjeta } from '../ui/componentes'
+import { Aviso, Boton, Estado, Tarjeta, pesos } from '../ui/componentes'
 import { Cruz, Flecha, Volver } from '../ui/iconos'
 import { datosProfesional, avisosSinLeer } from './inicio'
 
@@ -28,7 +30,7 @@ async function pagina(c: C, titulo: string, hijos: Child, status: 200 | 404 | 40
 }
 
 // ---------- Enlaces ----------
-type Q = { vista: Vista; fecha: string; consultorio: string; turno?: string; mover?: string; destino?: string; volver?: string }
+type Q = { vista: Vista; fecha: string; consultorio: string; turno?: string; mover?: string; destino?: string; cancelar?: string; volver?: string }
 const url = (q: Partial<Q>) => {
   const p = new URLSearchParams()
   for (const [k, v] of Object.entries(q)) if (v) p.set(k, v)
@@ -44,7 +46,8 @@ type Consultorio = { id: number; nombre: string; modalidad: string }
 /** Datos de un turno con lo que hace falta para la ventana y para los avisos. */
 type Detalle = TurnoAgenda & {
   celular: string; dni: string; cobertura: string; obra_social: string | null; veces: number; faltas: number; incompleta: number
-  direccion: string | null; enlace_video: string | null
+  direccion: string | null; enlace_video: string | null; cancelado_por: string | null
+  alergias: string | null; ultima: string | null; saldo: number
   correo: string | null; recordatorios_baja: number; recordatorio_whatsapp_en: string | null; recordatorio_correo_en: string | null; plantilla: string | null
 }
 const leerDetalle = (db: D1Database, id: number) => db.prepare(
@@ -52,7 +55,10 @@ const leerDetalle = (db: D1Database, id: number) => db.prepare(
           t.paciente_id, p.nombre, p.apellido, p.celular, p.dni, p.correo, p.recordatorios_baja, t.recordatorio_whatsapp_en, t.recordatorio_correo_en, (SELECT recordatorio_mensaje FROM profesional WHERE id = 1) plantilla, t.cobertura, os.nombre obra_social, pr.nombre prestacion,
           (SELECT COUNT(*) FROM turnos x WHERE x.paciente_id = p.id AND x.estado = 'atendido') veces,
           (SELECT COUNT(*) FROM turnos x WHERE x.paciente_id = p.id AND x.estado = 'ausente') faltas,
-          (p.fecha_nacimiento IS NULL OR p.domicilio IS NULL OR p.ocupacion IS NULL OR p.cobertura IS NULL) incompleta
+          (p.fecha_nacimiento IS NULL OR p.domicilio IS NULL OR p.ocupacion IS NULL OR p.cobertura IS NULL) incompleta, t.cancelado_por,
+          (SELECT a.alergias FROM antecedentes a WHERE a.paciente_id = p.id ORDER BY a.id DESC LIMIT 1) alergias,
+          (SELECT MAX(x.fecha) FROM turnos x WHERE x.paciente_id = p.id AND x.estado = 'atendido' AND x.id <> t.id) ultima,
+          COALESCE((SELECT SUM(vc.saldo) FROM v_cobros vc WHERE vc.paciente_id = p.id), 0) saldo
      FROM turnos t JOIN pacientes p ON p.id = t.paciente_id JOIN consultorios co ON co.id = t.consultorio_id
      LEFT JOIN prestaciones pr ON pr.id = t.prestacion_id LEFT JOIN obras_sociales os ON os.id = t.obra_social_id WHERE t.id = ?`).bind(id).first<Detalle>()
 
@@ -96,8 +102,13 @@ agenda.get('/agenda', async (c) => {
   const base: Q = { vista, fecha, consultorio, volver }
 
   const { desde, hasta } = rangoDe(vista, fecha)
-  const [datos, todosLosTurnos] = await Promise.all([cargarAgenda(db, desde, hasta, ahoraISO()), turnosDelRango(db, desde, hasta)])
-  const turnos = todosLosTurnos.filter((t) => !filtro || t.consultorio_id === filtro.id)
+  // Día en el celular: la tira muestra hoy y los 6 que siguen (o arranca en el día elegido si está fuera de esa semana).
+  const tiraDesde = fecha >= hoy && fecha <= sumarDias(hoy, 6) ? hoy : fecha
+  const tiraHasta = sumarDias(tiraDesde, 6)
+  const [cargaDesde, cargaHasta] = vista === 'dia' ? [tiraDesde < desde ? tiraDesde : desde, tiraHasta > hasta ? tiraHasta : hasta] : [desde, hasta]
+  const [datos, todosLosTurnos] = await Promise.all([cargarAgenda(db, cargaDesde, cargaHasta, ahoraISO()), turnosDelRango(db, cargaDesde, cargaHasta)])
+  const delConsultorio = todosLosTurnos.filter((t) => !filtro || t.consultorio_id === filtro.id)
+  const turnos = delConsultorio.filter((t) => t.fecha >= desde && t.fecha <= hasta)
 
   // Mover: el turno que se está moviendo y, si ya eligió un hueco, a dónde.
   const moviendo = entero(q.mover) ? await leerDetalle(db, entero(q.mover)) : null
@@ -106,7 +117,10 @@ agenda.get('/agenda', async (c) => {
   const [dc, df, dh] = (q.destino ?? '').split(',')
   const destino = mueve && entero(dc) && esFecha(df ?? '') && esHora(dh ?? '') ? { consultorio_id: entero(dc), fecha: df, hora: dh } : null
 
-  const abierto = !mueve && entero(q.turno) ? await leerDetalle(db, entero(q.turno)) : null
+  const cancelando = !mueve && entero(q.cancelar) ? await leerDetalle(db, entero(q.cancelar)) : null
+  const cancela = cancelando && cancelando.estado === 'confirmado' ? cancelando : null
+  const abierto = !mueve && !cancela && entero(q.turno) ? await leerDetalle(db, entero(q.turno)) : null
+  const cobros = habilitado(leerInstalacion(c.env), 'cobros')
 
   // Resumen en una línea
   const vivos = turnos.filter((t) => t.estado !== 'ausente')
@@ -122,6 +136,8 @@ agenda.get('/agenda', async (c) => {
 
   const duracion = mueve?.duracion_min ?? PASO_MIN
   const vistaDatos = { vista, fecha, hoy, ahoraMin, elegidos, datos: datosLibres, turnos, base, mueve, duracion, desde }
+  const tira: string[] = []
+  for (let f = tiraDesde; f <= tiraHasta; f = sumarDias(f, 1)) tira.push(f)
 
   return pagina(c, 'Agenda', (
     <>
@@ -132,7 +148,7 @@ agenda.get('/agenda', async (c) => {
         </div>
         <div class="fila agenda-controles">
           <nav class="fila-marcas" aria-label="Vista">
-            {VISTAS.map((v) => <a class="pastilla" href={url({ ...base, vista: v, mover: q.mover })} aria-current={v === vista ? 'true' : undefined}>{ETIQUETA_VISTA[v]}</a>)}
+            {VISTAS.map((v) => <a class={v === 'semana' ? 'pastilla solo-compu' : 'pastilla'} href={url({ ...base, vista: v, mover: q.mover })} aria-current={v === vista ? 'true' : undefined}>{ETIQUETA_VISTA[v]}</a>)}
           </nav>
           <nav class="fila" aria-label="Fechas">
             <a class="redondo" href={url({ ...base, fecha: vecina(vista, fecha, -1), mover: q.mover })} aria-label="Anterior" title="Anterior"><Volver /></a>
@@ -152,9 +168,13 @@ agenda.get('/agenda', async (c) => {
         </div>
       )}
       {moviendo && !mueve && <Aviso tipo="ambar">Ese turno ya no se puede mover.</Aviso>}
+      {cancelando && !cancela && <Aviso tipo="ambar">Ese turno ya no se puede cancelar.</Aviso>}
       {q.error && <Aviso tipo="error">{q.error.slice(0, 300)}</Aviso>}
+      {q.llego && <Aviso tipo="ok">Quedó en consulta. Las notas clínicas las escribís en la compu.</Aviso>}
       {vista === 'mes' ? <Mes {...vistaDatos} /> : <Tablero {...vistaDatos} />}
-      {abierto && <VentanaTurno t={abierto} hoy={hoy} ahoraMin={ahoraMin} base={base} />}
+      {vista === 'dia' && <DiaCelular {...vistaDatos} tira={tira} todos={delConsultorio} />}
+      {abierto && <VentanaTurno t={abierto} hoy={hoy} ahoraMin={ahoraMin} base={base} cobros={cobros} />}
+      {cancela && <VentanaCancelar t={cancela} base={base} />}
       {mueve && destino && <VentanaMover t={mueve} destino={destino} consultorios={consultorios} base={base} datos={datosLibres} hoy={hoy} ahoraMin={ahoraMin} />}
       <div class="fila-marcas leyenda" aria-label="Colores">
         <Estado estado="confirmado" texto="Confirmó" /><Estado estado="sin_respuesta" texto="Sin respuesta" /><Estado estado="ausente" texto="No vino / no puede" />
@@ -258,7 +278,7 @@ function Tablero(d: VistaDatos) {
 
   return (
     <>
-      <div class={`ag-tablero ${columnas}${vista === 'semana' ? ' solo-grande' : ''}`} role="region" aria-label={vista === 'dia' ? 'Turnos del día' : 'Turnos de la semana'}>
+      <div class={`ag-tablero ${columnas} solo-grande`} role="region" aria-label={vista === 'dia' ? 'Turnos del día' : 'Turnos de la semana'}>
         <div class="ag-grilla">
           {dias.map((dia, i) => (
             <a class={`ag-cab ag-r1 ag-c${i + 2}${dia.fecha === hoy ? ' hoy' : ''}`} href={url({ ...base, vista: 'dia', fecha: dia.fecha, mover: mueve ? String(mueve.id) : undefined })} aria-current={dia.fecha === hoy ? 'date' : undefined}>
@@ -308,6 +328,76 @@ function ListaSemana(d: VistaDatos & { dias: string[]; cerrados: (Dia['cerrado']
   )
 }
 
+// ---------- Día en el celular: la tira de días y la lista del día con los huecos libres ----------
+function DiaCelular(d: VistaDatos & { tira: string[]; todos: TurnoAgenda[] }) {
+  const { fecha, hoy, base, mueve } = d
+  const dia = diaCombinado(d, fecha)
+  const delDia = d.turnos.filter((t) => t.fecha === fecha)
+  const vivos = delDia.filter((t) => t.estado !== 'ausente').length
+  // Los huecos libres seguidos (sin un turno en el medio) van juntos en una fila, para que la lista no se haga eterna.
+  const filas: ({ tipo: 'turno'; t: TurnoAgenda } | { tipo: 'libres'; horas: [string, number][] })[] = []
+  const libres = dia.cerrado ? [] : [...dia.libres].filter(([hora]) =>
+    !(mueve && mueve.fecha === fecha && aMinutos(hora) < aMinutos(mueve.hora) + mueve.duracion_min && aMinutos(mueve.hora) < aMinutos(hora) + PASO_MIN))
+  const linea = [...delDia.map((t) => ({ min: aMinutos(t.hora), t })), ...libres.map((l) => ({ min: aMinutos(l[0]), l }))].sort((a, b) => a.min - b.min)
+  for (const x of linea) {
+    const ultima = filas[filas.length - 1]
+    if ('t' in x) filas.push({ tipo: 'turno', t: x.t })
+    else if (ultima?.tipo === 'libres') ultima.horas.push(x.l)
+    else filas.push({ tipo: 'libres', horas: [x.l] })
+  }
+  const hueco = (hora: string, cid: number) => mueve
+    ? url({ ...base, mover: String(mueve.id), destino: `${cid},${fecha},${hora}` })
+    : `/turnos/nuevo?${new URLSearchParams({ consultorio: String(cid), fecha, hora })}`
+  return (
+    <div class="solo-celular-bloque">
+      <nav class="ag-tira" aria-label="Días">
+        {d.tira.map((f) => {
+          const c = diaCombinado(d, f)
+          const n = d.todos.filter((t) => t.fecha === f && t.estado !== 'ausente').length
+          const nota = c.cerrado ? (c.cerrado.tipo === 'feriado' ? 'Feriado' : 'Bloq.') : n ? `${n} t.` : 'Libre'
+          return (
+            <a class={`ag-tira-dia${c.cerrado ? ' cerrado' : ''}`} href={url({ ...base, fecha: f, mover: mueve ? String(mueve.id) : undefined })} aria-current={f === fecha ? 'true' : undefined}
+              aria-label={`${fechaLarga(f)}: ${c.cerrado ? (c.cerrado.tipo === 'feriado' ? 'feriado' : 'bloqueado') : cuenta(n).toLowerCase()}`}>
+              <span>{f === hoy ? 'Hoy' : DIAS[new Date(f + 'T00:00:00Z').getUTCDay()].slice(0, 3)}</span>
+              <strong>{Number(f.slice(8))}</strong>
+              <span class="chico">{nota}</span>
+            </a>
+          )
+        })}
+      </nav>
+      <div class="entre-todo fila">
+        <h2>{may(fechaLarga(fecha))}</h2>
+        <span class="chico suave">{dia.cerrado ? (dia.cerrado.tipo === 'feriado' ? 'Feriado' : 'Bloqueado') : `${cuenta(vivos)} · ${libres.length} ${libres.length === 1 ? 'libre' : 'libres'}`}</span>
+      </div>
+      {dia.cerrado && (
+        <p class="aviso">{dia.cerrado.tipo === 'feriado'
+          ? `Feriado · ${dia.cerrado.texto}. No se dan turnos ni se ofrecen online.`
+          : `Día bloqueado · ${dia.cerrado.texto}. No se dan turnos ni se ofrecen online.`}</p>
+      )}
+      {filas.length === 0 && !dia.cerrado && <p class="suave">{dia.franjas.length ? 'No quedan horarios libres.' : 'Este día no atendés.'}</p>}
+      <ul class="ag-dia-lista" aria-label="Turnos del día">
+        {filas.map((x) => {
+          if (x.tipo === 'libres') return (
+            <li class="ag-dia-libre">
+              <span class="hora">{x.horas[0][0]}</span>
+              <span class="columna-chica">
+                <strong>{x.horas.length === 1 ? 'Libre' : `${x.horas.length} horarios libres`}</strong>
+                <span class="fila-marcas">
+                  {x.horas.map(([hora, cid]) => <a class="pastilla hueco" href={hueco(hora, cid)} aria-label={mueve ? `Mover a las ${hora}` : `Dar turno a las ${hora}`}>{hora}</a>)}
+                </span>
+              </span>
+            </li>
+          )
+          const t = x.t
+          const e = estadoMostrado(t, hoy, d.ahoraMin)
+          const dentro = <><span class="hora">{t.hora}</span><span class="columna-chica"><strong>{t.nombre} {t.apellido}</strong><span class="chico suave">{t.prestacion ?? 'Turno'} · {t.consultorio}</span></span><Estado estado={CLAVE_ESTADO[e.clave] ?? 'gris'} texto={e.texto} /></>
+          return <li class="ag-dia-turno">{mueve ? <div class="fila-enlace">{dentro}</div> : <a class="fila-enlace" href={url({ ...base, turno: String(t.id) })}>{dentro}</a>}</li>
+        })}
+      </ul>
+    </div>
+  )
+}
+
 // ---------- Mes ----------
 function Mes(d: VistaDatos) {
   const { hasta } = rangoDe('mes', d.fecha)
@@ -328,6 +418,7 @@ function Mes(d: VistaDatos) {
           <a class={`ag-mes-dia${fuera ? ' fuera' : ''}${f === d.hoy ? ' hoy' : ''}${dia.cerrado ? ` rayado ${dia.cerrado.tipo}` : ''}`} href={url({ ...d.base, vista: 'dia', fecha: f })}
             aria-label={`${fechaLarga(f)}: ${dia.cerrado ? (dia.cerrado.tipo === 'feriado' ? 'feriado' : 'bloqueado') : `${cuenta(delDia.length)}, ${libres} huecos libres`}`}>
             <strong>{Number(f.slice(8))}</strong>
+            <span class="marca-mes solo-celular" aria-hidden="true">{dia.cerrado ? (dia.cerrado.tipo === 'feriado' ? 'Fer.' : 'Bloq.') : delDia.length ? `${delDia.length} t.` : ''}</span>
             {pedido && <span class="punto-pedido" title="Pedido online" />}
             {delDia.length > 0 && <span class="punto-turnos" aria-hidden="true" />}
             {dia.cerrado ? <span class="chico">{dia.cerrado.tipo === 'feriado' ? 'Feriado' : 'Bloqueado'}</span> : atiende || delDia.length ? (
@@ -359,9 +450,9 @@ function VentanaAbierta({ id, titulo, sub, volver, children }: { id: string; tit
   )
 }
 
-function VentanaTurno({ t, hoy, ahoraMin, base }: { t: Detalle; hoy: string; ahoraMin: number; base: Q }) {
+function VentanaTurno({ t, hoy, ahoraMin, base, cobros }: { t: Detalle; hoy: string; ahoraMin: number; base: Q; cobros: boolean }) {
   const e = estadoMostrado(t, hoy, ahoraMin)
-  const volver = url(base)
+  const volver = base.volver || url(base)
   const abierto = t.estado === 'confirmado'
   const yaPaso = t.fecha <= hoy
   const accion = (ruta: string, texto: string, variante: 'oscuro' | 'borde' | 'peligro', pregunta?: string) => (
@@ -384,6 +475,10 @@ function VentanaTurno({ t, hoy, ahoraMin, base }: { t: Detalle; hoy: string; aho
         <dt>Celular</dt><dd><a href={enlaceWhatsapp(t.celular)}>{t.celular}</a></dd>
         {t.modalidad === 'videollamada' && <><dt>Modalidad</dt><dd>Videollamada</dd></>}
         {abierto && t.fecha >= hoy && <><dt>Recordatorio</dt><dd>{recordatorioTexto(t)}</dd></>}
+        {/* Su resumen en el celular, sin nada clínico más que las alergias (AgendaCel). */}
+        <dt class="solo-celular">Alergias</dt><dd class={t.alergias ? 'solo-celular alerta-texto' : 'solo-celular'}>{t.alergias ?? 'Sin alergias registradas'}</dd>
+        <dt class="solo-celular">Última consulta</dt><dd class="solo-celular">{t.ultima ? fechaLarga(t.ultima) : 'Nunca vino'}</dd>
+        {cobros && <><dt class="solo-celular">Saldo</dt><dd class={t.saldo > 0 ? 'solo-celular debe-texto' : 'solo-celular'}>{t.saldo > 0 ? `Debe ${pesos(t.saldo)}` : 'Al día'}</dd></>}
       </dl>
       {abierto && t.confirmacion === 'no_puedo' && <Aviso tipo="ambar">{t.nombre} avisó que no puede venir. Podés moverlo o cancelarlo.</Aviso>}
       {abierto && t.incompleta === 1 && <Aviso>La ficha está incompleta: se completa antes de la primera consulta.</Aviso>}
@@ -399,13 +494,41 @@ function VentanaTurno({ t, hoy, ahoraMin, base }: { t: Detalle; hoy: string; aho
         </div>
         {abierto && (
           <div class="fila">
-            {accion('cancelar', 'Cancelar y avisar', 'peligro', `¿Cancelar el turno de ${t.nombre}? Después te dejamos el mensaje listo para avisarle.`)}
+            <Boton href={url({ ...base, cancelar: String(t.id) })} variante="peligro">Cancelar y avisar</Boton>
             <Boton href={url({ ...base, mover: String(t.id) })} variante="borde">Mover</Boton>
             {yaPaso && accion('ausente', 'No vino', 'borde', `¿Marcar que ${t.nombre} no vino? No se puede deshacer.`)}
-            {yaPaso && accion('atender', 'Atender', 'oscuro')}
+            {yaPaso && (
+              <form method="post" action={`/turnos/${t.id}/atender`}>
+                <input type="hidden" name="volver" value={volver} />
+                <span class="solo-compu"><Boton type="submit" variante="oscuro">Atender</Boton></span>
+                {/* En el celular no se abre la consulta: queda en consulta y las notas se escriben en la compu. */}
+                <span class="solo-celular"><Boton type="submit" variante="oscuro" name="llego" value="1">Llegó</Boton></span>
+              </form>
+            )}
           </div>
         )}
       </div>
+    </VentanaAbierta>
+  )
+}
+
+function VentanaCancelar({ t, base }: { t: Detalle; base: Q }) {
+  const alTurno = url({ ...base, turno: String(t.id) })
+  return (
+    <VentanaAbierta id="v-cancelar" titulo={`Cancelar el turno de ${t.nombre}`} sub={`${may(cuandoDe(t.fecha, t.hora))} · ${t.consultorio}`} volver={alTurno}>
+      <form method="post" action={`/turnos/${t.id}/cancelar`} class="columna">
+        <input type="hidden" name="volver" value={base.volver || url(base)} />
+        <p>El horario queda libre y te dejamos el mensaje listo para avisarle por WhatsApp. El turno queda en su historial como cancelado.</p>
+        <fieldset class="opciones">
+          <legend>¿Quién lo cancela?</legend>
+          <label class="opcion"><input type="radio" name="quien" value="paciente" required /><span>{t.nombre}</span></label>
+          <label class="opcion"><input type="radio" name="quien" value="profesional" required /><span>Yo</span></label>
+        </fieldset>
+        <div class="ventana-pie entre">
+          <a class="boton texto" href={alTurno}>No cancelar</a>
+          <Boton type="submit" variante="peligro">Cancelar el turno</Boton>
+        </div>
+      </form>
     </VentanaAbierta>
   )
 }
@@ -449,6 +572,12 @@ agenda.post('/turnos/:id{[0-9]+}/atender', async (c) => {
   const r = await c.env.DB.prepare("UPDATE turnos SET estado = 'atendido', cerrado_en = ?, actualizado_en = ? WHERE id = ? AND estado = 'confirmado' AND fecha <= ?")
     .bind(ahoraISO(), ahoraISO(), id, hoy).run()
   if (r.meta.changes) await registrar(c, 'turno_atendido', `turno:${id}`, c.get('email'))
+  // «Llegó» en el celular: queda en consulta y se vuelve a donde estaba (las notas se escriben en la compu).
+  const f = await c.req.parseBody()
+  if (f.llego === '1') {
+    const volver = volverValido(f.volver, '/')
+    return c.redirect(`${volver}${volver.includes('?') ? '&' : '?'}llego=${id}`)
+  }
   // La consulta la arma X2; si el turno ya estaba atendido, igual se abre.
   return c.redirect(`/consultas/nueva?turno=${id}`)
 })
@@ -466,9 +595,11 @@ agenda.post('/turnos/:id{[0-9]+}/ausente', async (c) => {
 
 agenda.post('/turnos/:id{[0-9]+}/cancelar', async (c) => {
   const id = Number(c.req.param('id'))
-  const volver = volverValido((await c.req.parseBody()).volver, '')
-  const r = await c.env.DB.prepare("UPDATE turnos SET estado = 'cancelado', cancelado_por = 'profesional', cerrado_en = ?, actualizado_en = ? WHERE id = ? AND estado = 'confirmado'")
-    .bind(ahoraISO(), ahoraISO(), id).run()
+  const f = await c.req.parseBody()
+  const volver = volverValido(f.volver, '')
+  const quien = f.quien === 'paciente' ? 'paciente' : 'profesional'
+  const r = await c.env.DB.prepare("UPDATE turnos SET estado = 'cancelado', cancelado_por = ?, cerrado_en = ?, actualizado_en = ? WHERE id = ? AND estado = 'confirmado'")
+    .bind(quien, ahoraISO(), ahoraISO(), id).run()
   if (!r.meta.changes) return c.redirect('/agenda')
   await c.env.DB.prepare("UPDATE propuestas SET estado = 'liberada' WHERE turno_id = ? AND estado = 'reservada'").bind(id).run()
   await registrar(c, 'turno_cancelado', `turno:${id}`, c.get('email'))
@@ -504,7 +635,9 @@ agenda.get('/turnos/:id{[0-9]+}/aviso', async (c) => {
   const aBloqueo = vuelta.startsWith('/bloqueos/')
   const mensaje = movido
     ? `Hola ${t.nombre}, ${viejo ? `tu turno del ${viejo} ` : 'tu turno '}pasó al ${cuandoDe(t.fecha, t.hora)} en ${t.consultorio}${t.direccion ? ` (${t.direccion})` : ''}.${firma} ¡Te esperamos!`
-    : `Hola ${t.nombre}, tuvimos que cancelar tu turno del ${cuandoDe(t.fecha, t.hora)}.${firma} Escribinos y buscamos otro horario.`
+    : t.cancelado_por === 'paciente'
+      ? `Hola ${t.nombre}, como nos pediste, cancelamos tu turno del ${cuandoDe(t.fecha, t.hora)}.${firma} Cuando quieras, escribinos y buscamos otro horario.`
+      : `Hola ${t.nombre}, tuvimos que cancelar tu turno del ${cuandoDe(t.fecha, t.hora)}.${firma} Escribinos y buscamos otro horario.`
   return pagina(c, movido ? 'Turno movido' : 'Turno cancelado', (
     <div class="angosto columna">
       <a class="volver" href={vuelta}><Volver />{aBloqueo ? 'Bloqueo' : vuelta === '/' ? 'Hoy' : 'Agenda'}</a>
