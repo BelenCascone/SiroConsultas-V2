@@ -12,7 +12,8 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "isolatedModules": true
   },
-  "include": ["src", "tests", "*.config.ts"]
+  "include": ["src", "tests", "*.config.ts", "scripts/respaldos/**/*.ts"]
 }

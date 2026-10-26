@@ -7,7 +7,7 @@ Una tarea = una rama = un PR. Estado: pendiente · en curso · en revisión · h
 | E0 | **Etapa 0 · base del repositorio madre:** esquema completo de la base con sus triggers, ingreso con Google y segundo código, componentes del estilo «Nube», pruebas y despliegue automático | Claude | hecha |
 | E1 | **Etapa 1 · base ordenada** (repartida abajo en tres tandas) | Claude y Codex | hecha |
 | E2 | **Etapa 2 · comprobante interno:** cobrar, datos fiscales, comprobante interno por pago con numeración, anulación con el pago, envío por WhatsApp o correo, enviar a la contadora (repartida abajo en dos tandas) | Claude y Codex | hecha |
-| E3 | **Etapa 3 · puerta de producción:** términos y privacidad (texto del abogado), aceptación al entrar, staging, simulacro de restauración, dominio propio, repositorios de cliente (la parte técnica va en la tanda 6) | Codex | pendiente |
+| E3 | **Etapa 3 · puerta de producción:** términos y privacidad (texto del abogado), aceptación al entrar, staging, simulacro de restauración, dominio propio, repositorios de cliente (la parte técnica va en la tanda 6) | Codex | en curso |
 | E4 | **Etapa 4 · factura C de ARCA** con nota de crédito, pendientes y reintentos | — | pendiente |
 | E5 | **Etapa 5 · autogestión del paciente:** pedido de turno online, cobro por ausencia, estadísticas por rango y consultorio | — | pendiente |
 
@@ -45,6 +45,14 @@ Las dos tareas van en paralelo y en archivos propios. Pedidos en el celular y la
 |---|---|---|---|---|---|
 | P6 | 6 | **Celular de la profesional:** barra de abajo (Hoy, Agenda, Pacientes y Pedidos; Pedidos avisa que llega en la etapa 5); Hoy con «+ Turno», «Cobrar» y «Bloquear» en una fila, «Llegó» en vez de Atender (queda en consulta y las notas se escriben en la compu) y el turno que se abre en una hoja; la hoja del turno con su resumen (alergias, última consulta, saldo) y cancelar con «¿Quién lo cancela?»; Agenda «Día \| Mes» con la tira de días y la lista del día con los huecos libres, y el mes con la cantidad de turnos por día; Pacientes con los cuatro filtros de la maqueta y la ficha como resumen sin nada clínico | `HoyCel`, `AgendaCel`, `PacientesCel` | Claude | en revisión |
 | X6 | 6 | **Puerta de producción, la parte técnica:** tabla de aceptaciones y la pantalla de términos al entrar (`Terminos`) con un texto de prueba hasta que llegue el del abogado; `MODO_PRUEBA=0` sin clave de prueba; entorno de staging | `Terminos` | Codex | pendiente |
+
+## Etapa 3: reparto parcial
+
+| # | Tarea | Quién | Estado |
+|---|---|---|---|
+| E3-R | **Respaldos cifrados y simulacro:** copia diaria de D1 y originales R2, cifrado con clave independiente, inventario y huellas, restauración aislada con verificación de datos, relaciones y triggers; instrucciones de activación y recuperación en `docs/RESPALDOS.md`. La activación remota y el simulacro de la instalación en staging requieren sus credenciales y quedan como requisito antes de producción. | Codex | en revisión |
+
+El resto de E3 mantiene su alcance: legales y aceptación, staging, dominio propio y repositorios de cliente.
 
 ### Lo que se cruza en la tanda 4
 - **P4 lleva al comprobante y X4 lo arma:** después de guardar un pago, Cobrar redirige a `/comprobantes/nuevo?pago=<id>`, que es de X4. Si P4 se une primero, la ruta da «Próximamente» (queda en `PROXIMAS` hasta que llegue X4).
