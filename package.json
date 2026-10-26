@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "db:local": "wrangler d1 migrations apply DB --local && wrangler d1 execute DB --local --file=seed/seed.sql",
+    "db:demo": "npm run db:local && wrangler d1 execute DB --local --file=seed/demo.sql",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
