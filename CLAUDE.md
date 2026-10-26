@@ -6,7 +6,7 @@ Lo leen Claude, Codex y cualquier agente. Producto: **SiroConsultas v2**, de BC 
 
 ## Cómo se trabaja
 - **Una tarea = una rama = un PR a `main`.** La rama sale de `origin/main` recién traído. Nunca push directo a `main`; une Belén. Las tareas están en `docs/TAREAS.md`.
-- **Se avanza por etapas** (análisis, «Alcance por etapas»): cada etapa se puede usar sola. Las pantallas del celular y la app del paciente **no se programan** hasta que estén aprobadas.
+- **Se avanza por etapas** (análisis, «Alcance por etapas»): cada etapa se puede usar sola. Las pantallas del celular y la app del paciente ya están aprobadas (25/10): se programan en su etapa.
 - **Antes de abrir el PR:** `npm run typecheck`, `npm test` y `npm run test:e2e`, todo en verde. Sumá pruebas para lo nuevo: reglas de la base en `tests/base/`, la app real en `tests/unidad/` (con `tests/unidad/ayuda.ts`), recorridos en `tests/e2e/`.
 - Español rioplatense, de vos, claro y corto: interfaz, código, commits y PR.
 

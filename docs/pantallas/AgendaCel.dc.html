@@ -34,6 +34,43 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
         </sc-if>
       </header>
 
+      <div role="group" aria-label="Vista" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: #E9F1F3;">
+        <sc-for list="{{vistas}}" as="w" hint-placeholder-count="2">
+          <button type="button" onClick="{{w.elegir}}" aria-pressed="{{w.on}}" style="{{w.style}}">{{w.label}}</button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{esMes}}" hint-placeholder-val="{{false}}">
+        <div class="paso" style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <button type="button" onClick="{{mesAnt}}" disabled="{{sinAnt}}" aria-label="Mes anterior" style="{{antStyle}}">‹</button>
+            <h2 style="margin: 0; font-size: 17px; font-weight: 700;">{{mesNombre}}</h2>
+            <button type="button" onClick="{{mesSig}}" disabled="{{sinSig}}" aria-label="Mes siguiente" style="{{sigStyle}}">›</button>
+          </div>
+          <div aria-hidden="true" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 13px; font-weight: 700; color: #4A5F5C; text-align: center;">
+            <sc-for list="{{cab}}" as="c" hint-placeholder-count="7"><span>{{c.l}}</span></sc-for>
+          </div>
+          <div role="grid" aria-label="{{mesNombre}}" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;">
+            <sc-for list="{{celdas}}" as="c" hint-placeholder-count="35">
+              <button type="button" onClick="{{c.elegir}}" aria-pressed="{{c.on}}" aria-label="{{c.aria}}" disabled="{{c.off}}" style="{{c.style}}"><span style="font-size: 15px; font-weight: 700;">{{c.num}}</span><span style="{{c.marcaStyle}}">{{c.marca}}</span></button>
+            </sc-for>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #4A5F5C;">
+            <span style="display: flex; align-items: center; gap: 6px;"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #24605F;"></span>Turnos</span>
+            <span style="display: flex; align-items: center; gap: 6px;"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #ECEFF3; box-shadow: inset 0 0 0 1px #475467;"></span>Bloqueado</span>
+            <span style="display: flex; align-items: center; gap: 6px;"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #DAFC92; box-shadow: inset 0 0 0 1px #02261E;"></span>Hoy</span>
+          </div>
+          <sc-if value="{{haySelMes}}" hint-placeholder-val="{{true}}">
+            <div class="paso" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF;">
+              <span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-weight: 700;">{{selMes.titulo}}</span><span style="font-size: 13px; color: #4A5F5C;">{{selMes.sub}}</span></span>
+              <button type="button" onClick="{{selMes.ver}}" style="flex: 0 0 auto; height: 44px; padding: 0 14px; border-radius: 12px; border: 0; background: #02261E; color: #FFFFFF; font-size: 14px; font-weight: 700;">Ver el día</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{esDiaV}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-direction: column; gap: 14px;">
       <div role="group" aria-label="Días" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin: 0 -16px; padding-left: 16px; padding-right: 16px;">
         <sc-for list="{{dias}}" as="d" hint-placeholder-count="7">
           <button type="button" onClick="{{d.elegir}}" aria-pressed="{{d.on}}" style="{{d.style}}"><span style="font-size: 13px; font-weight: 600;">{{d.dia}}</span><span style="font-size: 18px; font-weight: 800;">{{d.num}}</span><span style="{{d.notaStyle}}">{{d.nota}}</span></button>
@@ -59,6 +96,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
           <span style="{{r.chip}}">{{r.estado}}</span>
         </button>
       </sc-for>
+      </div>
+      </sc-if>
     </div>
 
     <nav aria-label="Secciones" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 8px 14px; background: #FFFFFF; box-shadow: 0 -1px 0 #E9F1F3; display: grid; grid-template-columns: repeat(4, 1fr);">
@@ -89,6 +128,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
           <sc-if value="{{h.esTurno}}" hint-placeholder-val="{{true}}">
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"><span style="{{h.chip}}">{{h.estado}}</span><span style="font-size: 13px; color: #4A5F5C;">{{h.historial}}</span></div>
+              <sc-if value="{{h.verResumen}}" hint-placeholder-val="{{false}}">
+                <div class="paso" style="background: #F2F7F9; border-radius: 14px; padding: 2px 14px;">
+                  <sc-for list="{{h.resumen}}" as="x" hint-placeholder-count="4">
+                    <div style="display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; border-top: 1px solid #E9F1F3; font-size: 14px;"><span style="color: #4A5F5C;">{{x.k}}</span><span style="{{x.style}}">{{x.v}}</span></div>
+                  </sc-for>
+                </div>
+              </sc-if>
               <sc-for list="{{h.acciones}}" as="a" hint-placeholder-count="4">
                 <button type="button" onClick="{{a.hacer}}" style="{{a.style}}">{{a.label}}</button>
               </sc-for>
@@ -115,6 +161,56 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
                 </sc-for>
               </div>
               <button type="button" onClick="{{h.confirmarCancelar}}" disabled="{{h.sinQuien}}" style="{{h.cancelarStyle}}">{{h.cancelarTxt}}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{h.esCobro}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 10px;">
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Qué le cobrás</span>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <sc-for list="{{cb.conceptos}}" as="c" hint-placeholder-count="2">
+                  <button type="button" onClick="{{c.elegir}}" aria-pressed="{{c.on}}" style="{{c.style}}"><span style="flex: 1; display: flex; flex-direction: column;"><span style="font-weight: 700;">{{c.label}}</span><span style="font-size: 13px; font-weight: 500; opacity: .85;">{{c.sub}}</span></span><span style="font-weight: 800; font-variant-numeric: tabular-nums;">{{c.montoTxt}}</span></button>
+                </sc-for>
+              </div>
+              <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Cuánto te paga</span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                <sc-for list="{{cb.cuanto}}" as="c" hint-placeholder-count="3">
+                  <button type="button" onClick="{{c.elegir}}" aria-pressed="{{c.on}}" style="{{c.style}}">{{c.label}}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{cb.esParte}}" hint-placeholder-val="{{false}}">
+                <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Monto que paga hoy<input type="text" inputmode="numeric" value="{{cb.parteTxt}}" onInput="{{cb.escribirParte}}" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"><span style="font-weight: 500; color: #4A5F5C;">{{cb.restoTxt}}</span></label>
+              </sc-if>
+              <sc-if value="{{cb.pagaAlgo}}" hint-placeholder-val="{{true}}">
+                <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Cómo te pagó</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                  <sc-for list="{{cb.medios}}" as="m" hint-placeholder-count="4">
+                    <button type="button" onClick="{{m.elegir}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
+                  </sc-for>
+                </div>
+                <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Comprobante</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                  <sc-for list="{{cb.tipos}}" as="t" hint-placeholder-count="3">
+                    <button type="button" onClick="{{t.elegir}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.label}}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <button type="button" onClick="{{cb.guardar}}" disabled="{{cb.bloqueado}}" style="{{cb.guardarStyle}}">{{cb.guardarTxt}}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{h.esHorario}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; gap: 6px; overflow-x: auto;">
+                <sc-for list="{{hr.dias}}" as="d" hint-placeholder-count="5">
+                  <button type="button" onClick="{{d.elegir}}" aria-pressed="{{d.on}}" style="{{d.style}}"><span style="font-size: 13px; font-weight: 600;">{{d.dia}}</span><span style="font-size: 17px; font-weight: 800;">{{d.num}}</span></button>
+                </sc-for>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <sc-for list="{{hr.horas}}" as="x" hint-placeholder-count="3">
+                  <button type="button" onClick="{{x.elegir}}" aria-pressed="{{x.on}}" style="{{x.style}}">{{x.hora}}</button>
+                </sc-for>
+              </div>
+              <span style="font-size: 13px; color: #4A5F5C;">Solo ves los horarios libres. Al guardar le mandamos la confirmación por WhatsApp.</span>
+              <button type="button" onClick="{{hr.guardar}}" disabled="{{hr.sinHora}}" style="{{hr.guardarStyle}}">{{hr.guardarTxt}}</button>
             </div>
           </sc-if>
           <sc-if value="{{h.esDar}}" hint-placeholder-val="{{false}}">
@@ -159,8 +255,10 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
   <aside style="width: 320px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #4A5F5C;">
     <h2 style="margin: 0; font-size: 18px; color: #02261E;">Agenda en el celular</h2>
     <p style="margin: 0;">Una tira de días arriba (hoy y lo que viene) y la lista del día elegido, con los huecos libres en el medio.</p>
-    <p style="margin: 0;"><b>Turno:</b> escribirle, mandarle el recordatorio si no confirmó, moverlo a un horario libre, cancelarlo o ver su resumen.</p>
+    <p style="margin: 0;"><b>Turno:</b> cobrar, escribirle, mandarle el recordatorio si no confirmó, moverlo, cancelarlo o ver su resumen. Todo se hace en la misma hoja, sin salir de la agenda.</p>
+    <p style="margin: 0;"><b>Pedido online:</b> lo aceptás o le proponés otro horario ahí mismo.</p>
     <p style="margin: 0;"><b>Hueco libre:</b> darlo por DNI, igual que en Hoy. Si el DNI no existe, pide la ficha mínima.</p>
+    <p style="margin: 0;"><b>Mes:</b> el calendario muestra cuántos turnos hay cada día y cuáles están bloqueados. Tocás un día para ver el resumen y abrirlo.</p>
     <p style="margin: 0;">El lunes 27 está bloqueado, como en la agenda de la compu.</p>
   </aside>
 </div>
@@ -194,7 +292,7 @@ class Component extends DCLogic {
       { nombre: 'Nicolás Díaz', dni: '31444333', cel: '11 5555-0193', mail: 'nico.diaz@correo.com', cob: 'Galeno', veces: 7, faltas: 2, ultima: '21/10 · Control', prox: 'Sin turno', debe: 0, vencido: true, alergias: 'Sin alergias registradas', app: false },
       { nombre: 'Pedro Luna', dni: '25666777', cel: '11 5555-0152', mail: 'pedro.luna@correo.com', cob: 'Galeno', veces: 8, faltas: 0, ultima: '20/10 · Control', prox: 'Vie 24/10 · 9:00', debe: 0, vencido: false, alergias: 'Sin alergias registradas', app: true },
       { nombre: 'Rosa Medina', dni: '18999000', cel: '11 5555-0131', mail: 'rosa.m@correo.com', cob: 'PAMI', veces: 4, faltas: 1, ultima: '20/10 · Control', prox: 'Sáb 25/10 · 9:30', debe: 0, vencido: false, alergias: 'Penicilina', app: false },
-      { nombre: 'Tomás Ferreyra', dni: '40777888', cel: '11 5555-0102', mail: 'tomas.f@correo.com', cob: 'Particular', veces: 3, faltas: 0, ultima: 'Hoy · Control', prox: 'Sin turno', debe: 9500, vencido: false, alergias: 'Sin alergias registradas', app: false },
+      { nombre: 'Tomás Ferreyra', dni: '40777888', cel: '11 5555-0102', mail: 'tomas.f@correo.com', cob: 'Particular', veces: 3, faltas: 0, ultima: 'Hoy · Control', prox: 'Sin turno', debe: 12000, vencido: false, alergias: 'Sin alergias registradas', app: false },
       { nombre: 'Valeria Ruiz', dni: '41222333', cel: '11 5555-0188', mail: 'vale.ruiz@correo.com', cob: 'Particular', veces: 1, faltas: 0, ultima: '20/10 · Primera consulta', prox: 'Sáb 25/10 · 11:00', debe: 15000, vencido: false, alergias: 'Sin alergias registradas', app: false }
     ];
     var buscar = function (texto) {
@@ -203,8 +301,59 @@ class Component extends DCLogic {
       if (/^[\d.\s]+$/.test(t)) return dig.length >= 2 ? PAC.filter(function (p) { return p.dni.indexOf(dig) === 0; }) : [];
       return t.length >= 2 ? PAC.filter(function (p) { return sinTilde(p.nombre).indexOf(sinTilde(t)) >= 0; }) : [];
     };
-    var s = Object.assign({ dia: 0, hoja: null, aviso: '', destino: null, quien: null, movidos: {}, cancelados: {}, dados: {}, recordados: {} }, this.state || {});
+    var s = Object.assign({ dia: 0, hoja: null, aviso: '', destino: null, quien: null, movidos: {}, cancelados: {}, dados: {}, recordados: {}, cobrados: {}, resumen: false, respondidos: {}, vista: 'dia', mes: 0, diaMes: null }, this.state || {});
     var h = s.hoja || {};
+    // ---- cobro adentro de la hoja ----
+    var PRES = [['Primera consulta', 15000], ['Control', 12000], ['Evolución', 16700]];
+    var cobroDe = function (nombre, deudas, desde) { return set({ hoja: { tipo: 'cobro', nombre: nombre, deudas: deudas, desde: desde }, sel: deudas.length ? 'd0' : null, cuanto: 'todo', medio: null, comp: 'interno', parte: '' }); };
+    var hc = s.hoja || {};
+    var conceptos = (hc.deudas || []).map(function (d, i) { return { k: 'd' + i, label: d[0], sub: d[1], monto: d[2] }; })
+      .concat(PRES.map(function (p, i) { return { k: 'p' + i, label: p[0], sub: 'Otra prestación · precio de lista', monto: p[1] }; }));
+    var elegido = conceptos.filter(function (c) { return c.k === s.sel; })[0];
+    var monto = elegido ? elegido.monto : 0;
+    var parteN = parseInt(String(s.parte || '').replace(/\D/g, ''), 10) || 0;
+    var paga = s.cuanto === 'todo' ? monto : s.cuanto === 'parte' ? parteN : 0;
+    var parteMal = s.cuanto === 'parte' && (parteN <= 0 || parteN >= monto);
+    var falta = !elegido || parteMal || (s.cuanto !== 'nada' && !s.medio);
+    var chip3 = 'height: 48px; border-radius: 14px; border: 0; font-size: 14px; ';
+    var cb = {
+      conceptos: conceptos.map(function (c) { var on = c.k === s.sel; return { label: c.label, sub: c.sub, montoTxt: plata(c.monto), on: on ? 'true' : 'false', elegir: set({ sel: c.k, parte: '' }),
+        style: 'display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 14px; border-radius: 14px; border: 0; font-size: 15px; text-align: left; width: 100%; ' + celda(on) }; }),
+      cuanto: [['todo', 'Todo'], ['parte', 'Una parte'], ['nada', 'Nada aún']].map(function (x) { var on = s.cuanto === x[0]; return { label: x[1], on: on ? 'true' : 'false', elegir: set({ cuanto: x[0] }), style: chip3 + celda(on) }; }),
+      esParte: s.cuanto === 'parte', parteTxt: s.parte || '',
+      escribirParte: function (e) { if (e && e.target) self.setState({ parte: e.target.value }); },
+      restoTxt: !elegido ? 'Primero elegí qué le cobrás.' : parteN <= 0 ? 'Escribí cuánto paga hoy, de ' + plata(monto) + '.' : parteN >= monto ? 'Si paga ' + plata(monto) + ' o más, elegí «Todo».' : 'Queda debiendo ' + plata(monto - parteN) + '.',
+      pagaAlgo: s.cuanto !== 'nada',
+      medios: ['Efectivo', 'Transferencia', 'Tarjeta', 'Otro'].map(function (m) { var on = s.medio === m; return { label: m, on: on ? 'true' : 'false', elegir: set({ medio: m }), style: chip3 + celda(on) }; }),
+      tipos: [['interno', 'Interno'], ['arca', 'Factura C'], ['no', 'Ahora no']].map(function (x) { var on = s.comp === x[0]; return { label: x[1], on: on ? 'true' : 'false', elegir: set({ comp: x[0] }), style: chip3 + celda(on) }; }),
+      bloqueado: falta ? 'disabled' : null,
+      guardarTxt: !elegido ? 'Elegí qué le cobrás' : s.cuanto === 'nada' ? 'Dejar en «Te deben» · ' + plata(monto) : !s.medio ? 'Elegí cómo te pagó' : parteMal ? 'Revisá el monto' : 'Guardar pago de ' + plata(paga),
+      guardarStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 16px; font-weight: 700; ' + (falta ? 'background:#E9F1F3;color:#4A5F5C;' : 'background:#02261E;color:#FFFFFF;'),
+      guardar: function () {
+        if (falta) return;
+        var c = Object.assign({}, s.cobrados || {}); if (elegido.k === 'd0') c[hc.nombre] = s.cuanto === 'todo' ? 0 : s.cuanto === 'parte' ? monto - paga : monto;
+        var comp = s.comp === 'interno' ? ' Le mandamos el comprobante interno.' : s.comp === 'arca' ? ' Se hace la factura C.' : '';
+        var txt = s.cuanto === 'nada' ? hc.nombre + ' debe ' + plata(monto) + '. Queda en «Te deben».' : 'Cobrado: ' + plata(paga) + ' de ' + hc.nombre + ' en ' + s.medio.toLowerCase() + '.' + (s.cuanto === 'parte' ? ' Debe ' + plata(monto - paga) + '.' : '') + comp;
+        self.setState({ hoja: null, cobrados: c, aviso: txt });
+      }
+    };
+    // ---- horarios libres adentro de la hoja ----
+    var HD = [['Vie', 24, 'viernes 24/10'], ['Sáb', 25, 'sábado 25/10'], ['Mar', 28, 'martes 28/10'], ['Mié', 29, 'miércoles 29/10'], ['Jue', 30, 'jueves 30/10']];
+    var HH = [['9:30', '15:00', '16:00'], ['10:00', '12:00'], ['9:30', '11:00', '16:00'], ['9:00', '10:30', '16:30'], ['10:00', '11:30', '17:00']];
+    var hdia = s.hdia || 0;
+    var horarioDe = function (nombre, desde, mueve) { return set({ hoja: { tipo: 'horario', nombre: nombre, desde: desde, mueve: !!mueve }, hdia: 0, hhora: null }); };
+    var slot = s.hhora ? HD[hdia][2] + ' a las ' + s.hhora : '';
+    var hr = {
+      dias: HD.map(function (d, i) { var on = i === hdia; return { dia: d[0], num: d[1], on: on ? 'true' : 'false', elegir: set({ hdia: i, hhora: null }),
+        style: 'flex: 0 0 auto; width: 58px; height: 60px; border-radius: 14px; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; ' + celda(on) }; }),
+      horas: HH[hdia].map(function (x) { var on = s.hhora === x; return { hora: x, on: on ? 'true' : 'false', elegir: set({ hhora: x }),
+        style: 'height: 48px; border-radius: 12px; border: 0; font-size: 15px; font-variant-numeric: tabular-nums; ' + celda(on) }; }),
+      sinHora: s.hhora ? null : 'disabled',
+      guardarTxt: s.hhora ? (hc.mueve ? 'Mover al ' : 'Guardar turno · ') + HD[hdia][0].toLowerCase() + ' ' + HD[hdia][1] + ' · ' + s.hhora : 'Elegí un horario',
+      guardarStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 16px; font-weight: 700; ' + (s.hhora ? 'background:#02261E;color:#FFFFFF;' : 'background:#E9F1F3;color:#4A5F5C;'),
+      guardar: function () { if (!s.hhora) return; self.setState({ hoja: null, aviso: (hc.mueve ? 'Moviste a ' + hc.nombre + ' al ' : 'Le diste turno a ' + hc.nombre + ' el ') + slot + '. Le avisamos por WhatsApp.' }); }
+    };
+
     var DIAS = [['Jue', 23, 'Jueves 23/10'], ['Vie', 24, 'Viernes 24/10'], ['Sáb', 25, 'Sábado 25/10'], ['Lun', 27, 'Lunes 27/10'], ['Mar', 28, 'Martes 28/10'], ['Mié', 29, 'Miércoles 29/10'], ['Jue', 30, 'Jueves 30/10']];
     var BLOQ = { 3: true };
     // [id, día, hora, nombre, prestación, estado, historial]
@@ -235,10 +384,12 @@ class Component extends DCLogic {
     var CARD = { 'Atendido': '#F2F7F9', 'Para cobrar': '#FFF8EA', 'Ahora': '#F3FDE0', 'No puede venir': '#FEF4F4' };
     var minutos = function (hh) { var p = hh.split(':'); return +p[0] * 60 + +p[1]; };
     // turnos con los cambios hechos en esta pantalla
-    var lista = T.filter(function (t) { return !s.cancelados[t[0]]; }).map(function (t) {
+    var lista = T.filter(function (t) { return !s.cancelados[t[0]] && s.respondidos[t[0]] !== 'prop'; }).map(function (t) {
       var m = s.movidos[t[0]]; var n = t.slice();
       if (m) { n[1] = m.dia; n[2] = m.hora; n[5] = 'Confirmó'; }
       if (s.recordados[t[0]] && n[5] === 'Sin respuesta') n[5] = 'Recordatorio enviado';
+      if (s.respondidos[t[0]] === 'ok') n[5] = 'Confirmó';
+      if (s.cobrados[t[3]] === 0 && n[5] === 'Para cobrar') n[5] = 'Atendido';
       return n;
     }).concat(Object.keys(s.dados).map(function (k) { var x = s.dados[k]; return [k, x.dia, x.hora, x.nombre, 'Control', 'Sin respuesta', 'Turno dado recién']; }));
     var ocupado = function (dia, hora) { return lista.some(function (t) { return t[1] === dia && t[2] === hora; }); };
@@ -277,43 +428,86 @@ class Component extends DCLogic {
         return { hora: t[2], nombre: t[3], detalle: t[4], estado: e,
           card: 'display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px; border-radius: 16px; border: 0; color: #02261E; font-size: 15px; width: 100%; background: ' + (CARD[e] || '#FFFFFF') + ';' + borde,
           chip: chipBase + CHIP[e],
-          abrir: set({ hoja: { tipo: 'turno', id: t[0] }, aviso: '' }) };
+          abrir: set({ hoja: { tipo: 'turno', id: t[0] }, aviso: '', resumen: false }) };
       });
 
     var tSel = lista.filter(function (t) { return t[0] === h.id; })[0];
+    var FICHA = { 'Tomás Ferreyra': ['Sin alergias registradas', '11 5555-0102', 'Hoy · Control', 12000], 'Carlos Vera': ['Ibuprofeno', '11 5555-0106', '2/10 · Control', 0], 'Rosa Medina': ['Penicilina', '11 5555-0131', '20/10 · Control', 0], 'Diego Paz': ['Sin alergias registradas', '11 5555-0199', '6/10 · Control', 12000], 'Valeria Ruiz': ['Sin alergias registradas', '11 5555-0188', '20/10 · Primera consulta', 15000] };
+    var resumenDe = function (t) { if (!t) return []; var fi = FICHA[t[3]] || ['Sin alergias registradas', '11 5555-01' + (10 + t[3].length), t[6].indexOf('Nunca') === 0 ? 'Nunca vino' : '—', 0];
+      var al = fi[0].indexOf('Sin') !== 0; if (s.cobrados[t[3]] !== undefined) fi = fi.slice(0, 3).concat([s.cobrados[t[3]]]);
+      return [['Alergias', fi[0], al ? 'font-weight: 800; color: #9E2016;' : 'font-weight: 600;'], ['Celular', fi[1], 'font-weight: 600;'], ['Última consulta', fi[2], 'font-weight: 600;'], ['Saldo', fi[3] ? 'Debe ' + plata(fi[3]) : 'Al día', fi[3] ? 'font-weight: 800; color: #8A5300;' : 'font-weight: 600; color: #166534;']].map(function (x) { return { k: x[0], v: x[1], style: x[2] }; }); };
     var accion = function (label, fn, fuerte) { return { label: label, hacer: fn, style: fuerte ? 'height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #FFF1D6; color: #8A5300; font-size: 15px; font-weight: 800; text-align: left;' : 'height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; text-align: left;' }; };
     var acciones = [];
     if (tSel) {
       var e = tSel[5], pasado = e === 'Atendido' || e === 'Ahora';
-      if (e === 'Para cobrar') acciones.push(accion('Cobrar', avisa('Se abre el cobro de ' + tSel[3] + ', igual que en Hoy.'), true));
-      if (e === 'Pedido online') acciones.push(accion('Responder el pedido', avisa('Se abre en Pedidos para aceptarlo o proponer otro horario.'), false));
+      if (e === 'Para cobrar') acciones.push(accion('Cobrar', cobroDe(tSel[3], [[tSel[4] + ' del ' + DIAS[tSel[1]][2].toLowerCase(), 'Particular', 12000]], h), true));
+      if (e === 'Pedido online') { acciones.push(accion('Aceptar el pedido', function () { var r = Object.assign({}, s.respondidos); r[tSel[0]] = 'ok'; self.setState({ hoja: null, respondidos: r, aviso: 'Aceptaste el pedido de ' + tSel[3] + '. Le llegó la confirmación por WhatsApp.' }); }, false));
+        acciones.push(accion('Proponerle otro horario', set({ hoja: { tipo: 'mover', id: tSel[0], desde: h, propone: true }, destino: null }), false)); }
       acciones.push(accion('Escribirle por WhatsApp', avisa('Se abre WhatsApp con el mensaje armado para ' + tSel[3] + '.'), false));
       if (e === 'Sin respuesta') acciones.push(accion('Mandarle el recordatorio', function () { var r = Object.assign({}, s.recordados); r[tSel[0]] = true; self.setState({ hoja: null, recordados: r, aviso: 'Le mandamos el recordatorio a ' + tSel[3] + ' por WhatsApp.' }); }, false));
       if (!pasado && e !== 'Pedido online') acciones.push(accion('Mover el turno', set({ hoja: { tipo: 'mover', id: tSel[0], desde: h }, destino: null }), false));
       if (!pasado && e !== 'Pedido online') acciones.push(accion('Cancelar el turno', set({ hoja: { tipo: 'cancelar', id: tSel[0], desde: h }, quien: null }), false));
-      acciones.push(accion('Ver su resumen', avisa('Se abre su resumen en Pacientes: contacto, alergias, última consulta y saldo.'), false));
+      acciones.push(accion(s.resumen ? 'Ocultar el resumen' : 'Ver su resumen', set({ resumen: !s.resumen }), false));
     }
     var opcionesMover = [];
     [tSel ? tSel[1] : 0, 4, 5].forEach(function (d) { libresDe(d).forEach(function (hh) { if (opcionesMover.length < 6 && !opcionesMover.some(function (o) { return o.dia === d && o.hora === hh; })) opcionesMover.push({ dia: d, hora: hh }); }); });
     var dest = s.destino;
     var hv = {
-      titulo: tSel ? tSel[3] : h.tipo === 'dar' ? 'Dar turno' : '',
-      sub: h.tipo === 'dar' ? DIAS[h.dia][2] + ' · ' + h.hora : tSel ? DIAS[tSel[1]][2] + ' · ' + tSel[2] + ' · ' + tSel[4] : '',
-      esTurno: h.tipo === 'turno', esMover: h.tipo === 'mover', esCancelar: h.tipo === 'cancelar', esDar: h.tipo === 'dar',
+      titulo: h.tipo === 'cobro' ? 'Cobrar a ' + h.nombre : tSel ? tSel[3] : h.tipo === 'dar' ? 'Dar turno' : '',
+      sub: h.tipo === 'cobro' ? 'Qué, cuánto y cómo' : h.propone ? 'Elegí el horario que le proponés' : h.tipo === 'dar' ? DIAS[h.dia][2] + ' · ' + h.hora : tSel ? DIAS[tSel[1]][2] + ' · ' + tSel[2] + ' · ' + tSel[4] : '',
+      esTurno: h.tipo === 'turno', esMover: h.tipo === 'mover', esCobro: h.tipo === 'cobro', esHorario: h.tipo === 'horario',
+      verResumen: s.resumen && !!tSel, resumen: resumenDe(tSel), esCancelar: h.tipo === 'cancelar', esDar: h.tipo === 'dar',
       puedeVolver: !!h.desde, volver: set({ hoja: h.desde || null }),
       estado: tSel ? tSel[5] : '', chip: chipBase + (tSel ? CHIP[tSel[5]] : ''), historial: tSel ? tSel[6] : '',
       acciones: acciones,
       libres: opcionesMover.map(function (o) { var on = dest && dest.dia === o.dia && dest.hora === o.hora; return { label: DIAS[o.dia][0] + ' ' + DIAS[o.dia][1] + ' · ' + o.hora, on: on ? 'true' : 'false', elegir: set({ destino: o }), style: 'height: 48px; border-radius: 12px; border: 0; font-size: 14px; ' + celda(on) }; }),
       sinDestino: dest ? null : 'disabled',
-      moverTxt: dest ? 'Mover al ' + DIAS[dest.dia][0].toLowerCase() + ' ' + DIAS[dest.dia][1] + ' · ' + dest.hora : 'Elegí el horario nuevo',
+      moverTxt: dest ? (h.propone ? 'Proponer el ' : 'Mover al ')  + DIAS[dest.dia][0].toLowerCase() + ' ' + DIAS[dest.dia][1] + ' · ' + dest.hora : 'Elegí el horario nuevo',
       moverStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 15px; font-weight: 700; ' + (dest ? 'background:#02261E;color:#FFFFFF;' : 'background:#E9F1F3;color:#4A5F5C;'),
-      confirmarMover: function () { if (!dest) return; var m = Object.assign({}, s.movidos); m[tSel[0]] = dest; self.setState({ hoja: null, movidos: m, dia: dest.dia, aviso: 'Moviste a ' + tSel[3] + ' al ' + DIAS[dest.dia][2].toLowerCase() + ' a las ' + dest.hora + '. Le avisamos por WhatsApp.' }); },
+      confirmarMover: function () { if (!dest) return; if (h.propone) { var r = Object.assign({}, s.respondidos); r[tSel[0]] = 'prop'; self.setState({ hoja: null, respondidos: r, aviso: 'Le propusiste a ' + tSel[3] + ' el ' + DIAS[dest.dia][2].toLowerCase() + ' a las ' + dest.hora + '. Cuando lo acepte, queda confirmado.' }); return; } var m = Object.assign({}, s.movidos); m[tSel[0]] = dest; self.setState({ hoja: null, movidos: m, dia: dest.dia, aviso: 'Moviste a ' + tSel[3] + ' al ' + DIAS[dest.dia][2].toLowerCase() + ' a las ' + dest.hora + '. Le avisamos por WhatsApp.' }); },
       quien: [['paciente', 'El paciente'], ['yo', 'Yo']].map(function (x) { var on = s.quien === x[0]; return { label: x[1], on: on ? 'true' : 'false', elegir: set({ quien: x[0] }), style: 'height: 48px; border-radius: 12px; border: 0; font-size: 15px; ' + celda(on) }; }),
       sinQuien: s.quien ? null : 'disabled',
       cancelarTxt: s.quien ? 'Cancelar el turno' : 'Elegí quién lo cancela',
       cancelarStyle: 'height: 52px; border-radius: 14px; border: 0; font-size: 15px; font-weight: 700; ' + (s.quien ? 'background:#9E2016;color:#FFFFFF;' : 'background:#E9F1F3;color:#4A5F5C;'),
       confirmarCancelar: function () { if (!s.quien) return; var c = Object.assign({}, s.cancelados); c[tSel[0]] = true; self.setState({ hoja: null, cancelados: c, aviso: 'Cancelaste el turno de ' + tSel[3] + '. Le avisamos por WhatsApp y el horario quedó libre.' }); }
     };
+    // ---- vista mensual ----
+    var MESES = [{ nombre: 'Octubre 2026', dias: 31, empieza: 2, m: 10 }, { nombre: 'Noviembre 2026', dias: 30, empieza: 6, m: 11 }];
+    var MM = MESES[s.mes];
+    var NOMBRES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    var idxDe = function (m, d) { for (var i = 0; i < DIAS.length; i++) { if (m === 10 && DIAS[i][1] === d) return i; } return -1; };
+    var infoDia = function (m, d, dow) {
+      var i = idxDe(m, d);
+      if (i >= 0) return { idx: i, bloq: !!BLOQ[i], n: delDia(i).length, libres: libresDe(i).length, pasado: false };
+      if (dow === 6) return { cerrado: true };
+      if (m === 11 && d === 24) return { bloq: true };
+      var pasado = m === 10 && d < 23;
+      var n = dow === 5 ? (d % 3) + 1 : ((d * 7) % 5) + (pasado ? 3 : 1);
+      if (m === 11 && d > 14) n = (d % 2);
+      return { n: n, libres: pasado ? 0 : Math.max(0, 6 - n), pasado: pasado };
+    };
+    var celdas = [];
+    for (var k = 0; k < MM.empieza; k++) celdas.push({ num: '', marca: '', aria: 'vacío', on: 'false', off: 'disabled', elegir: function () {}, style: 'min-height: 52px; border: 0; background: transparent;', marcaStyle: '' });
+    for (var d = 1; d <= MM.dias; d++) {
+      var dow = (MM.empieza + d - 1) % 7, inf = infoDia(MM.m, d, dow);
+      var hoyC = MM.m === 10 && d === 23, on = s.diaMes && s.diaMes.m === MM.m && s.diaMes.d === d;
+      var marca = inf.cerrado ? '' : inf.bloq ? 'Bloq.' : inf.n ? inf.n + ' t.' : '';
+      var fondo = on ? 'background:#02261E;color:#FFFFFF;' : inf.bloq ? 'background:#ECEFF3;color:#475467;' : inf.cerrado ? 'background:transparent;color:#4A5F5C;' : inf.pasado ? 'background:#F2F7F9;color:#4A5F5C;' : 'background:#FFFFFF;color:#02261E;';
+      celdas.push({ num: d, marca: marca, on: on ? 'true' : 'false', off: inf.cerrado ? 'disabled' : null,
+        aria: NOMBRES[dow] + ' ' + d + (inf.cerrado ? ', no atendés' : inf.bloq ? ', bloqueado' : ', ' + (inf.n || 0) + ' turnos'),
+        elegir: inf.cerrado ? function () {} : set({ diaMes: { m: MM.m, d: d, dow: dow } }),
+        style: 'min-height: 52px; padding: 2px 0; border-radius: 12px; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.15; ' + fondo + (hoyC && !on ? 'box-shadow: inset 0 0 0 2px #02261E;' : ''),
+        marcaStyle: 'font-size: 12px; font-weight: 700; ' + (on ? 'color:#DAFC92;' : inf.bloq ? 'color:#475467;' : 'color:#24605F;') });
+    }
+    var sm = s.diaMes, smInfo = sm ? infoDia(sm.m, sm.d, sm.dow) : null;
+    var selMes = sm ? {
+      titulo: NOMBRES[sm.dow] + ' ' + sm.d + '/' + sm.m + (sm.m === 10 && sm.d === 23 ? ' · hoy' : ''),
+      sub: smInfo.bloq ? 'Día bloqueado' : smInfo.pasado ? smInfo.n + ' turnos atendidos' : (smInfo.n || 0) + ' turnos · ' + smInfo.libres + ' libres',
+      ver: smInfo.idx >= 0 ? set({ vista: 'dia', dia: smInfo.idx }) : set({ aviso: 'En el diseño solo se abren los días de esta semana y la próxima. En la app se abre cualquier día.' })
+    } : {};
+    var flecha = function (off) { return 'width: 44px; height: 44px; border-radius: 50%; border: 0; font-size: 22px; font-weight: 700; ' + (off ? 'background: transparent; color: #C5D6DA;' : 'background: #FFFFFF; color: #02261E;'); };
+    var vistas = [['dia', 'Día'], ['mes', 'Mes']].map(function (w) { var on = s.vista === w[0]; return { label: w[1], on: on ? 'true' : 'false', elegir: set({ vista: w[0] }),
+      style: 'height: 44px; border-radius: 11px; border: 0; font-size: 15px; ' + (on ? 'background:#FFFFFF;color:#02261E;font-weight:800;box-shadow:0 1px 2px rgba(2,38,30,0.12);' : 'background:transparent;color:#4A5F5C;font-weight:600;') }; });
     var cant = delDia(dia).length, lib = libresDe(dia).length;
     return {
       tabs: tabs, mesTxt: 'Octubre 2026 · Consultorio Centro',
@@ -324,8 +518,13 @@ class Component extends DCLogic {
           style: 'flex: 0 0 auto; width: 58px; min-height: 72px; border-radius: 16px; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25; ' + (on ? 'background:#02261E;color:#FFFFFF;' : BLOQ[i] ? 'background:#ECEFF3;color:#475467;' : 'background:#FFFFFF;color:#02261E;') }; }),
       diaLargo: DIAS[dia][2], resumenDia: BLOQ[dia] ? 'Bloqueado' : cant + (cant === 1 ? ' turno' : ' turnos') + ' · ' + lib + (lib === 1 ? ' libre' : ' libres'),
       bloqueado: !!BLOQ[dia], filas: filas,
-      noEsHoy: dia !== 0, irHoy: set({ dia: 0 }),
-      hoja: !!s.hoja, h: hv, d: dv,
+      vistas: vistas, esMes: s.vista === 'mes', esDiaV: s.vista !== 'mes', mesNombre: MM.nombre,
+      cab: ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(function (x) { return { l: x }; }), celdas: celdas,
+      haySelMes: !!sm, selMes: selMes,
+      sinAnt: s.mes === 0 ? 'disabled' : null, sinSig: s.mes === 1 ? 'disabled' : null, antStyle: flecha(s.mes === 0), sigStyle: flecha(s.mes === 1),
+      mesAnt: set({ mes: 0, diaMes: null }), mesSig: set({ mes: 1, diaMes: null }),
+      noEsHoy: dia !== 0 || s.vista === 'mes', irHoy: set({ dia: 0, vista: 'dia' }),
+      hoja: !!s.hoja, h: hv, d: dv, cb: cb, hr: hr,
       aviso: !!s.aviso, avisoTxt: s.aviso, cerrarAviso: set({ aviso: '' }), cerrar: set({ hoja: null })
     };
   }

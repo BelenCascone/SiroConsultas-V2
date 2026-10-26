@@ -40,11 +40,11 @@ Tablero de pantallas para verlas e interactuar: https://claude.ai/artifact/J6jZg
 | 14 | Términos y privacidad al entrar | `Terminos.dc.html` | Aprobada |
 | 15 | Hoy en el celular | `HoyCel.dc.html` | Aprobada |
 | 16 | App del paciente | `AppPaciente.dc.html` | Aprobada |
-| 17 | Agenda en el celular | `AgendaCel.dc.html` | **En revisión: no programar todavía** |
-| 18 | Pacientes en el celular | `PacientesCel.dc.html` | **En revisión: no programar todavía** |
-| 19 | Pedidos en el celular | `PedidosCel.dc.html` | **En revisión: no programar todavía** |
+| 17 | Agenda en el celular | `AgendaCel.dc.html` | Aprobada |
+| 18 | Pacientes en el celular | `PacientesCel.dc.html` | Aprobada |
+| 19 | Pedidos en el celular | `PedidosCel.dc.html` | Aprobada |
 
-Las pantallas 1 a 16 están aprobadas. Agenda, Pacientes y Pedidos en el celular esperan la revisión de Belén. En la app del paciente, «Pagar con Mercado Pago» solo redirige a Mercado Pago: la app no mueve plata. Los documentos no aparecen en la app: le llegan al paciente solo por WhatsApp.
+Todas las pantallas están aprobadas (las del celular de la profesional, el 25/10). Los precios de las maquetas son de prueba: el valor real se carga en Configuración › Prestaciones. En la app del paciente, «Pagar con Mercado Pago» solo redirige a Mercado Pago: la app no mueve plata. Los documentos no aparecen en la app: le llegan al paciente solo por WhatsApp.
 
 ## Para quien programa
 

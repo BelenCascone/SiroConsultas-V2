@@ -121,6 +121,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
               <sc-if value="{{h.puedeCobrar}}" hint-placeholder-val="{{true}}">
                 <button type="button" onClick="{{h.cobrar}}" style="display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #FFF1D6; color: #8A5300; font-size: 15px; font-weight: 800;"><span>Cobrar</span><span>{{h.montoTurno}}</span></button>
               </sc-if>
+              <sc-if value="{{h.verResumen}}" hint-placeholder-val="{{false}}">
+                <div class="paso" style="background: #F2F7F9; border-radius: 14px; padding: 2px 14px;">
+                  <sc-for list="{{h.resumen}}" as="x" hint-placeholder-count="4">
+                    <div style="display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; border-top: 1px solid #E9F1F3; font-size: 14px;"><span style="color: #4A5F5C;">{{x.k}}</span><span style="font-weight: 600; text-align: right;">{{x.v}}</span></div>
+                  </sc-for>
+                </div>
+              </sc-if>
               <sc-for list="{{h.acciones}}" as="a" hint-placeholder-count="3">
                 <button type="button" onClick="{{a.hacer}}" style="height: 52px; padding: 0 16px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; text-align: left;">{{a.label}}</button>
               </sc-for>
@@ -217,10 +224,44 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #2460
             </div>
           </sc-if>
 
+          <sc-if value="{{h.esBloq}}" hint-placeholder-val="{{false}}">
+            <div class="paso" style="display: flex; flex-direction: column; gap: 10px;">
+              <sc-if value="{{bq.esResto}}" hint-placeholder-val="{{true}}">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-size: 13px; font-weight: 700; color: #4A5F5C;">Desde las 10:45 hasta el final del día caen:</span>
+                  <sc-for list="{{bq.caen}}" as="x" hint-placeholder-count="3">
+                    <div style="display: flex; justify-content: space-between; min-height: 44px; align-items: center; padding: 0 14px; border-radius: 12px; background: #FFF1D6; color: #8A5300; font-size: 14px; font-weight: 600;"><span>{{x.n}}</span><span>{{x.h}}</span></div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{bq.esRango}}" hint-placeholder-val="{{false}}">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Desde<input type="date" value="2026-10-27" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                  <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Hasta<input type="date" value="2026-10-27" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                </div>
+              </sc-if>
+              <sc-if value="{{bq.esHoras}}" hint-placeholder-val="{{false}}">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                  <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; grid-column: 1 / -1;">Día<input type="date" value="2026-10-24" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                  <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Desde<input type="time" value="15:00" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                  <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Hasta<input type="time" value="17:00" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+                </div>
+              </sc-if>
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600;">Motivo (solo lo ves vos)<input type="text" placeholder="Por ejemplo: trámite" style="height: 48px; padding: 0 14px; border-radius: 14px; border: 0; background: #E9F1F3; font-size: 16px; color: #02261E; min-width: 0; box-shadow: inset 0 0 0 1px #C5D6DA; font-family: inherit;"></label>
+              <span style="font-size: 13px; color: #4A5F5C;">{{bq.nota}}</span>
+              <button type="button" onClick="{{bq.bloquear}}" style="height: 52px; border-radius: 14px; border: 0; background: #02261E; color: #FFFFFF; font-size: 15px; font-weight: 700;">{{bq.boton}}</button>
+            </div>
+          </sc-if>
+
           <sc-if value="{{h.esLista}}" hint-placeholder-val="{{false}}">
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <sc-for list="{{h.opciones}}" as="o" hint-placeholder-count="3">
-                <button type="button" onClick="{{o.hacer}}" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 52px; padding: 8px 16px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; text-align: left;"><span>{{o.label}}</span><span style="font-size: 13px; font-weight: 500; color: #4A5F5C;">{{o.sub}}</span></button>
+                <sc-if value="{{o.esBoton}}" hint-placeholder-val="{{true}}">
+                  <button type="button" onClick="{{o.hacer}}" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 52px; padding: 8px 16px; border-radius: 14px; border: 0; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; text-align: left; width: 100%;"><span>{{o.label}}</span><span style="font-size: 13px; font-weight: 500; color: #4A5F5C;">{{o.sub}}</span></button>
+                </sc-if>
+                <sc-if value="{{o.esLink}}" hint-placeholder-val="{{false}}">
+                  <a href="{{o.href}}" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 52px; padding: 8px 16px; border-radius: 14px; background: #E9F1F3; color: #02261E; font-size: 15px; font-weight: 600; text-decoration: none; box-sizing: border-box;"><span>{{o.label}}</span><span style="font-size: 13px; font-weight: 500; color: #4A5F5C;">{{o.sub}}</span></a>
+                </sc-if>
               </sc-for>
             </div>
           </sc-if>
@@ -271,7 +312,7 @@ class Component extends DCLogic {
       var e = s.cobrados[r[1]] ? 'Atendido' : r[3];
       var borde = (e === 'Confirmó' || e === 'Sin respuesta') ? 'box-shadow: inset 0 0 0 1.5px #DDE8EB;' : '';
       return { hora: r[0], nombre: r[1], detalle: r[2], estado: e,
-        abrir: set({ hoja: { tipo: 'turno', nombre: r[1], hora: r[0], detalle: r[2], estado: e } }),
+        abrir: set({ hoja: { tipo: 'turno', nombre: r[1], hora: r[0], detalle: r[2], estado: e }, verRes: false }),
         card: 'display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px; border-radius: 16px; border: 0; color: #02261E; font-size: 15px; width: 100%; background: ' + CARD[e] + ';' + borde,
         chip: 'font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap;' + CHIP[e] };
     });
@@ -376,13 +417,20 @@ class Component extends DCLogic {
       }
     };
 
-    var TIT = { turno: h.nombre, buscar: paraCobro ? 'Cobrar' : 'Dar turno', horario: h.nombre, cobro: 'Cobrar a ' + h.nombre, bloqueo: 'Bloquear la agenda', avisos: 'Para resolver' };
-    var SUB = { turno: (h.hora || '') + ' · ' + (h.detalle || ''), buscar: paraCobro ? 'Paso 1 de 2 · a quién' : 'Paso 1 de 2 · quién', horario: h.desde && h.desde.tipo === 'turno' ? 'Mover el turno de las ' + h.desde.hora : 'Paso 2 de 2 · cuándo', cobro: 'Paso 2 de 2 · qué, cuánto y cómo', bloqueo: 'Los turnos que caigan se avisan por WhatsApp', avisos: '3 cosas' };
+    var TIT = { bloq: { resto: 'El resto de hoy', rango: 'Un día o un rango', horas: 'Unas horas' }[h.modo || 'resto'], turno: h.nombre, buscar: paraCobro ? 'Cobrar' : 'Dar turno', horario: h.nombre, cobro: 'Cobrar a ' + h.nombre, bloqueo: 'Bloquear la agenda', avisos: 'Para resolver' };
+    var SUB = { bloq: 'Bloquear la agenda', turno: (h.hora || '') + ' · ' + (h.detalle || ''), buscar: paraCobro ? 'Paso 1 de 2 · a quién' : 'Paso 1 de 2 · quién', horario: h.desde && h.desde.tipo === 'turno' ? 'Mover el turno de las ' + h.desde.hora : 'Paso 2 de 2 · cuándo', cobro: 'Paso 2 de 2 · qué, cuánto y cómo', bloqueo: 'Los turnos que caigan se avisan por WhatsApp', avisos: '3 cosas' };
     var turnoPac = h.tipo === 'turno' ? PAC.filter(function (p) { return p.nombre === h.nombre; })[0] : null;
+    var bmodo = h.modo || 'resto';
+    var bq = { esResto: bmodo === 'resto', esRango: bmodo === 'rango', esHoras: bmodo === 'horas',
+      caen: [['Lucas Benítez', '11:00'], ['Inés Molina', '11:30'], ['Carlos Vera', '12:30']].map(function (x) { return { n: x[0], h: x[1] }; }),
+      nota: bmodo === 'resto' ? 'A los 3 les avisamos por WhatsApp y les ofrecemos otro horario.' : 'Si hay turnos en ese tiempo, te los mostramos antes de bloquear y les avisamos por WhatsApp.',
+      boton: bmodo === 'resto' ? 'Bloquear el resto de hoy' : 'Bloquear',
+      bloquear: avisa(bmodo === 'resto' ? 'Bloqueaste el resto de hoy. Les avisamos a Lucas, Inés y Carlos para darles otro horario.' : bmodo === 'rango' ? 'Bloqueaste el lunes 27/10. No se ofrecen turnos online ese día.' : 'Bloqueaste el viernes 24/10 de 15:00 a 17:00.') };
     var hv = {
       titulo: TIT[h.tipo] || '', sub: SUB[h.tipo] || '',
       esTurno: h.tipo === 'turno', esBuscar: h.tipo === 'buscar', esHorario: h.tipo === 'horario', esCobro: h.tipo === 'cobro',
-      esLista: ['bloqueo', 'avisos'].indexOf(h.tipo) >= 0,
+      esLista: ['bloqueo', 'avisos'].indexOf(h.tipo) >= 0, esBloq: h.tipo === 'bloq',
+      verResumen: !!s.verRes && !!turnoPac, resumen: turnoPac ? [['DNI', dniTxt(turnoPac.dni)], ['Cobertura', turnoPac.cob], ['Última vez', turnoPac.ultima], ['Saldo', debeDe(turnoPac).length ? 'Debe ' + plata(debeDe(turnoPac)[0][2]) : 'Al día']].map(function (x) { return { k: x[0], v: x[1] }; }) : [],
       puedeVolver: !!h.desde, volver: set({ hoja: h.desde || null }),
       puedeCobrar: !!(turnoPac && debeDe(turnoPac).length),
       montoTurno: turnoPac && debeDe(turnoPac).length ? plata(debeDe(turnoPac)[0][2]) : '',
@@ -391,7 +439,7 @@ class Component extends DCLogic {
         ['Escribirle por WhatsApp', avisa('Se abre WhatsApp con el mensaje armado para ' + h.nombre + '.')],
         ['Mover el turno', set({ hoja: { tipo: 'horario', nombre: h.nombre, desde: h }, dia: 0, hora: null })],
         [(s.invitados || {})[h.nombre] ? 'Reenviar el enlace de la app' : 'Mandarle el enlace de la app', function () { var iv = Object.assign({}, s.invitados || {}); iv[h.nombre] = true; self.setState({ hoja: null, invitados: iv, aviso: 'Le mandamos a ' + h.nombre + ' el enlace por WhatsApp para crear su cuenta. Vence en 7 días.' }); }],
-        ['Ver contacto y cobertura', avisa('Ves celular, cobertura y el último turno. La historia, en la compu.')]
+        [s.verRes ? 'Ocultar contacto y cobertura' : 'Ver contacto y cobertura', set({ verRes: !s.verRes })]
       ].map(function (a) { return { label: a[0], hacer: a[1] }; }),
       opciones: (h.tipo === 'bloqueo' ? [
         ['El resto de hoy', 'Caen 3 turnos: Lucas, Inés y Carlos'],
@@ -400,17 +448,21 @@ class Component extends DCLogic {
       ] : [
         ['Tomás Ferreyra debe la consulta', 'Cobrar ' + plata(12000)],
         ['3 pedidos de turno online', 'Aceptar o proponer otro horario'],
-        ['Carlos Vera no confirmó', 'Escribirle por WhatsApp']
+        ['Carlos Vera no confirmó', 'Mandarle el recordatorio']
       ]).map(function (o, i) {
-        var hacer = h.tipo === 'avisos' && i === 0 ? set({ hoja: { tipo: 'cobro', nombre: 'Tomás Ferreyra', desde: h }, sel: 'd0', cuanto: 'todo', medio: null, comp: 'interno', parte: '' }) : avisa(o[0] + ': acá sigue el paso, igual que en la compu.');
-        return { label: o[0], sub: o[1], hacer: hacer };
+        var hacer, href = null;
+        if (h.tipo === 'bloqueo') hacer = set({ hoja: { tipo: 'bloq', modo: ['resto', 'rango', 'horas'][i], desde: h } });
+        else if (i === 0) hacer = set({ hoja: { tipo: 'cobro', nombre: 'Tomás Ferreyra', desde: h }, sel: 'd0', cuanto: 'todo', medio: null, comp: 'interno', parte: '' });
+        else if (i === 1) href = 'PedidosCel.dc.html';
+        else hacer = avisa('Le mandamos el recordatorio a Carlos Vera por WhatsApp.');
+        return { label: o[0], sub: o[1], hacer: hacer || function () {}, esBoton: !href, esLink: !!href, href: href };
       })
     };
     var tabs = [['Hoy', 'HoyCel.dc.html'], ['Agenda', 'AgendaCel.dc.html'], ['Pacientes', 'PacientesCel.dc.html'], ['Pedidos · 3', 'PedidosCel.dc.html']].map(function (x, i) { var on = i === 0; return { label: x[0], href: x[1], actual: on ? 'page' : null,
       dot: 'width: 28px; height: 4px; border-radius: 4px; background: ' + (on ? '#02261E' : 'transparent') + ';',
       style: 'display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 52px; text-decoration: none; font-size: 13px; ' + (on ? 'color:#02261E;font-weight:800;' : 'color:#4A5F5C;font-weight:600;') }; });
     return {
-      turnos: turnos, tabs: tabs, hoja: !!s.hoja, h: hv, b: bv, hr: hr, cb: cb,
+      turnos: turnos, tabs: tabs, hoja: !!s.hoja, h: hv, bq: bq, b: bv, hr: hr, cb: cb,
       aviso: !!s.aviso, avisoTxt: s.aviso, cerrarAviso: set({ aviso: '' }),
       cerrar: set({ hoja: null }),
       abrirTurno: set({ hoja: { tipo: 'buscar', para: 'turno', texto: '' }, aviso: '' }),
