@@ -90,8 +90,11 @@ describe('Dar turno · pantalla', () => {
     expect(await (await navegador.pedir('/turnos/nuevo?paciente=4')).text()).toContain('Esa ficha no está disponible')
   })
   it('segundo paso: días del consultorio y huecos por mañana y tarde, con la prestación según el historial', async () => {
-    const { navegador } = await conSesion()
-    const html = await (await navegador.pedir('/turnos/nuevo?paciente=3&consultorio=1')).text()
+    const { navegador, db } = await conSesion()
+    // Un lunes futuro y sin feriado: «hoy» no sirve, porque a la tarde ya no quedan huecos de mañana.
+    let lunes = proximo(1)
+    while (todos(db, 'SELECT 1 FROM feriados WHERE fecha = ?', lunes).length) lunes = sumarDias(lunes, 7)
+    const html = await (await navegador.pedir(`/turnos/nuevo?paciente=3&consultorio=1&fecha=${lunes}`)).text()
     expect(html).toContain('Lucía Benítez · cambiar')
     expect(html).toContain('aria-current="true">Primera consulta · 45 min')
     expect(html).toMatch(/Mañana/)
