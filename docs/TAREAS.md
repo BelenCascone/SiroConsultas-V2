@@ -11,7 +11,7 @@ Una tarea = una rama = un PR. Estado: pendiente · en curso · en revisión · h
 | E4 | **Etapa 4 · factura C de ARCA** con nota de crédito, pendientes y reintentos | — | pendiente |
 | E5 | **Etapa 5 · autogestión del paciente:** pedido de turno online, cobro por ausencia, estadísticas por rango y consultorio | — | pendiente |
 
-Hoy en el celular y la app del paciente están aprobadas (ver `docs/README.md`). Agenda, Pacientes y Pedidos en el celular siguen en revisión: no se programan hasta que se aprueben.
+Todas las pantallas están aprobadas, también las del celular y la app del paciente (ver `docs/README.md`).
 
 ## Etapa 1: reparto entre Claude y Codex
 

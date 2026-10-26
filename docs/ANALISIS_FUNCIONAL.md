@@ -58,7 +58,8 @@ El paciente tiene una app propia, en el celular, solo con invitación. No es una
 - **Ingreso:** usuario y contraseña. Si cambian los términos, los vuelve a aceptar al entrar. Si se olvida la contraseña, le llega un código por WhatsApp al celular de su ficha.
 - **Qué ve:** su próximo turno (confirmar, pedir otro horario o cancelar), sus turnos anteriores, lo que debe con «Pagar con Mercado Pago» (solo redirige a Mercado Pago; la app no mueve plata), lo que pagó con su comprobante y sus datos (para corregirlos, avisa por WhatsApp).
 - **Qué no ve:** nada clínico (historia, notas, diagnósticos). Los documentos (certificados, recetas, pedidos) le llegan solo por WhatsApp y no aparecen en la app.
-- **Pedir turno:** el botón abre la misma página de turnos online, con sus datos ya cargados.
+- **Pedir turno:** dentro de la app (qué, consultorio o videollamada, día en «Próximos días» o «Mes», horario libre, enviar), con sus datos ya cargados. Solo ve horarios libres, nunca quién tiene turno; queda como pedido online por 12 horas (25/10).
+- **Comprobantes:** el de cada pago se ve y se guarda desde la app.
 
 ## Decisiones de la segunda ronda
 
