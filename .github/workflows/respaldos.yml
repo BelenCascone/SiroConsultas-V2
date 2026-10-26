@@ -1,0 +1,32 @@
+# Copia diaria y restauración de verificación. Se activa por instalación, después de cargar los secretos.
+# No se ejecuta en PR ni usa archivos de datos como artifacts de GitHub.
+name: Respaldos cifrados
+on:
+  schedule:
+    - cron: '0 7 * * *' # 04:00 de Argentina; GitHub puede demorar el inicio.
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: respaldos-instalacion
+  cancel-in-progress: false
+jobs:
+  respaldar:
+    if: vars.RESPALDOS_ACTIVOS == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.RESPALDOS_CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.RESPALDOS_CLOUDFLARE_ACCOUNT_ID }}
+      RESPALDOS_D1_ID: ${{ vars.RESPALDOS_D1_ID }}
+      RESPALDOS_ARCHIVOS_BUCKET: ${{ vars.RESPALDOS_ARCHIVOS_BUCKET }}
+      RESPALDOS_BUCKET: ${{ vars.RESPALDOS_BUCKET }}
+      RESPALDOS_CLAVE: ${{ secrets.RESPALDOS_CLAVE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Solo módulos de Node: no necesita instalar paquetes ni desplegar el Worker.
+      - name: Respaldar y verificar restauración
+        run: node --experimental-strip-types scripts/respaldos/cli.ts crear
