@@ -81,8 +81,8 @@ UPDATE turnos SET estado = 'atendido', cerrado_en = strftime('%Y-%m-%dT%H:%M:%SZ
   WHERE fecha = date('now', '-3 hours') AND hora < strftime('%H:%M', 'now', '-3 hours') AND estado = 'confirmado';
 
 -- Algunos pacientes ya confirmaron desde el enlace del recordatorio.
-UPDATE turnos SET confirmacion = 'voy', confirmacion_cambios = 1, confirmacion_en = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id IN (41, 44, 46, 48, 51, 53, 62);
-UPDATE turnos SET confirmacion = 'no_puedo', confirmacion_cambios = 1, confirmacion_en = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id = 55;
+UPDATE turnos SET confirmacion = 'voy', confirmacion_cambios = 1, confirmacion_en = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id IN (41, 44, 46, 48, 51, 53, 62) AND estado = 'confirmado';
+UPDATE turnos SET confirmacion = 'no_puedo', confirmacion_cambios = 1, confirmacion_en = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id = 55 AND estado = 'confirmado';
 
 -- Consultas finalizadas de los turnos atendidos (los del seed base incluidos).
 INSERT INTO consultas (paciente_id, turno_id, consultorio_id, tipo, motivo, examen, plan, proximo_control)
