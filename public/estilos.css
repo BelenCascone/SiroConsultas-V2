@@ -588,3 +588,52 @@ a.e-ahora:hover { color: var(--sobre-oscuro); }
 .contadora-hojas { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .contadora-acciones { align-items: flex-start; }
 .contadora-acciones form { display: contents; }
+
+/* ---------- P6 · celular de la profesional ---------- */
+.barra-abajo { display: none; }
+.solo-compu-grupo { display: contents; }
+.alerta-texto { color: var(--ausente); font-weight: 800; }
+.marca-mes { font-size: 12px; font-weight: 700; color: var(--enlace); }
+
+@media (max-width: 720px) {
+  /* El menú de arriba pasa a la barra de abajo: Hoy, Agenda, Pacientes y Pedidos. */
+  .menu { display: none; }
+  .pagina { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  .barra-abajo {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    padding: 4px 8px env(safe-area-inset-bottom); background: var(--superficie); box-shadow: var(--sombra-menu); border-top: 1px solid var(--borde-suave);
+  }
+  .barra-abajo a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 56px; color: var(--texto-2); font-size: 13px; font-weight: 600; text-decoration: none; }
+  .barra-abajo a[aria-current='page'] { color: var(--texto); font-weight: 800; }
+  .barra-marca { width: 28px; height: 4px; border-radius: var(--pastilla); background: transparent; }
+  .barra-abajo a[aria-current='page'] .barra-marca { background: var(--oscuro); }
+
+  .solo-compu, .solo-compu-grupo { display: none; }
+  .nota-compu { text-align: center; }
+
+  /* Hoy: las tres acciones en una fila */
+  .acciones-hoy { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 8px; }
+  .acciones-hoy .boton { padding: 0 8px; }
+
+  /* Agenda: tira de días y lista del día */
+  .ag-tira { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .ag-tira-dia { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; min-height: 72px; border-radius: var(--radio); background: var(--superficie); color: var(--texto); text-decoration: none; line-height: 1.25; font-size: 13px; box-shadow: var(--sombra-chica); }
+  .ag-tira-dia strong { font-size: 17px; }
+  .ag-tira-dia .chico { font-size: 12px; color: var(--texto-2); }
+  .ag-tira-dia.cerrado { background: var(--gris-fondo); color: var(--gris); }
+  .ag-tira-dia[aria-current='true'] { background: var(--oscuro); color: var(--sobre-oscuro); }
+  .ag-tira-dia[aria-current='true'] .chico { color: var(--destacado); }
+  .ag-dia-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .ag-dia-turno { border-radius: var(--radio); background: var(--superficie); box-shadow: var(--sombra-chica); }
+  .ag-dia-turno .fila-enlace { padding: 8px 12px; min-height: 60px; }
+  .ag-dia-libre { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border-radius: var(--radio); box-shadow: inset 0 0 0 1.5px var(--borde); color: var(--enlace); }
+  .ag-dia-libre .hora { padding-top: 2px; }
+  .ag-dia-libre .pastilla { background: var(--brillo-suave); color: var(--enlace); font-weight: 700; }
+  .ag-mes-dia .marca-mes { line-height: 1.1; }
+  .ag-mes-dia.rayado .marca-mes { color: var(--gris); }
+  .ag-mes-dia .punto-turnos { display: none; }
+
+  /* Ficha: resumen sin lo clínico */
+  .ficha-celular-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ficha-celular .debe-boton { justify-content: space-between; padding: 0 18px; }
+}

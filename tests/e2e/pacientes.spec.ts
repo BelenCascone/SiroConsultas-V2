@@ -25,7 +25,9 @@ test('buscar sin tildes y abrir la ficha', async ({ page }) => {
   await expect(page.getByText('Tomás Ferreyra')).toHaveCount(0)
   await page.getByText('Ana Gómez').click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ana Gómez')
-  await expect(page.getByText('Cobrar $ 8.000')).toBeVisible()
+  // En el celular la ficha es un resumen y el cobro va en un botón ancho (P6).
+  if (test.info().project.name.endsWith('celular')) await expect(page.getByRole('link', { name: 'Debe · Cobrar $ 8.000' })).toBeVisible()
+  else await expect(page.getByText('Cobrar $ 8.000')).toBeVisible()
   expect(await sinScrollHorizontal(page)).toBe(true)
 })
 
@@ -53,7 +55,9 @@ test('alta rápida, completar la ficha y ver que deja de estar incompleta', asyn
   await editar.getByRole('button', { name: 'Guardar cambios' }).click()
   await expect(page.getByText('Cambios guardados.')).toBeVisible()
   await expect(page.getByText('Ficha incompleta')).toHaveCount(0)
-  await expect(page.getByText('OSDE · 99-111')).toBeVisible()
+  // En el celular el número de afiliado queda en la compu; la cobertura se ve arriba, con el DNI (P6).
+  if (test.info().project.name.endsWith('celular')) await expect(page.getByText(/DNI 46\.111\.222 · \d+ años · OSDE/)).toBeVisible()
+  else await expect(page.getByText('OSDE · 99-111')).toBeVisible()
 })
 
 test('el mismo DNI lleva a la ficha que ya existe', async ({ page }) => {

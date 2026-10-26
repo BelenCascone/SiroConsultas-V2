@@ -5,9 +5,9 @@ import type { Instalacion, Modulo } from '../lib/instalacion'
 import { Campana } from './iconos'
 
 /** Sube con cada cambio de estilos.css o app.js para que el navegador no use la copia vieja. */
-export const VERSION_ESTATICOS = '2.0.0-x5'
+export const VERSION_ESTATICOS = '2.0.0-p6'
 
-export type Seccion = 'hoy' | 'agenda' | 'pacientes' | 'cobros' | 'estadisticas' | 'configuracion' | 'otra'
+export type Seccion = 'hoy' | 'agenda' | 'pacientes' | 'pedidos' | 'cobros' | 'estadisticas' | 'configuracion' | 'otra'
 
 const MENU: { id: Seccion; texto: string; href: string; modulo?: Modulo }[] = [
   { id: 'hoy', texto: 'Hoy', href: '/' },
@@ -15,6 +15,14 @@ const MENU: { id: Seccion; texto: string; href: string; modulo?: Modulo }[] = [
   { id: 'pacientes', texto: 'Pacientes', href: '/pacientes' },
   { id: 'cobros', texto: 'Cobros', href: '/cobros', modulo: 'cobros' },
   { id: 'estadisticas', texto: 'Estadísticas', href: '/estadisticas', modulo: 'estadisticas' },
+]
+
+/** Barra de abajo del celular (P6): lo de todos los días. Cobros, estadísticas y configuración se hacen desde la compu. */
+const BARRA: { id: Seccion; texto: string; href: string; modulo?: Modulo }[] = [
+  { id: 'hoy', texto: 'Hoy', href: '/' },
+  { id: 'agenda', texto: 'Agenda', href: '/agenda?vista=dia', modulo: 'agenda' },
+  { id: 'pacientes', texto: 'Pacientes', href: '/pacientes' },
+  { id: 'pedidos', texto: 'Pedidos', href: '/pedidos', modulo: 'agenda' },
 ]
 
 export function Documento({ titulo, inst, children }: { titulo: string; inst: Instalacion; children: Child }) {
@@ -84,6 +92,11 @@ export function Pagina({ titulo, seccion, inst, email, nombre, avisos = 0, child
         </header>
         <main id="principal" class="columna entra">{children}</main>
       </div>
+      <nav class="barra-abajo" aria-label="Secciones">
+        {BARRA.filter((m) => !m.modulo || inst.modulos.has(m.modulo)).map((m) => (
+          <a href={m.href} aria-current={m.id === seccion ? 'page' : undefined} data-modulo={m.modulo}><span class="barra-marca" aria-hidden="true" />{m.texto}</a>
+        ))}
+      </nav>
     </Documento>
   )
 }

@@ -19,7 +19,9 @@ const sinScrollHorizontal = (page: Page) => page.evaluate(() => document.documen
 test('Hoy muestra el turno que sigue, la lista del día y los controles', async ({ page }) => {
   await entrar(page)
   await expect(page.getByRole('region', { name: 'Ahora' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Atender' })).toBeVisible()
+  // En el celular no se abre la consulta: «Llegó» la deja en curso y las notas se escriben en la compu (P6).
+  const celular = test.info().project.name.endsWith('celular')
+  await expect(page.getByRole('button', { name: celular ? 'Llegó' : 'Atender' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'No vino' })).toBeVisible()
   await expect(page.getByRole('region', { name: 'Turnos de hoy' })).toContainText('Tomás Ferreyra')
   await expect(page.getByRole('region', { name: 'Controles por agendar' })).toBeVisible()

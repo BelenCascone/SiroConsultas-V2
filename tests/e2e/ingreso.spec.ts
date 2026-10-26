@@ -25,7 +25,9 @@ test('entra a la demo y ve Hoy con los turnos del día', async ({ page }) => {
   await expect(turnos.getByText('Tomás Ferreyra')).toBeVisible()
   await expect(turnos.getByText('Lucía Benítez')).toBeVisible()
   await expect(turnos.getByText('Primera consulta').first()).toBeVisible()
-  await expect(page.getByRole('navigation', { name: 'Menú principal' }).getByRole('link', { name: 'Hoy' })).toHaveAttribute('aria-current', 'page')
+  // En el celular el menú de arriba pasa a la barra de abajo (P6).
+  const menu = test.info().project.name.endsWith('celular') ? 'Secciones' : 'Menú principal'
+  await expect(page.getByRole('navigation', { name: menu }).getByRole('link', { name: 'Hoy' })).toHaveAttribute('aria-current', 'page')
   expect(await sinScrollHorizontal(page)).toBe(true)
 })
 
