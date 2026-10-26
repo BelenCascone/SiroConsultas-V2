@@ -3,15 +3,18 @@ import { defineConfig, devices } from '@playwright/test'
 // Pruebas de punta a punta contra `wrangler dev`. Cada archivo de tests/e2e corre en notebook (1366×657) y en celular (390 px),
 // que pesan igual, y cada combinación tiene su propio servidor con una base local nueva (tests/e2e/servidor.mjs):
 // los recorridos no se pisan los datos ni dependen del orden.
-const ARCHIVOS = ['ingreso', 'pacientes', 'configuracion', 'turnos', 'agenda', 'consultas', 'bloqueos', 'hoy', 'documentos', 'cobros', 'comprobantes', 'estadisticas', 'correo'] as const
+const ARCHIVOS = ['ingreso', 'pacientes', 'configuracion', 'turnos', 'agenda', 'consultas', 'bloqueos', 'hoy', 'documentos', 'cobros', 'comprobantes', 'estadisticas', 'correo', 'celular'] as const
 const VISTAS = [
   { nombre: 'notebook', viewport: { width: 1366, height: 657 } },
   { nombre: 'celular', viewport: { width: 390, height: 844 }, hasTouch: true },
 ] as const
 // Configuración, consultas y documentos: solo la pantalla de compu está aprobada (X1–X3).
 const SOLO_NOTEBOOK: readonly string[] = ['configuracion', 'consultas', 'documentos', 'comprobantes', 'estadisticas']
+// Lo propio del celular de la profesional (P6).
+const SOLO_CELULAR: readonly string[] = ['celular']
 const COMBINACIONES = ARCHIVOS.flatMap((archivo) =>
-  VISTAS.filter((vista) => !SOLO_NOTEBOOK.includes(archivo) || vista.nombre === 'notebook').map((vista) => ({ archivo, vista })))
+  VISTAS.filter((vista) => (!SOLO_NOTEBOOK.includes(archivo) || vista.nombre === 'notebook') && (!SOLO_CELULAR.includes(archivo) || vista.nombre === 'celular'))
+    .map((vista) => ({ archivo, vista })))
 const puerto = (i: number) => 8790 + i
 
 export default defineConfig({

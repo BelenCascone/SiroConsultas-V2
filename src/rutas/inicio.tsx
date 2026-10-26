@@ -1,6 +1,7 @@
 // Hoy: saludo, buscador y acciones; lo que hay que resolver; «Ahora» con el turno que sigue (Atender y No vino), la lista del día
 // y los controles por agendar. Maqueta: docs/pantallas/Main.dc.html · docs/DISENO_APROBADO.md, sección 2.
 // «Plata de hoy»: cobrado hoy y lo que te deben (P4).
+// En el celular (P6, docs/pantallas/HoyCel.dc.html): «Llegó» en vez de Atender, porque las notas clínicas se escriben en la compu.
 import { Hono } from 'hono'
 import type { C, Env } from '../tipos'
 import { leerInstalacion } from '../lib/instalacion'
@@ -41,6 +42,8 @@ inicio.get('/', async (c) => {
   const t = ahora?.turno
   const ausenteId = Number(/^\d{1,9}$/.test(c.req.query('ausente') ?? '') ? c.req.query('ausente') : 0)
   const ausente = ausenteId ? lista.find((x) => x.id === ausenteId && x.estado === 'ausente') : null
+  const llegoId = Number(/^\d{1,9}$/.test(c.req.query('llego') ?? '') ? c.req.query('llego') : 0)
+  const llego = llegoId ? lista.find((x) => x.id === llegoId && x.estado === 'atendido') : null
   const verControles = controles.slice(0, 5)
 
   return c.html(
@@ -55,10 +58,10 @@ inicio.get('/', async (c) => {
           <label for="busca" class="oculto-visual">Buscar paciente</label>
           <input id="busca" name="q" type="search" placeholder="Buscar paciente por nombre, DNI o celular" />
         </form>
-        <div class="fila centro">
-          <Boton href="/turnos/nuevo" variante="destacado" data-modulo="agenda"><Mas />Dar turno</Boton>
+        <div class="fila centro acciones-hoy">
+          <Boton href="/turnos/nuevo" variante="destacado" data-modulo="agenda" aria-label="Dar turno"><Mas /><span class="solo-compu">Dar turno</span><span class="solo-celular">Turno</span></Boton>
           <Boton href="/cobros/nuevo" data-modulo="cobros">Cobrar</Boton>
-          <Boton href="/bloqueos/nuevo" data-modulo="agenda">Bloquear agenda</Boton>
+          <Boton href="/bloqueos/nuevo" data-modulo="agenda" aria-label="Bloquear agenda">Bloquear<span class="solo-compu">&nbsp;agenda</span></Boton>
         </div>
       </section>
 
@@ -84,14 +87,22 @@ inicio.get('/', async (c) => {
               </div>
               {ahora.tipo === 'consulta' ? (
                 <div class="columna">
-                  <p class="suave chico">La consulta está abierta y el borrador se guarda solo.</p>
-                  <Boton href={`/consultas/nueva?turno=${t.id}`} variante="oscuro" ancho>Ir a la consulta</Boton>
+                  <div class="columna solo-compu">
+                    <p class="suave chico">La consulta está abierta y el borrador se guarda solo.</p>
+                    <Boton href={`/consultas/nueva?turno=${t.id}`} variante="oscuro" ancho>Ir a la consulta</Boton>
+                  </div>
+                  <p class="suave chico solo-celular-bloque">Está en consulta. Las notas clínicas las escribís en la compu.</p>
                 </div>
               ) : (
                 <div class="columna">
                   {t.incompleta === 1 && <p class="aviso ambar chico">Ficha incompleta: completala antes de empezar.</p>}
-                  <form method="post" action={`/turnos/${t.id}/atender`}>
+                  <form method="post" action={`/turnos/${t.id}/atender`} class="solo-compu">
                     <Boton type="submit" variante="oscuro" ancho>Atender</Boton>
+                  </form>
+                  <form method="post" action={`/turnos/${t.id}/atender`} class="solo-celular-bloque">
+                    <input type="hidden" name="volver" value="/" />
+                    <input type="hidden" name="llego" value="1" />
+                    <Boton type="submit" variante="oscuro" ancho>Llegó</Boton>
                   </form>
                   <form method="post" action={`/turnos/${t.id}/ausente`} data-confirmar={`¿Marcar que ${t.nombre} no vino? No se puede deshacer.`}>
                     <input type="hidden" name="volver" value="/" />
@@ -100,6 +111,9 @@ inicio.get('/', async (c) => {
                 </div>
               )}
             </>
+          )}
+          {llego && (
+            <p class="aviso ok" role="status">{llego.nombre} quedó en consulta. Las notas clínicas las escribís en la compu.</p>
           )}
           {ausente && (
             <p class="aviso" role="status">
@@ -118,7 +132,7 @@ inicio.get('/', async (c) => {
                 const ahoraMismo = ahora?.turno.id === x.id && (ahora.tipo === 'curso' || ahora.tipo === 'consulta')
                 return (
                   <li class={ahoraMismo ? 'en-curso' : undefined}>
-                    <a class="fila-enlace" href={`/agenda?vista=dia&fecha=${fecha}&turno=${x.id}`} data-modulo="agenda">
+                    <a class="fila-enlace" href={`/agenda?${new URLSearchParams({ vista: 'dia', fecha, turno: String(x.id), volver: '/' })}`} data-modulo="agenda">
                       <span class="hora">{x.hora}</span>
                       <span class="columna-chica">
                         <strong>{x.nombre} {x.apellido}</strong>
@@ -165,6 +179,7 @@ inicio.get('/', async (c) => {
           {controles.length > verControles.length && <a href="/pacientes?filtro=sin_turno">Ver los {controles.length} pacientes sin próximo turno</a>}
         </Tarjeta>
       </div>
+      <p class="solo-celular-bloque suave chico nota-compu">Historia clínica, certificados, recetas, estadísticas, configuración y exportar se hacen desde la compu.</p>
       <form method="post" action="/salir" class="fila centro">
         <Boton type="submit" variante="texto">Salir</Boton>
       </form>
